@@ -1,0 +1,6 @@
+
+
+* ONT RNA-Seq
+https://github.com/nanopore-wgs-consortium/NA12878/blob/master/RNA.md
+minimap2 -ax splice -uf -k14
+* Illumnia RNA-Seq
