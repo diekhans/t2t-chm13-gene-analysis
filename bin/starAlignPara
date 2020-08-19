@@ -1,0 +1,9 @@
+#!/bin/bash -e
+# Wrapper for running under parasol.  Makes sure PATH is correct.
+# starAlign does atomic install of file, so no need for any error handling
+set -beEu -o pipefail
+source ~/.bashrc
+
+binDir=$(dirname $(realpath $0))
+
+exec $binDir/starAlign "$@"
