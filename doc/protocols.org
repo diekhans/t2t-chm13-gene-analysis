@@ -1,6 +1,20 @@
-
+* Mask fasta file is available from
+https://courtyard.gi.ucsc.edu/~markd/t2t/T2T-CHM13/t2tChm13_20200727/t2tChm13_20200727.fa.gz
 
 * ONT RNA-Seq
-https://github.com/nanopore-wgs-consortium/NA12878/blob/master/RNA.md
-minimap2 -ax splice -uf -k14
+** Use Minimap2-2.17 https://github.com/lh3/minimap2/releases/tag/v2.17
+** Use alignment protocol here:
+  https://github.com/nanopore-wgs-consortium/NA12878/blob/master/RNA.md
+** parameters:
+  minimap2 -ax splice -uf -k14
 * Illumnia RNA-Seq
+** Use STAR 2.7.4a or newer
+** Alignment parameters are based on those used by ENCODE and defined in the file:
+https://raw.githubusercontent.com/ENCODE-DCC/rna-seq-pipeline/master/src/align.py  
+With some changes in particular, outFilterMultimapNmax is set to 2048 to allow developing
+post-alignment filtering to better annotate segments duplications.
+
+** genome generation:
+STAR --runMode genomeGenerate --runThreadN 32 --genomeFastaFiles genome/t2tChm13_20200727.fa --genomeDir genome/star --outFileNamePrefix genome/star/out
+
+** 
