@@ -7,8 +7,9 @@ import argparse
 import shlex
 import shutil
 import subprocess
-import tmpfile
+import tempfile
 import os.path as osp
+from urllib.parse import urlparse
 from abc import ABC, abstractmethod
 
 def parseArgs():
@@ -16,13 +17,13 @@ def parseArgs():
     Requires STAR and samtools programs """
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('--ncpus', type=int, default=4)
-    parser.add_argument('ramGB', type=int, default=16)
+    parser.add_argument('--ramGB', type=int, default=16)
     parser.add_argument('bamFile',
                         help="output BAM file")
     parser.add_argument('genomeDir',
                         help="STAR genome index dir")
     parser.add_argument('fastq1',
-                        help="Path or URL to first FASTQ. If a URL, it will be downloaded to temporary location ")
+                        help="Path first FASTQ ")
     parser.add_argument('fastq2', nargs='?',
                         help="second FASTQ for pair-ends experiments")
     args = parser.parse_args()
@@ -149,15 +150,53 @@ class PairedEndStarAligner(StarAligner):
         )
         return cmd
 
+def isUrl(spec):
+    try:
+        result = urlparse(spec)
+        return all([result.scheme, result.netloc, result.path])
+    except Exception:
+        return False
+
+def downloadStart(fastqUrl, tmpDir):
+    fastq = osp.join(tmpDir, osp.basename(fastqUrl))
+    proc = subprocess.Popen(["wget", "-nv", "-O", fastq, fastqUrl])
+    return proc, fastq
+
+def downloadWait(proc, fastqUrl):
+    proc.wait()
+    if proc.returncode != 0:
+        raise Exception("download of {} failed".format(fastqUrl))
+
+def getFastqs(fastq1Spec, fastq2Spec, tmpDir):
+    """download fastqs in parallel if a URLs are specified"""
+    fastq1 = fastq1Spec
+    fastq2 = fastq2Spec
+    proc1 = proc2 = None
+
+    if isUrl(fastq1Spec):
+        proc1, fastq1 = downloadStart(fastq1Spec, tmpDir)
+    if (fastq2Spec is not None) and isUrl(fastq2Spec):
+        proc2, fastq2 = downloadStart(fastq2Spec, tmpDir)
+
+    if proc1 is not None:
+        downloadWait(proc1, fastq1Spec)
+    if proc2 is not None:
+        downloadWait(proc2, fastq2Spec)
+
+    return fastq1, fastq2
+
 def mkTmpBam(bamFile):
     """create tmp BAM that can be atomically installed"""
-    os.makedirs(osp.dirname(bamFile), exist_ok=True)
-    tmpFh = tempfile.NamedTemporaryFile(dir=osp.dirname(bamfile), suffic=".bam", delete=False)
-    tmpBam = tmpFh.filename
+    bamDir = osp.dirname(bamFile)
+    if bamDir == "":
+        bamDir = "."
+    os.makedirs(bamDir, exist_ok=True)
+    tmpFh = tempfile.NamedTemporaryFile(dir=bamDir, suffix=".bam", delete=False)
+    tmpBam = tmpFh.name
     tmpFh.close()
     return tmpBam
 
-def starAlign(fastq1, fastq1, ncpus, ramGB, genomeDir, bamFile):
+def runAlignment(fastq1, fastq2, ncpus, ramGB, genomeDir, tmpDir, bamFile):
     if fastq2 is None:
         alignerCls = SingleEndedStarAligner
         filtCmd = ["samtools", "view", "-b", "-F", "4"]
@@ -165,17 +204,22 @@ def starAlign(fastq1, fastq1, ncpus, ramGB, genomeDir, bamFile):
         alignerCls = PairedEndStarAligner
         filtCmd = ["samtools", "view", "-b", "-f", "3"]
 
-    tmpDir = tempfile.TempraryDirectory(prefix="star")
     aligner = alignerCls([fastq1, fastq2],
                          ncpus=ncpus, ramGB=ramGB,
                          indexdir=genomeDir,
                          outFileNamePrefix=osp.join(tmpDir, "out_"))
     aligner.run()
 
-    tmpBam = mkTmpBam(bamFile)
-    with open(tmpBam, "wb") as tmpBamFh:
+    with open(bamFile, "wb") as bamFh:
         subprocess.check_call(filtCmd + [osp.join(tmpDir, "out_Aligned.sortedByCoord.out.bam")],
-                              stdout=tmpBamFh)
+                              stdout=bamFh)
+
+def starAlign(fastq1Spec, fastq2Spec, ncpus, ramGB, genomeDir, bamFile):
+    tmpDir = tempfile.mkdtemp(prefix="star")
+    fastq1, fastq2 = getFastqs(fastq1Spec, fastq2Spec, tmpDir)
+
+    tmpBam = mkTmpBam(bamFile)  # atomic
+    runAlignment(fastq1, fastq2, ncpus, ramGB, genomeDir, tmpDir, tmpBam)
     os.rename(tmpBam, bamFile)
     shutil.rmtree(tmpDir, ignore_errors=True)
 

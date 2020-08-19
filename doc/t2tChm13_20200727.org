@@ -1,11 +1,26 @@
 * short RNA-Seq
 ** encode
+file encode-rnaseq.status.tsv in get is used to track the status
 in build/t2tChm13_20200727/shortRnaSeq
+
 
 *** set 1 2020-08-18
 - poly(A) RNA, 
 - tissues: brain, testis, liver, H1, GM12878
 
+# in git: t2t-chm13-gene-analysis/build/t2tChm13_20200727/shortRnaSeq
 ~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA --tissue=brain --tissue=testis --tissue=liver  --tissue=H1 --tissue=GM12878 encode-rnaseq.set1.tsv
 
 68 runs in 28 experiments
+
+
+cd build/t2tChm13_20200727/shortRnaSeq/tmp
+ ~/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/build/t2tChm13_20200727/shortRnaSeq/encode-rnaseq.set1.tsv ..
+
+# create genome
+mkdir genome
+zcat ../../../../../build/t2tChm13_20200727/genome/t2tChm13_20200727.fa.gz >genome/t2tChm13_20200727.fa
+nice STAR --runMode genomeGenerate --runThreadN 64 --genomeFastaFiles genome/t2tChm13_20200727.fa --genomeDir genome/star --outFileNamePrefix genome/star  &
+
+# generate commands:
+tawk 'NR>1{print "starAlign " $2".raw.bam genome/star " $10 " " $14}'  ../../../../t2t-chm13-gene-analysis/build/t2tChm13_20200727/shortRnaSeq/encode-rnaseq.set1.tsv  >../runSet1Cmds
