@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
 
+# use only standar python to allow kind folks to do alignments
 import sys
+import os
 import argparse
 import shlex
 import shutil
 import subprocess
+import tmpfile
 import os.path as osp
 from abc import ABC, abstractmethod
-from pycbio.sys import fileOps
 
 def parseArgs():
     usage = """run an STAR alignment using ENCODE RNA-Seq protocol.
     Requires STAR and samtools programs """
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('ncpus', type=int)
-    parser.add_argument('ramGB', type=int)
+    parser.add_argument('--ncpus', type=int, default=4)
+    parser.add_argument('ramGB', type=int, default=16)
     parser.add_argument('bamFile',
                         help="output BAM file")
     parser.add_argument('genomeDir',
                         help="STAR genome index dir")
     parser.add_argument('fastq1',
-                        help="FASTQ 1")
+                        help="Path or URL to first FASTQ. If a URL, it will be downloaded to temporary location ")
     parser.add_argument('fastq2', nargs='?',
-                        help="FASTQ 2")
+                        help="second FASTQ for pair-ends experiments")
     args = parser.parse_args()
     return args
 
@@ -133,9 +135,7 @@ class PairedEndStarAligner(StarAligner):
         super().__init__(ncpus, ramGB, indexdir, outFileNamePrefix)
         self.fastq_read1 = fastqs[0]
         self.fastq_read2 = fastqs[1]
-        self.command = shlex.split(
-            self.format_command_string(type(self).command_string)
-        )
+        self.command = shlex.split(self.format_command_string(type(self).command_string))
 
     def format_command_string(self, input_string):
         cmd = input_string.format(
@@ -149,29 +149,42 @@ class PairedEndStarAligner(StarAligner):
         )
         return cmd
 
-def main(args):
-    if osp.exists(args.bamFile):
-        print("NOTE: BAM already exists, skipping:", args.bamFile, file=sys.stderr)
-        return
-    if args.fastq2 is None:
+def mkTmpBam(bamFile):
+    """create tmp BAM that can be atomically installed"""
+    os.makedirs(osp.dirname(bamFile), exist_ok=True)
+    tmpFh = tempfile.NamedTemporaryFile(dir=osp.dirname(bamfile), suffic=".bam", delete=False)
+    tmpBam = tmpFh.filename
+    tmpFh.close()
+    return tmpBam
+
+def starAlign(fastq1, fastq1, ncpus, ramGB, genomeDir, bamFile):
+    if fastq2 is None:
         alignerCls = SingleEndedStarAligner
         filtCmd = ["samtools", "view", "-b", "-F", "4"]
     else:
         alignerCls = PairedEndStarAligner
         filtCmd = ["samtools", "view", "-b", "-f", "3"]
 
-    tmpDir = fileOps.tmpDirGet(prefix="star")
-    aligner = alignerCls([args.fastq1, args.fastq2],
-                         ncpus=args.ncpus, ramGB=args.ramGB,
-                         indexdir=args.genomeDir,
+    tmpDir = tempfile.TempraryDirectory(prefix="star")
+    aligner = alignerCls([fastq1, fastq2],
+                         ncpus=ncpus, ramGB=ramGB,
+                         indexdir=genomeDir,
                          outFileNamePrefix=osp.join(tmpDir, "out_"))
     aligner.run()
 
-    fileOps.ensureFileDir(args.bamFile)
-    with fileOps.AtomicFileCreate(args.bamFile) as tmpBam:
-        with open(tmpBam, "wb") as tmpBamFh:
-            subprocess.check_call(filtCmd + [osp.join(tmpDir, "out_Aligned.sortedByCoord.out.bam")],
-                                  stdout=tmpBamFh)
-    fileOps.rmTree(tmpDir)
+    tmpBam = mkTmpBam(bamFile)
+    with open(tmpBam, "wb") as tmpBamFh:
+        subprocess.check_call(filtCmd + [osp.join(tmpDir, "out_Aligned.sortedByCoord.out.bam")],
+                              stdout=tmpBamFh)
+    os.rename(tmpBam, bamFile)
+    shutil.rmtree(tmpDir, ignore_errors=True)
+
+def main(args):
+    if osp.exists(args.bamFile):
+        print("NOTE: BAM already exists, skipping:", args.bamFile, file=sys.stderr)
+    else:
+        starAlign(args.fastq1, args.fastq2, args.ncpus, args.ramGB,
+                  args.genomeDir, args.bamFile)
+
 
 main(parseArgs())

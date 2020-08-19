@@ -8,5 +8,4 @@ in build/t2tChm13_20200727/shortRnaSeq
 
 ~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA --tissue=brain --tissue=testis --tissue=liver  --tissue=H1 --tissue=GM12878 encode-rnaseq.set1.tsv
 
-50 runs in 20 experiments
-add to git with columns "who" and "status"
+68 runs in 28 experiments
