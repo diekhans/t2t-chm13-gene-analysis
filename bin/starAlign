@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+import shlex
+import shutil
+import subprocess
+import os.path as osp
+from abc import ABC, abstractmethod
+from pycbio.sys import fileOps
+
+def parseArgs():
+    usage = """run an STAR alignment using ENCODE RNA-Seq protocol.
+    Requires STAR and samtools programs """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('ncpus', type=int)
+    parser.add_argument('ramGB', type=int)
+    parser.add_argument('bamFile',
+                        help="output BAM file")
+    parser.add_argument('genomeDir',
+                        help="STAR genome index dir")
+    parser.add_argument('fastq1',
+                        help="FASTQ 1")
+    parser.add_argument('fastq2', nargs='?',
+                        help="FASTQ 2")
+    args = parser.parse_args()
+    return args
+
+multiMapMax = 2048
+
+# from https://raw.githubusercontent.com/ENCODE-DCC/rna-seq-pipeline/master/src/align.py
+#  removed: --quantMode TranscriptomeSAM
+#  added: outFileNamePrefix
+#  change --outFilterMultimapNmax
+#  check status of command
+class StarAligner(ABC):
+    """
+    Abstract base class that gathers aspects common to both PE and SE
+    Star aligning jobs.
+    """
+
+    def __init__(self, ncpus, ramGB, indexdir, outFileNamePrefix):
+        self.ncpus = ncpus
+        self.ramGB = ramGB
+        self.indexdir = indexdir
+        self.outFileNamePrefix = outFileNamePrefix
+
+    def run(self):
+        print(" ".join(self.command), file=sys.stderr)
+        subprocess.check_call(self.command)
+
+    @property
+    @abstractmethod
+    def command_string(self):
+        pass
+
+    @abstractmethod
+    def format_command_string(self):
+        pass
+
+
+class SingleEndedStarAligner(StarAligner):
+
+    command_string = """STAR --genomeDir {indexdir} \
+    --readFilesIn {infastq} \
+    --readFilesCommand zcat \
+    --runThreadN {ncpus} \
+    --genomeLoad NoSharedMemory \
+    --outFilterMultimapNmax {multiMapMax} \
+    --alignSJoverhangMin 8 \
+    --alignSJDBoverhangMin 1 \
+    --outFilterMismatchNmax 999 \
+    --outFilterMismatchNoverReadLmax 0.04 \
+    --alignIntronMin 20 \
+    --alignIntronMax 1000000 \
+    --alignMatesGapMax 1000000 \
+    --outSAMheaderCommentFile COfile.txt \
+    --outSAMheaderHD @HD VN:1.4 SO:coordinate \
+    --outSAMunmapped Within \
+    --outFilterType BySJout \
+    --outSAMattributes NH HI AS NM MD \
+    --outSAMstrandField intronMotif \
+    --outSAMtype BAM SortedByCoordinate  \
+    --sjdbScore 1 \
+    --limitBAMsortRAM {ramGB}000000000
+    --outFileNamePrefix {outFileNamePrefix}"""
+
+    def __init__(self, fastqs, ncpus, ramGB, indexdir, outFileNamePrefix):
+        super().__init__(ncpus, ramGB, indexdir, outFileNamePrefix)
+        self.input_fastq = fastqs[0]
+        self.command = shlex.split(
+            self.format_command_string(type(self).command_string)
+        )
+
+    def format_command_string(self, input_string):
+        cmd = input_string.format(
+            infastq=self.input_fastq,
+            ncpus=self.ncpus,
+            ramGB=self.ramGB,
+            indexdir=self.indexdir,
+            outFileNamePrefix=self.outFileNamePrefix,
+            multiMapMax=multiMapMax,
+        )
+        return cmd
+
+
+class PairedEndStarAligner(StarAligner):
+
+    command_string = """STAR --genomeDir {indexdir} \
+    --readFilesIn {read1_fq_gz} {read2_fq_gz} \
+    --readFilesCommand zcat \
+    --runThreadN {ncpus} \
+    --genomeLoad NoSharedMemory \
+    --outFilterMultimapNmax {multiMapMax} \
+    --alignSJoverhangMin 8 \
+    --alignSJDBoverhangMin 1 \
+    --outFilterMismatchNmax 999 \
+    --outFilterMismatchNoverReadLmax 0.04 \
+    --alignIntronMin 20 \
+    --alignIntronMax 1000000 \
+    --alignMatesGapMax 1000000 \
+    --outSAMheaderCommentFile COfile.txt \
+    --outSAMheaderHD @HD VN:1.4 SO:coordinate \
+    --outSAMunmapped Within \
+    --outFilterType BySJout \
+    --outSAMattributes NH HI AS NM MD \
+    --outSAMtype BAM SortedByCoordinate \
+    --sjdbScore 1 \
+    --limitBAMsortRAM {ramGB}000000000
+    --outFileNamePrefix {outFileNamePrefix}"""
+
+    def __init__(self, fastqs, ncpus, ramGB, indexdir, outFileNamePrefix):
+        super().__init__(ncpus, ramGB, indexdir, outFileNamePrefix)
+        self.fastq_read1 = fastqs[0]
+        self.fastq_read2 = fastqs[1]
+        self.command = shlex.split(
+            self.format_command_string(type(self).command_string)
+        )
+
+    def format_command_string(self, input_string):
+        cmd = input_string.format(
+            read1_fq_gz=self.fastq_read1,
+            read2_fq_gz=self.fastq_read2,
+            ncpus=self.ncpus,
+            ramGB=self.ramGB,
+            indexdir=self.indexdir,
+            outFileNamePrefix=self.outFileNamePrefix,
+            multiMapMax=multiMapMax
+        )
+        return cmd
+
+def main(args):
+    if osp.exists(args.bamFile):
+        print("NOTE: BAM already exists, skipping:", args.bamFile, file=sys.stderr)
+        return
+    if args.fastq2 is None:
+        alignerCls = SingleEndedStarAligner
+        filtCmd = ["samtools", "view", "-b", "-F", "4"]
+    else:
+        alignerCls = PairedEndStarAligner
+        filtCmd = ["samtools", "view", "-b", "-f", "3"]
+
+    tmpDir = fileOps.tmpDirGet(prefix="star")
+    aligner = alignerCls([args.fastq1, args.fastq2],
+                         ncpus=args.ncpus, ramGB=args.ramGB,
+                         indexdir=args.genomeDir,
+                         outFileNamePrefix=osp.join(tmpDir, "out_"))
+    aligner.run()
+
+    fileOps.ensureFileDir(args.bamFile)
+    with fileOps.AtomicFileCreate(args.bamFile) as tmpBam:
+        with open(tmpBam, "wb") as tmpBamFh:
+            subprocess.check_call(filtCmd + [osp.join(tmpDir, "out_Aligned.sortedByCoord.out.bam")],
+                                  stdout=tmpBamFh)
+    fileOps.rmTree(tmpDir)
+
+main(parseArgs())

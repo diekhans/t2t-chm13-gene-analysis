@@ -1,0 +1,12 @@
+* short RNA-Seq
+** encode
+in build/t2tChm13_20200727/shortRnaSeq
+
+*** set 1 2020-08-18
+- poly(A) RNA, 
+- tissues: brain, testis, liver, H1, GM12878
+
+~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA --tissue=brain --tissue=testis --tissue=liver  --tissue=H1 --tissue=GM12878 encode-rnaseq.set1.tsv
+
+50 runs in 20 experiments
+add to git with columns "who" and "status"
