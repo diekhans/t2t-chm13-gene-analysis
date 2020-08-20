@@ -18,6 +18,8 @@ def parseArgs():
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('--ncpus', type=int, default=4)
     parser.add_argument('--ramGB', type=int, default=16)
+    parser.add_argument('--tmpDir',
+                        help="override the TMPDIR environment variable")
     parser.add_argument('bamFile',
                         help="output BAM file")
     parser.add_argument('genomeDir',
@@ -27,6 +29,8 @@ def parseArgs():
     parser.add_argument('fastq2', nargs='?',
                         help="second FASTQ for pair-ends experiments")
     args = parser.parse_args()
+    if args.tmpDir is not None:
+        os.environ["TMPDIR"] = args.tmpDir
     return args
 
 multiMapMax = 2048
