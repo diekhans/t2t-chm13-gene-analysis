@@ -25,9 +25,13 @@ nice STAR --runMode genomeGenerate --runThreadN 64 --genomeFastaFiles genome/t2t
 # generate commands:
 tawk 'NR>1{print "starAlign " $2".raw.bam genome/star " $10 " " $14}'  ../../../../t2t-chm13-gene-analysis/build/t2tChm13_20200727/shortRnaSeq/encode-rnaseq.set1.tsv  >../runSet1Cmds
 
-# for running on parasol
+# for running on parasol needs 32gb
 ln -s ../../../../t2t-chm13-gene-analysis/bin/starAlignPara 
-
-# needs 32gb
 para create -ram=32g jobs1 -batch=b1
 para push -ram=32g -batch=b1
+
+# get second set of RNAs, get  ploy-A
+~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA  tmp.tsv
+
+selectById -tsv -not 2 encode-rnaseq.set1.tsv 2 tmp.tsv >encode-rnaseq.set2.tsv
+encode-rnaseq.set2.tsv  929 
