@@ -30,8 +30,10 @@ ln -s ../../../../t2t-chm13-gene-analysis/bin/starAlignPara
 para create -ram=32g jobs1 -batch=b1
 para push -ram=32g -batch=b1
 
-# get second set of RNAs, get  ploy-A
-~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA  tmp.tsv
+# get second set of RNAs, get  ploy-A min 100 bases
+~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA --minReadLength=100  tmp.tsv
 
 selectById -tsv -not 2 encode-rnaseq.set1.tsv 2 tmp.tsv >encode-rnaseq.set2.tsv
-encode-rnaseq.set2.tsv  929 
+encode-rnaseq.set2.tsv  447
+# add this to status list
+tawk 'NR>1{print $2, "pending", ""}' encode-rnaseq.set2.tsv  >x
