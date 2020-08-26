@@ -15,7 +15,6 @@ With some changes in particular, outFilterMultimapNmax is set to 2048 to allow d
 post-alignment filtering to better annotate segments duplications.
 
 ** genome generation:
-
 STAR --runMode genomeGenerate --runThreadN 64 --genomeFastaFiles genome/t2tChm13_20200727.fa --genomeDir genome/star --outFileNamePrefix genome/star
 
 ** 

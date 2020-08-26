@@ -1,8 +1,10 @@
+* transferring Globus to S3 
+http://docs.staging.globuscs.info/premium-storage-connectors/legacy/aws-s3-legacy/
+http://docs.staging.globuscs.info/premium-storage-connectors/aws-s3/
 * short RNA-Seq
 ** encode
 file encode-rnaseq.status.tsv in get is used to track the status
 in build/t2tChm13_20200727/shortRnaSeq
-
 
 *** set 1 2020-08-18
 - poly(A) RNA, 
@@ -30,6 +32,7 @@ ln -s ../../../../t2t-chm13-gene-analysis/bin/starAlignPara
 para create -ram=32g jobs1 -batch=b1
 para push -ram=32g -batch=b1
 
+*** set 2 2020-08-23
 # get second set of RNAs, get  ploy-A min 100 bases
 ~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA --minReadLength=100  tmp.tsv
 
@@ -38,4 +41,14 @@ encode-rnaseq.set2.tsv  447
 # add this to status list
 tawk 'NR>1{print $2, "pending", ""}' encode-rnaseq.set2.tsv  >x
 
-** 
+*** all sets of unfiltered mappings in 
+/team-genes/20200727/shortRnaSeq/raw-mappings
+
+** intron calling: 
+*** Run by Ann Mc Cartney using intronProspector 0.6.o with commands in the form:
+  intronProspector --genome-fasta=t2tChm13_20200727.fa.gz  --min-confidence-score=1.0 --intron-calls=$run.raw.introns.tsv  ../raw/$run.raw.bam
+on set1 and set2
+
+*** /team-genes/20200727/shortRnaSeq/raw-introns/
+* longRnaSeq:
+
