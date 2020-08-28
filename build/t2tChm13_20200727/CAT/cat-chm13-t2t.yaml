@@ -1,0 +1,156 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: marina-cat-chm13-t2t
+spec:
+  ttlSecondsAfterFinished: 345600
+  template:
+    spec:
+      containers:
+      - name: main
+        imagePullPolicy: Always
+        image: ubuntu:18.04
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #set -ex
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -qq -y
+          apt-get install -qq -y build-essential libssl-dev libncurses5-dev libcurl4-openssl-dev liblzma-dev libbz2-dev libboost-all-dev sqlite3 libsqlite3-0 libsqlite3-dev libgsl0-dev lp-solve liblpsolve55-dev libbamtools-dev wget git bedtools bamtools samtools sqlite3 python-pip libgsl0-dev libcolamd2 awscli libffi-dev
+
+          # Pull down Python 3.7, build, and install
+          mkdir /tmp/Python37
+          cd /tmp/Python37
+          wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tar.xz
+          tar xvf Python-3.7.0.tar.xz
+          cd /tmp/Python37/Python-3.7.0
+          ./configure
+          make altinstall -j 20
+          ln -s /usr/local/bin/python3.7 /usr/local/bin/python
+          ln -s /usr/local/bin/pip3.7 /usr/local/bin/pip
+
+          echo "nameserver 1.1.1.1" >/etc/resolv.conf
+
+          cd /
+
+          # htslib
+          git clone git://github.com/samtools/htslib.git && cd htslib && make install && cd /
+
+          # bcftools
+          git clone git://github.com/samtools/bcftools.git && cd bcftools && make && cd /
+
+          # samtools
+          git clone git://github.com/samtools/samtools && cd samtools && make && make install && cd /
+          
+          # Augustus
+          git clone https://github.com/Gaius-Augustus/Augustus augustus
+          cd augustus && git reset --hard 36ae43d
+          echo 'COMPGENEPRED = true' >> common.mk
+          echo 'SQLITE = true' >> common.mk
+          export TOOLDIR=/
+          cd auxprogs/homGeneMapping/src && sed 's/# BOOST = true/BOOST = true/g' -i Makefile && sed 's/# SQLITE = true/SQLITE = true/g' -i Makefile 
+          cd /augustus && make
+          cd /
+
+          # HDF5
+          wget -q http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.1/src/hdf5-1.10.1.tar.gz
+          tar xzf hdf5-1.10.1.tar.gz
+          cd hdf5-1.10.1 && ./configure --enable-cxx --prefix=/usr && make && make install && cd /
+
+          # sonLib
+          git clone git://github.com/benedictpaten/sonLib.git
+          cd sonLib && make && cd /
+          
+          # HAL
+          git clone git://github.com/glennhickey/hal.git
+          cd /hal && git checkout 531758b3 && make && cd /
+
+          # LibBigWig
+          git clone https://github.com/dpryan79/libBigWig.git
+          cd libBigWig && make install && cd /
+
+          # WiggleTools
+          git clone https://github.com/Ensembl/WiggleTools.git
+          # Their makefile now hardcodes /bin/cc as compiler :(
+          ln -s /usr/bin/cc /bin/cc
+          cd WiggleTools && make && cd /
+
+          # sambamba
+          wget -q https://github.com/biod/sambamba/releases/download/v0.6.7/sambamba_v0.6.7_linux.tar.bz2
+          tar xvjf sambamba_v0.6.7_linux.tar.bz2
+
+          # exonerate
+          wget http://ftp.ebi.ac.uk/pub/software/vertebrategenomics/exonerate/exonerate-2.2.0-x86_64.tar.gz
+          tar xzf exonerate-2.2.0-x86_64.tar.gz
+
+          for i in wigToBigWig faToTwoBit gff3ToGenePred genePredToBed genePredToFakePsl bamToPsl transMapPslToGenePred pslPosTarget axtChain chainMergeSort pslMap pslRecalcMatch pslMapPostChain gtfToGenePred genePredToGtf pslCheck pslCDnaFilter clusterGenes pslToBigPsl bedSort bedToBigBed ; do wget -q http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/$i -O /bin/$i ; chmod +x /bin/$i ; done
+          wget -q http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/blat/blat -O /bin/blat ; chmod +x /bin/blat
+
+          mv /hal/bin/* /bin/
+          mv /sambamba /bin/
+          mv /augustus/bin/* /bin/
+          mv /augustus/scripts/* /bin/
+          mv /WiggleTools/bin/* /bin/
+          mv /exonerate-2.2.0-x86_64/bin/* /bin/
+
+          cd /
+          git clone https://github.com/ComparativeGenomicsToolkit/Comparative-Annotation-Toolkit.git
+          cd Comparative-Annotation-Toolkit
+          pip install virtualenv
+          virtualenv cat_env
+          source cat_env/bin/activate
+          pip install bd2k-python-lib
+          pip install -e .
+
+          export AUGUSTUS_CONFIG_PATH=/augustus/config/
+
+          # sed -i 's/ = 5/ = 1/' luigi.cfg
+          sed -i 's/ = 5/ = 3/' luigi.cfg
+        
+          aws s3 cp s3://marina-misc/T2T/cat.t2t.config .
+          # aws s3 cp s3://marina-misc/HPRC/cat/gencode.v33.annotation.gff3.noPAR.fixed2 .
+          aws s3 cp s3://marina-misc/T2T/rnaseq/gencode.v33.annotation.gff3.noPAR .
+          aws s3 cp s3://marina-misc/T2T/t2tChm13.hal .
+
+          mkdir data && cd data && aws s3 cp --quiet --recursive s3://marina-misc/T2T/rnaseq . && cd ..
+
+          mkdir out-chm13-t2t
+          mkdir work-chm13-t2t
+
+          # luigid --background --logdir luigi_logs
+
+          luigi --module cat RunCat --hal=t2tChm13.hal --target-genomes='("CHM13",)' --ref-genome=GRCh38 --workers=5 --config=cat.t2t.config --work-dir work-chm13-t2t --out-dir out-chm13-t2t --local-scheduler --augustus-pb --assembly-hub --maxCores 80 --binary-mode local > chm13-t2t.cat.log.txt 
+
+          aws s3 cp chm13-t2t.cat.log.txt  s3://maricna-misc/T2T/
+          aws s3 cp --quiet --recursive out-chm13-t2t/ s3://marina-misc/T2T/out-chm13-t2t/
+          aws s3 cp --quiet --recursive --exclude '*toil*' work-chm13-t2t/ s3://marina-misc/T2T/work-chm13-t2t/
+          echo DONE
+          sleep 10000000000
+
+
+
+        volumeMounts:
+        - mountPath: /tmp
+          name: scratch-volume
+        - mountPath: /root/.aws
+          name: s3-credentials
+          readOnly: true
+        resources:
+          requests:
+            cpu: 80
+            memory: "300Gi"
+            ephemeral-storage: "2500Gi"
+          limits:
+            cpu: 80
+            memory: "300Gi"
+            ephemeral-storage: "2500Gi"
+      restartPolicy: Never
+      volumes:
+      - name: scratch-volume
+        emptyDir: {}
+      - name: s3-credentials
+        secret:
+          secretName: kube-credentials
+      serviceAccountName: nanopore-svc
+  backoffLimit: 0
