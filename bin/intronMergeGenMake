@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+
+import sys
+import glob
+import argparse
+import os.path as osp
+
+def parseArgs():
+    usage = """Generate a maketo to  intronProspectorMerge on a set intronProspector output.  Do this in a hierarchical
+    decomposition manner to allow parallel processing"""
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--inputsPerJob', type=int, default=10,
+                        help="number of input files per process")
+    parser.add_argument('intronTsvDir',
+                        help="directory containing input files (*.tsv.gz)")
+    parser.add_argument('tmpDir',
+                        help="output directory for temporary files, Makefile is written here ")
+    parser.add_argument('outPrefix',
+                        help="output prefix, will contain intermediate files and Makefile.")
+    args = parser.parse_args()
+    return args
+
+def addRule(ruleNum, makeFh, inFiles):
+    outFile = "tmp{}.tsv".format(ruleNum)
+    # need to decompress if compressed
+    inArgs = ["<(zcat {}) ".format(f) if f.endswith('.gz') else f for f in inFiles]
+    print(outFile + ": " + " ".join(inFiles), file=makeFh)
+    print("\tintronProspectorMerge --intron-calls=$@.tmp " + " ".join(inArgs), file=makeFh)
+    print("\tmv -f $@.tmp $@", file=makeFh)
+    return outFile
+
+def addInstallCmd(makeFh, inFile, outFile):
+    print("\tbgzip -@ 10 -c {} >{}.tmp".format(inFile, outFile), file=makeFh)
+    print("\tmv -f {}.tmp {}".format(outFile, outFile), file=makeFh)
+
+def addFinalRule(makeFh, inCalls, callsTsv, juncsBed, intronsBed):
+    print(callsTsv + ": ", inCalls, file=makeFh)
+    print("\tintronProspectorMerge --intron-calls=final.calls.tsv --junction-bed=final.juncs.bed --intron-bed=final.introns.bed $^", file=makeFh)
+    print("\tmkdir -p {}".format(osp.dirname(callsTsv)), file=makeFh)
+    addInstallCmd(makeFh, "final.juncs.bed", juncsBed)
+    addInstallCmd(makeFh, "final.introns.bed", intronsBed)
+    addInstallCmd(makeFh, "final.calls.tsv", callsTsv)
+
+def addMakeRules(ruleNum, makeFh, inputsPerJob, inCalls):
+    outFiles = []
+    for i in range(0, len(inCalls), inputsPerJob):
+        outFiles.append(addRule(ruleNum, makeFh, inCalls[i:i + inputsPerJob]))
+        ruleNum += 1
+    return ruleNum, outFiles
+
+def buildMakeRules(makeFh, inputsPerJob, inCalls, callsTsv, juncsBed, intronsBed):
+    ruleNum = 0
+    while len(inCalls) > 1:
+        ruleNum, inCalls = addMakeRules(ruleNum, makeFh, inputsPerJob, inCalls)
+
+    addFinalRule(makeFh, inCalls[0], callsTsv, juncsBed, intronsBed)
+
+def buildMake(inputsPerJob, tmpDir, inCalls, outPrefix):
+    callsTsv = osp.abspath(outPrefix + ".calls.tsv.gz")
+    juncsBed = osp.abspath(outPrefix + ".juncs.bed.gz")
+    intronsBed = osp.abspath(outPrefix + ".introns.bed.gz")
+    makefile = tmpDir + "/Makefile"
+    with open(makefile, "w") as makeFh:
+        print("SHELL = /bin/bash", file=makeFh)
+        print("all: " + callsTsv, file=makeFh)
+        buildMakeRules(makeFh, inputsPerJob, list(map(osp.abspath, inCalls)),
+                       callsTsv, juncsBed, intronsBed)
+    print("created", makefile, "to merge", len(inCalls), "call sets", file=sys.stderr)
+
+def main(opts):
+    inGlob = osp.join(opts.intronTsvDir + "/*.tsv.gz")
+    inCalls = glob.glob(inGlob)
+    if len(inCalls) == 0:
+        raise Exception("not file matching " + inGlob)
+    buildMake(opts.inputsPerJob, opts.tmpDir, inCalls, opts.outPrefix)
+
+
+main(parseArgs())

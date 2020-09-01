@@ -50,5 +50,16 @@ tawk 'NR>1{print $2, "pending", ""}' encode-rnaseq.set2.tsv  >x
 on set1 and set2
 
 *** /team-genes/20200727/shortRnaSeq/raw-introns/
+
+** generate combined TSV
+cd shortRnaSeq/
+
+export PATH=${HOME}/compbio/gencode/projs/icedb/intronProspector/bin:${HOME}/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/bin/:${PATH}
+
+mkdir /data/tmp/markd/introns
+intronMergeGenMake --inputsPerJob=5 raw-introns /data/tmp/markd/introns shortRnaSeq-2020-08-28 
+cd /data/tmp/markd/introns
+nice make -j 32 >&log&
+
 * longRnaSeq:
 

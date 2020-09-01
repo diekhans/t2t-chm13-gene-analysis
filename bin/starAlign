@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# use only standar python to allow kind folks to do alignments
+# use only standard python to allow kind folks to do alignments
 import sys
 import os
 import argparse
