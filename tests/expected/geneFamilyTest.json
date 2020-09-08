@@ -1,0 +1,4024 @@
+[
+    {
+        "famId": "fam0",
+        "hgncSymbols": [
+            "LINC02203",
+            "OR10J1",
+            "OR10J3",
+            "OR10J4",
+            "OR10J5",
+            "OR10K1",
+            "OR10K2",
+            "OR10R2",
+            "OR10T2",
+            "OR10Z1",
+            "OR12D1",
+            "OR12D2",
+            "OR12D3",
+            "OR13G1",
+            "OR1A1",
+            "OR1A2",
+            "OR1B1",
+            "OR1C1",
+            "OR1D2",
+            "OR1D5",
+            "OR1E1",
+            "OR1E2",
+            "OR1F1",
+            "OR1G1",
+            "OR1I1",
+            "OR1J1",
+            "OR1J2",
+            "OR1J4",
+            "OR1K1",
+            "OR1L1",
+            "OR1L3",
+            "OR1L4",
+            "OR1L6",
+            "OR1L8",
+            "OR1M1",
+            "OR1N1",
+            "OR1N2",
+            "OR1P1",
+            "OR1Q1",
+            "OR1R1P",
+            "OR1S1",
+            "OR1S2",
+            "OR2A1",
+            "OR2A12",
+            "OR2A14",
+            "OR2A2",
+            "OR2A25",
+            "OR2A4",
+            "OR2A42",
+            "OR2A5",
+            "OR2A7",
+            "OR2AT4",
+            "OR3A1",
+            "OR3A2",
+            "OR3A3",
+            "OR4A15",
+            "OR4A16",
+            "OR4A47",
+            "OR4A5",
+            "OR4A8",
+            "OR4B1",
+            "OR4C11",
+            "OR4C12",
+            "OR4C13",
+            "OR4C15",
+            "OR4C16",
+            "OR4C3",
+            "OR4C45",
+            "OR4C46",
+            "OR4C5",
+            "OR4C6",
+            "OR4D1",
+            "OR4D10",
+            "OR4D11",
+            "OR4D2",
+            "OR4D5",
+            "OR4D6",
+            "OR4D9",
+            "OR4E1",
+            "OR4E2",
+            "OR4F15",
+            "OR4F16",
+            "OR4F17",
+            "OR4F21",
+            "OR4F29",
+            "OR4F3",
+            "OR4F4",
+            "OR4F5",
+            "OR4F6",
+            "OR4K1",
+            "OR4K13",
+            "OR4K14",
+            "OR4K15",
+            "OR4K17",
+            "OR4K2",
+            "OR4K3",
+            "OR4K5",
+            "OR4L1",
+            "OR4M1",
+            "OR4M2",
+            "OR4N2",
+            "OR4N4",
+            "OR4N5",
+            "OR4P4",
+            "OR4Q2",
+            "OR4Q3",
+            "OR4S1",
+            "OR4S2",
+            "OR4X1",
+            "OR4X2",
+            "OR5BS1P",
+            "OR6K2",
+            "OR6K3",
+            "OR6K6",
+            "OR6N1",
+            "OR6N2",
+            "OR7A10",
+            "OR7A17",
+            "OR7A5",
+            "OR7C1",
+            "OR7C2",
+            "OR7D2",
+            "OR7D4",
+            "OR7E24",
+            "OR7G1",
+            "OR7G2",
+            "OR7G3",
+            "OR8S1"
+        ],
+        "promiscuous": false,
+        "genes": [
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000094661",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8207"
+                ],
+                "hgncSymbols": [
+                    "OR1I1"
+                ],
+                "ensTrans": [
+                    "ENST00000209540.2",
+                    "ENST00000641398.1"
+                ],
+                "ensGeneName": [
+                    "OR1I1"
+                ],
+                "entrezGenes": [
+                    126370
+                ],
+                "refSeqTrans": [
+                    "NM_001004713.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000112462",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:13963"
+                ],
+                "hgncSymbols": [
+                    "OR12D3"
+                ],
+                "ensTrans": [
+                    "ENST00000396806.3"
+                ],
+                "ensGeneName": [
+                    "OR12D3"
+                ],
+                "entrezGenes": [
+                    81797
+                ],
+                "refSeqTrans": [
+                    "NM_030959.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000127515",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8356"
+                ],
+                "hgncSymbols": [
+                    "OR7A10"
+                ],
+                "ensTrans": [
+                    "ENST00000248058.1",
+                    "ENST00000641129.1"
+                ],
+                "ensGeneName": [
+                    "OR7A10"
+                ],
+                "entrezGenes": [
+                    390892
+                ],
+                "refSeqTrans": [
+                    "NM_001005190.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000127529",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8374"
+                ],
+                "hgncSymbols": [
+                    "OR7C2"
+                ],
+                "ensTrans": [
+                    "ENST00000248072.3"
+                ],
+                "ensGeneName": [
+                    "OR7C2"
+                ],
+                "entrezGenes": [
+                    26658
+                ],
+                "refSeqTrans": [
+                    "NM_012377.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000127530",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8373"
+                ],
+                "hgncSymbols": [
+                    "OR7C1"
+                ],
+                "ensTrans": [
+                    "ENST00000248073.2",
+                    "ENST00000601611.6",
+                    "ENST00000641666.1",
+                    "ENST00000642000.1",
+                    "ENST00000642030.1",
+                    "ENST00000672931.1"
+                ],
+                "ensGeneName": [
+                    "OR7C1"
+                ],
+                "entrezGenes": [
+                    26664
+                ],
+                "refSeqTrans": [
+                    "NM_001370485.2",
+                    "NM_198944.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000127780",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8190"
+                ],
+                "hgncSymbols": [
+                    "OR1E2"
+                ],
+                "ensTrans": [
+                    "ENST00000248384.1"
+                ],
+                "ensGeneName": [
+                    "OR1E2"
+                ],
+                "entrezGenes": [
+                    8388
+                ],
+                "refSeqTrans": [
+                    "NM_003554.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000136834",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8208"
+                ],
+                "hgncSymbols": [
+                    "OR1J1"
+                ],
+                "ensTrans": [
+                    "ENST00000259357.3"
+                ],
+                "ensGeneName": [
+                    "OR1J1"
+                ],
+                "entrezGenes": [
+                    347168
+                ],
+                "refSeqTrans": [
+                    "NM_001004451.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000136939",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8216"
+                ],
+                "hgncSymbols": [
+                    "OR1L4"
+                ],
+                "ensTrans": [
+                    "ENST00000259466.1"
+                ],
+                "ensGeneName": [
+                    "OR1L4"
+                ],
+                "entrezGenes": [
+                    254973
+                ],
+                "refSeqTrans": [
+                    "NM_001005235.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000141194",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8293"
+                ],
+                "hgncSymbols": [
+                    "OR4D1"
+                ],
+                "ensTrans": [
+                    "ENST00000268912.5",
+                    "ENST00000641449.1"
+                ],
+                "ensGeneName": [
+                    "OR4D1"
+                ],
+                "entrezGenes": [
+                    26689
+                ],
+                "refSeqTrans": [
+                    "NM_012374.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000155249",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14726"
+                ],
+                "hgncSymbols": [
+                    "OR4K1"
+                ],
+                "ensTrans": [
+                    "ENST00000285600.4",
+                    "ENST00000641172.1",
+                    "ENST00000641429.1"
+                ],
+                "ensGeneName": [
+                    "OR4K1"
+                ],
+                "entrezGenes": [
+                    79544
+                ],
+                "refSeqTrans": [
+                    "NM_001004063.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000159961",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8284"
+                ],
+                "hgncSymbols": [
+                    "OR3A3"
+                ],
+                "ensTrans": [
+                    "ENST00000291231.1",
+                    "ENST00000574571.4",
+                    "ENST00000641141.1"
+                ],
+                "ensGeneName": [
+                    "OR3A3"
+                ],
+                "entrezGenes": [
+                    8392
+                ],
+                "refSeqTrans": [
+                    "NM_012373.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000161807",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8465"
+                ],
+                "hgncSymbols": [
+                    "OR7G1"
+                ],
+                "ensTrans": [
+                    "ENST00000541538.1"
+                ],
+                "ensGeneName": [
+                    "OR7G1"
+                ],
+                "entrezGenes": [
+                    125962
+                ],
+                "refSeqTrans": [
+                    "NM_001005192.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000165202",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8223"
+                ],
+                "hgncSymbols": [
+                    "OR1Q1"
+                ],
+                "ensTrans": [
+                    "ENST00000297913.3"
+                ],
+                "ensGeneName": [
+                    "OR1Q1"
+                ],
+                "entrezGenes": [
+                    158131
+                ],
+                "refSeqTrans": [
+                    "NM_012364.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000165204",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8212"
+                ],
+                "hgncSymbols": [
+                    "OR1K1"
+                ],
+                "ensTrans": [
+                    "ENST00000277309.3"
+                ],
+                "ensGeneName": [
+                    "OR1K1"
+                ],
+                "entrezGenes": [
+                    392392
+                ],
+                "refSeqTrans": [
+                    "NM_080859.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000165762",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14728"
+                ],
+                "hgncSymbols": [
+                    "OR4K2"
+                ],
+                "ensTrans": [
+                    "ENST00000298642.2",
+                    "ENST00000641522.1",
+                    "ENST00000641785.1",
+                    "ENST00000641885.1"
+                ],
+                "ensGeneName": [
+                    "OR4K2"
+                ],
+                "entrezGenes": [
+                    390431
+                ],
+                "refSeqTrans": [
+                    "NM_001005501.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000166884",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15175"
+                ],
+                "hgncSymbols": [
+                    "OR4D6"
+                ],
+                "ensTrans": [
+                    "ENST00000300127.2"
+                ],
+                "ensGeneName": [
+                    "OR4D6"
+                ],
+                "entrezGenes": [
+                    219983
+                ],
+                "refSeqTrans": [
+                    "NM_001004708.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000168124",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8194"
+                ],
+                "hgncSymbols": [
+                    "OR1F1"
+                ],
+                "ensTrans": [
+                    "ENST00000304646.2"
+                ],
+                "ensGeneName": [
+                    "OR1F1"
+                ],
+                "entrezGenes": [
+                    4992
+                ],
+                "refSeqTrans": [
+                    "NM_001370641.1",
+                    "NM_012360.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000169484",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15352"
+                ],
+                "hgncSymbols": [
+                    "OR4K14"
+                ],
+                "ensTrans": [
+                    "ENST00000305045.3",
+                    "ENST00000641793.1"
+                ],
+                "ensGeneName": [
+                    "OR4K14"
+                ],
+                "entrezGenes": [
+                    122740
+                ],
+                "refSeqTrans": [
+                    "NM_001004712.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000169488",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15353"
+                ],
+                "hgncSymbols": [
+                    "OR4K15"
+                ],
+                "ensTrans": [
+                    "ENST00000305051.5",
+                    "ENST00000641512.1"
+                ],
+                "ensGeneName": [
+                    "OR4K15"
+                ],
+                "entrezGenes": [
+                    81127
+                ],
+                "refSeqTrans": [
+                    "NM_001005486.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000170920",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8467"
+                ],
+                "hgncSymbols": [
+                    "OR7G3"
+                ],
+                "ensTrans": [
+                    "ENST00000305444.2"
+                ],
+                "ensGeneName": [
+                    "OR7G3"
+                ],
+                "entrezGenes": [
+                    390883
+                ],
+                "refSeqTrans": [
+                    "NM_001001958.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000170923",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8466"
+                ],
+                "hgncSymbols": [
+                    "OR7G2"
+                ],
+                "ensTrans": [
+                    "ENST00000305456.2",
+                    "ENST00000641081.1"
+                ],
+                "ensGeneName": [
+                    "OR7G2"
+                ],
+                "entrezGenes": [
+                    390882
+                ],
+                "refSeqTrans": [
+                    "NM_001005193.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000170929",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8220"
+                ],
+                "hgncSymbols": [
+                    "OR1M1"
+                ],
+                "ensTrans": [
+                    "ENST00000429566.3",
+                    "ENST00000641627.1"
+                ],
+                "ensGeneName": [
+                    "OR1M1"
+                ],
+                "entrezGenes": [
+                    125963
+                ],
+                "refSeqTrans": [
+                    "NM_001004456.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000171014",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14852"
+                ],
+                "hgncSymbols": [
+                    "OR4D5"
+                ],
+                "ensTrans": [
+                    "ENST00000307033.2"
+                ],
+                "ensGeneName": [
+                    "OR4D5"
+                ],
+                "entrezGenes": [
+                    219875
+                ],
+                "refSeqTrans": [
+                    "NM_001001965.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000171459",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8218"
+                ],
+                "hgncSymbols": [
+                    "OR1L6"
+                ],
+                "ensTrans": [
+                    "ENST00000304720.3",
+                    "ENST00000373684.1"
+                ],
+                "ensGeneName": [
+                    "OR1L6"
+                ],
+                "entrezGenes": [
+                    392390
+                ],
+                "refSeqTrans": [
+                    "NM_001004453.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000171481",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8215"
+                ],
+                "hgncSymbols": [
+                    "OR1L3"
+                ],
+                "ensTrans": [
+                    "ENST00000304820.4"
+                ],
+                "ensGeneName": [
+                    "OR1L3"
+                ],
+                "entrezGenes": [
+                    26735
+                ],
+                "refSeqTrans": [
+                    "NM_001005234.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000171496",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15110"
+                ],
+                "hgncSymbols": [
+                    "OR1L8"
+                ],
+                "ensTrans": [
+                    "ENST00000304865.4",
+                    "ENST00000641027.1"
+                ],
+                "ensGeneName": [
+                    "OR1L8"
+                ],
+                "entrezGenes": [
+                    138881
+                ],
+                "refSeqTrans": [
+                    "NM_001004454.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000171501",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15111"
+                ],
+                "hgncSymbols": [
+                    "OR1N2"
+                ],
+                "ensTrans": [
+                    "ENST00000373688.3",
+                    "ENST00000616791.3"
+                ],
+                "ensGeneName": [
+                    "OR1N2"
+                ],
+                "entrezGenes": [
+                    138882
+                ],
+                "refSeqTrans": [
+                    "NM_001004457.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000171505",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8221"
+                ],
+                "hgncSymbols": [
+                    "OR1N1"
+                ],
+                "ensTrans": [
+                    "ENST00000304880.2",
+                    "ENST00000619659.1"
+                ],
+                "ensGeneName": [
+                    "OR1N1"
+                ],
+                "entrezGenes": [
+                    138883
+                ],
+                "refSeqTrans": [
+                    "NM_012363.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000171561",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:19620"
+                ],
+                "hgncSymbols": [
+                    "OR2AT4"
+                ],
+                "ensTrans": [
+                    "ENST00000305159.3",
+                    "ENST00000641504.1",
+                    "ENST00000641541.1",
+                    "ENST00000641593.1",
+                    "ENST00000641931.1"
+                ],
+                "ensGeneName": [
+                    "OR2AT4"
+                ],
+                "entrezGenes": [
+                    341152
+                ],
+                "refSeqTrans": [
+                    "NM_001005285.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000172146",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8179"
+                ],
+                "hgncSymbols": [
+                    "OR1A1"
+                ],
+                "ensTrans": [
+                    "ENST00000304094.1",
+                    "ENST00000641322.1",
+                    "ENST00000641732.1",
+                    "ENST00000642014.1"
+                ],
+                "ensGeneName": [
+                    "OR1A1"
+                ],
+                "entrezGenes": [
+                    8383
+                ],
+                "refSeqTrans": [
+                    "NM_014565.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000172150",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8180"
+                ],
+                "hgncSymbols": [
+                    "OR1A2"
+                ],
+                "ensTrans": [
+                    "ENST00000381951.1"
+                ],
+                "ensGeneName": [
+                    "OR1A2"
+                ],
+                "entrezGenes": [
+                    26189
+                ],
+                "refSeqTrans": [
+                    "NM_012352.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000172188",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15167"
+                ],
+                "hgncSymbols": [
+                    "OR4C11"
+                ],
+                "ensTrans": [
+                    "ENST00000302231.4",
+                    "ENST00000641580.1"
+                ],
+                "ensGeneName": [
+                    "OR4C11"
+                ],
+                "entrezGenes": [
+                    219429
+                ],
+                "refSeqTrans": [
+                    "NM_001004700.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000172208",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15184"
+                ],
+                "hgncSymbols": [
+                    "OR4X2"
+                ],
+                "ensTrans": [
+                    "ENST00000624868.1"
+                ],
+                "ensGeneName": [
+                    "OR4X2"
+                ],
+                "entrezGenes": [
+                    119764
+                ],
+                "refSeqTrans": [
+                    "NM_001004727.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000172742",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15178"
+                ],
+                "hgncSymbols": [
+                    "OR4D9"
+                ],
+                "ensTrans": [
+                    "ENST00000329328.3",
+                    "ENST00000641278.1",
+                    "ENST00000641962.1"
+                ],
+                "ensGeneName": [
+                    "OR4D9"
+                ],
+                "entrezGenes": [
+                    390199
+                ],
+                "refSeqTrans": [
+                    "NM_001004711.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000173285",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14693"
+                ],
+                "hgncSymbols": [
+                    "OR10K1"
+                ],
+                "ensTrans": [
+                    "ENST00000289451.4",
+                    "ENST00000641235.1",
+                    "ENST00000641432.1",
+                    "ENST00000641460.1",
+                    "ENST00000641535.1",
+                    "ENST00000641971.1"
+                ],
+                "ensGeneName": [
+                    "OR10K1"
+                ],
+                "entrezGenes": [
+                    391109
+                ],
+                "refSeqTrans": [
+                    "NM_001004473.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000173679",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8213"
+                ],
+                "hgncSymbols": [
+                    "OR1L1"
+                ],
+                "ensTrans": [
+                    "ENST00000309623.1",
+                    "ENST00000373686.1"
+                ],
+                "ensGeneName": [
+                    "OR1L1"
+                ],
+                "entrezGenes": [
+                    26737
+                ],
+                "refSeqTrans": [
+                    "NM_001005236.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000174667",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8380"
+                ],
+                "hgncSymbols": [
+                    "OR7D4"
+                ],
+                "ensTrans": [
+                    "ENST00000308682.3",
+                    "ENST00000641244.1",
+                    "ENST00000641669.1"
+                ],
+                "ensGeneName": [
+                    "OR7D4"
+                ],
+                "entrezGenes": [
+                    125958
+                ],
+                "refSeqTrans": [
+                    "NM_001005191.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000174982",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15183"
+                ],
+                "hgncSymbols": [
+                    "OR4S2"
+                ],
+                "ensTrans": [
+                    "ENST00000312422.2",
+                    "ENST00000641692.1"
+                ],
+                "ensGeneName": [
+                    "OR4S2"
+                ],
+                "entrezGenes": [
+                    219431
+                ],
+                "refSeqTrans": [
+                    "NM_001004059.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000175619",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8290"
+                ],
+                "hgncSymbols": [
+                    "OR4B1"
+                ],
+                "ensTrans": [
+                    "ENST00000309562.3"
+                ],
+                "ensGeneName": [
+                    "OR4B1"
+                ],
+                "entrezGenes": [
+                    119765
+                ],
+                "refSeqTrans": [
+                    "NM_001005470.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176200",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15174"
+                ],
+                "hgncSymbols": [
+                    "OR4D11"
+                ],
+                "ensTrans": [
+                    "ENST00000313253.1"
+                ],
+                "ensGeneName": [
+                    "OR4D11"
+                ],
+                "entrezGenes": [
+                    219986
+                ],
+                "refSeqTrans": [
+                    "NM_001004706.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176230",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15355"
+                ],
+                "hgncSymbols": [
+                    "OR4K17"
+                ],
+                "ensTrans": [
+                    "ENST00000315543.4",
+                    "ENST00000641386.2",
+                    "ENST00000641633.2"
+                ],
+                "ensGeneName": [
+                    "OR4K17"
+                ],
+                "entrezGenes": [
+                    390436
+                ],
+                "refSeqTrans": [
+                    "NM_001004715.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176246",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15356"
+                ],
+                "hgncSymbols": [
+                    "OR4L1"
+                ],
+                "ensTrans": [
+                    "ENST00000315683.1"
+                ],
+                "ensGeneName": [
+                    "OR4L1"
+                ],
+                "entrezGenes": [
+                    122742
+                ],
+                "refSeqTrans": [
+                    "NM_001004717.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176253",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15351"
+                ],
+                "hgncSymbols": [
+                    "OR4K13"
+                ],
+                "ensTrans": [
+                    "ENST00000315693.3",
+                    "ENST00000641664.1",
+                    "ENST00000641904.1"
+                ],
+                "ensGeneName": [
+                    "OR4K13"
+                ],
+                "entrezGenes": [
+                    390433
+                ],
+                "refSeqTrans": [
+                    "NM_001004714.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176269",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:19583"
+                ],
+                "hgncSymbols": [
+                    "OR4F21"
+                ],
+                "ensTrans": [
+                    "ENST00000320901.3"
+                ],
+                "ensGeneName": [
+                    "OR4F21"
+                ],
+                "entrezGenes": [
+                    441308
+                ],
+                "refSeqTrans": [
+                    "NM_001005504.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176281",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14745"
+                ],
+                "hgncSymbols": [
+                    "OR4K5"
+                ],
+                "ensTrans": [
+                    "ENST00000315915.4"
+                ],
+                "ensGeneName": [
+                    "OR4K5"
+                ],
+                "entrezGenes": [
+                    79317
+                ],
+                "refSeqTrans": [
+                    "NM_001005483.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176290",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:14731"
+                ],
+                "hgncSymbols": [
+                    "OR4K3"
+                ],
+                "ensTrans": [
+                    "ENST00000425829.2"
+                ],
+                "ensGeneName": [
+                    "OR4K3"
+                ],
+                "entrezGenes": [
+                    283617
+                ],
+                "refSeqTrans": [
+                    "NM_001348266.2",
+                    "NR_145507.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176294",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14742"
+                ],
+                "hgncSymbols": [
+                    "OR4N2"
+                ],
+                "ensTrans": [
+                    "ENST00000315947.1",
+                    "ENST00000557414.1",
+                    "ENST00000557677.3",
+                    "ENST00000641240.1"
+                ],
+                "ensGeneName": [
+                    "OR4N2"
+                ],
+                "entrezGenes": [
+                    390429
+                ],
+                "refSeqTrans": [
+                    "NM_001004723.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176299",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14735"
+                ],
+                "hgncSymbols": [
+                    "OR4M1"
+                ],
+                "ensTrans": [
+                    "ENST00000315957.4",
+                    "ENST00000641200.1",
+                    "ENST00000641705.1",
+                    "ENST00000641808.1"
+                ],
+                "ensGeneName": [
+                    "OR4M1"
+                ],
+                "entrezGenes": [
+                    441670
+                ],
+                "refSeqTrans": [
+                    "NM_001005500.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176540",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14702"
+                ],
+                "hgncSymbols": [
+                    "OR4C5"
+                ],
+                "ensTrans": [
+                    "ENST00000319813.3"
+                ],
+                "ensGeneName": [
+                    "OR4C5"
+                ],
+                "entrezGenes": [
+                    79346
+                ],
+                "refSeqTrans": [
+                    "NM_001348223.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176547",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14697"
+                ],
+                "hgncSymbols": [
+                    "OR4C3"
+                ],
+                "ensTrans": [
+                    "ENST00000319856.5",
+                    "ENST00000611380.1"
+                ],
+                "ensGeneName": [
+                    "OR4C3"
+                ],
+                "entrezGenes": [
+                    256144
+                ],
+                "refSeqTrans": [
+                    "NM_001004702.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176555",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14705"
+                ],
+                "hgncSymbols": [
+                    "OR4S1"
+                ],
+                "ensTrans": [
+                    "ENST00000319988.1"
+                ],
+                "ensGeneName": [
+                    "OR4S1"
+                ],
+                "entrezGenes": [
+                    256148
+                ],
+                "refSeqTrans": [
+                    "NM_001004725.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176567",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14854"
+                ],
+                "hgncSymbols": [
+                    "OR4X1"
+                ],
+                "ensTrans": [
+                    "ENST00000320048.1"
+                ],
+                "ensGeneName": [
+                    "OR4X1"
+                ],
+                "entrezGenes": [
+                    390113
+                ],
+                "refSeqTrans": [
+                    "NM_001004726.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000176695",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15381"
+                ],
+                "hgncSymbols": [
+                    "OR4F17"
+                ],
+                "ensTrans": [
+                    "ENST00000318050.4",
+                    "ENST00000585993.3",
+                    "ENST00000618231.3",
+                    "ENST00000641591.1"
+                ],
+                "ensGeneName": [
+                    "OR4F17"
+                ],
+                "entrezGenes": [
+                    81099
+                ],
+                "refSeqTrans": [
+                    "NM_001005240.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000177693",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8301"
+                ],
+                "hgncSymbols": [
+                    "OR4F4"
+                ],
+                "ensTrans": [
+                    "ENST00000326183.3",
+                    "ENST00000650172.1"
+                ],
+                "ensGeneName": [
+                    "OR4F4"
+                ],
+                "entrezGenes": [
+                    26682
+                ],
+                "refSeqTrans": [
+                    "NM_001004195.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000180016",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8189"
+                ],
+                "hgncSymbols": [
+                    "OR1E1"
+                ],
+                "ensTrans": [
+                    "ENST00000322608.2"
+                ],
+                "ensGeneName": [
+                    "OR1E1"
+                ],
+                "entrezGenes": [
+                    8387
+                ],
+                "refSeqTrans": [
+                    "NM_003553.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000180042",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8226"
+                ],
+                "hgncSymbols": [
+                    "OR1R1P"
+                ],
+                "ensTrans": [
+                    "ENST00000572493.2"
+                ],
+                "ensGeneName": [
+                    "OR1R1P"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000180090",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8282"
+                ],
+                "hgncSymbols": [
+                    "OR3A1"
+                ],
+                "ensTrans": [
+                    "ENST00000323404.2",
+                    "ENST00000615105.1"
+                ],
+                "ensGeneName": [
+                    "OR3A1"
+                ],
+                "entrezGenes": [
+                    4994
+                ],
+                "refSeqTrans": [
+                    "NM_002550.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000180433",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15033"
+                ],
+                "hgncSymbols": [
+                    "OR6K6"
+                ],
+                "ensTrans": [
+                    "ENST00000368144.2",
+                    "ENST00000641861.1"
+                ],
+                "ensGeneName": [
+                    "OR6K6"
+                ],
+                "entrezGenes": [
+                    128371
+                ],
+                "refSeqTrans": [
+                    "NM_001005184.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000180658",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14729"
+                ],
+                "hgncSymbols": [
+                    "OR2A4"
+                ],
+                "ensTrans": [
+                    "ENST00000315453.4"
+                ],
+                "ensGeneName": [
+                    "OR2A4"
+                ],
+                "entrezGenes": [
+                    79541
+                ],
+                "refSeqTrans": [
+                    "NM_030908.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000180708",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14826"
+                ],
+                "hgncSymbols": [
+                    "OR10K2"
+                ],
+                "ensTrans": [
+                    "ENST00000314902.2",
+                    "ENST00000641042.1"
+                ],
+                "ensGeneName": [
+                    "OR10K2"
+                ],
+                "entrezGenes": [
+                    391107
+                ],
+                "refSeqTrans": [
+                    "NM_001004476.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000181903",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14743"
+                ],
+                "hgncSymbols": [
+                    "OR4C6"
+                ],
+                "ensTrans": [
+                    "ENST00000314259.5",
+                    "ENST00000641251.1"
+                ],
+                "ensGeneName": [
+                    "OR4C6"
+                ],
+                "entrezGenes": [
+                    219432
+                ],
+                "refSeqTrans": [
+                    "NM_001004704.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000181927",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15180"
+                ],
+                "hgncSymbols": [
+                    "OR4P4"
+                ],
+                "ensTrans": [
+                    "ENST00000314612.2",
+                    "ENST00000641760.1"
+                ],
+                "ensGeneName": [
+                    "OR4P4"
+                ],
+                "entrezGenes": [
+                    81300
+                ],
+                "refSeqTrans": [
+                    "NM_001004124.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000181939",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15171"
+                ],
+                "hgncSymbols": [
+                    "OR4C15"
+                ],
+                "ensTrans": [
+                    "ENST00000314644.2",
+                    "ENST00000642128.1"
+                ],
+                "ensGeneName": [
+                    "OR4C15"
+                ],
+                "entrezGenes": [
+                    81309
+                ],
+                "refSeqTrans": [
+                    "NM_001001920.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000181958",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15152"
+                ],
+                "hgncSymbols": [
+                    "OR4A15"
+                ],
+                "ensTrans": [
+                    "ENST00000314706.3",
+                    "ENST00000641526.1"
+                ],
+                "ensGeneName": [
+                    "OR4A15"
+                ],
+                "entrezGenes": [
+                    81328
+                ],
+                "refSeqTrans": [
+                    "NM_001005275.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000181961",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15153"
+                ],
+                "hgncSymbols": [
+                    "OR4A16"
+                ],
+                "ensTrans": [
+                    "ENST00000314721.4"
+                ],
+                "ensGeneName": [
+                    "OR4A16"
+                ],
+                "entrezGenes": [
+                    81327
+                ],
+                "refSeqTrans": [
+                    "NM_001005274.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000182652",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15426"
+                ],
+                "hgncSymbols": [
+                    "OR4Q3"
+                ],
+                "ensTrans": [
+                    "ENST00000331723.1",
+                    "ENST00000642117.2"
+                ],
+                "ensGeneName": [
+                    "OR4Q3"
+                ],
+                "entrezGenes": [
+                    441669
+                ],
+                "refSeqTrans": [
+                    "NM_172194.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000182854",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15078"
+                ],
+                "hgncSymbols": [
+                    "OR4F15"
+                ],
+                "ensTrans": [
+                    "ENST00000332238.5"
+                ],
+                "ensGeneName": [
+                    "OR4F15"
+                ],
+                "entrezGenes": [
+                    390649
+                ],
+                "refSeqTrans": [
+                    "NM_001001674.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000182974",
+                "geneType": "protein_coding",
+                "hgncIds": [],
+                "hgncSymbols": [],
+                "ensTrans": [
+                    "ENST00000332663.3"
+                ],
+                "ensGeneName": [
+                    "AC135068.1"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000183024",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8204"
+                ],
+                "hgncSymbols": [
+                    "OR1G1"
+                ],
+                "ensTrans": [
+                    "ENST00000328890.2"
+                ],
+                "ensGeneName": [
+                    "OR1G1"
+                ],
+                "entrezGenes": [
+                    8390
+                ],
+                "refSeqTrans": [
+                    "NM_003555.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000183706",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15375"
+                ],
+                "hgncSymbols": [
+                    "OR4N4"
+                ],
+                "ensTrans": [
+                    "ENST00000328795.5"
+                ],
+                "ensGeneName": [
+                    "OR4N4"
+                ],
+                "entrezGenes": [
+                    283694
+                ],
+                "refSeqTrans": [
+                    "NM_001005241.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000184140",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15372"
+                ],
+                "hgncSymbols": [
+                    "OR4F6"
+                ],
+                "ensTrans": [
+                    "ENST00000328882.6"
+                ],
+                "ensGeneName": [
+                    "OR4F6"
+                ],
+                "entrezGenes": [
+                    390648
+                ],
+                "refSeqTrans": [
+                    "NM_001005326.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000184155",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14993"
+                ],
+                "hgncSymbols": [
+                    "OR10J5"
+                ],
+                "ensTrans": [
+                    "ENST00000334857.3"
+                ],
+                "ensGeneName": [
+                    "OR10J5"
+                ],
+                "entrezGenes": [
+                    127385
+                ],
+                "refSeqTrans": [
+                    "NM_001004469.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000184166",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8183"
+                ],
+                "hgncSymbols": [
+                    "OR1D2"
+                ],
+                "ensTrans": [
+                    "ENST00000331459.1",
+                    "ENST00000641064.1",
+                    "ENST00000641833.1"
+                ],
+                "ensGeneName": [
+                    "OR1D2"
+                ],
+                "entrezGenes": [
+                    4991
+                ],
+                "refSeqTrans": [
+                    "NM_002548.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000184394",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15358"
+                ],
+                "hgncSymbols": [
+                    "OR4N5"
+                ],
+                "ensTrans": [
+                    "ENST00000333629.1",
+                    "ENST00000641086.1"
+                ],
+                "ensGeneName": [
+                    "OR4N5"
+                ],
+                "entrezGenes": [
+                    390437
+                ],
+                "refSeqTrans": [
+                    "NM_001004724.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000185385",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8363"
+                ],
+                "hgncSymbols": [
+                    "OR7A17"
+                ],
+                "ensTrans": [
+                    "ENST00000327462.4",
+                    "ENST00000641113.1",
+                    "ENST00000642123.1"
+                ],
+                "ensGeneName": [
+                    "OR7A17"
+                ],
+                "entrezGenes": [
+                    26333
+                ],
+                "refSeqTrans": [
+                    "NM_030901.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000185926",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:31271"
+                ],
+                "hgncSymbols": [
+                    "OR4C46"
+                ],
+                "ensTrans": [
+                    "ENST00000328188.1"
+                ],
+                "ensGeneName": [
+                    "OR4C46"
+                ],
+                "entrezGenes": [
+                    119749
+                ],
+                "refSeqTrans": [
+                    "NM_001004703.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000186092",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14825"
+                ],
+                "hgncSymbols": [
+                    "OR4F5"
+                ],
+                "ensTrans": [
+                    "ENST00000335137.4",
+                    "ENST00000641515.2"
+                ],
+                "ensGeneName": [
+                    "OR4F5"
+                ],
+                "entrezGenes": [
+                    79501
+                ],
+                "refSeqTrans": [
+                    "NM_001005484.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000186306",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14816"
+                ],
+                "hgncSymbols": [
+                    "OR10T2"
+                ],
+                "ensTrans": [
+                    "ENST00000334438.1"
+                ],
+                "ensGeneName": [
+                    "OR10T2"
+                ],
+                "entrezGenes": [
+                    128360
+                ],
+                "refSeqTrans": [
+                    "NM_001004475.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000188000",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8378"
+                ],
+                "hgncSymbols": [
+                    "OR7D2"
+                ],
+                "ensTrans": [
+                    "ENST00000344248.4",
+                    "ENST00000641288.1",
+                    "ENST00000642043.1"
+                ],
+                "ensGeneName": [
+                    "OR7D2"
+                ],
+                "entrezGenes": [
+                    162998
+                ],
+                "refSeqTrans": [
+                    "NM_175883.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000188269",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8368"
+                ],
+                "hgncSymbols": [
+                    "OR7A5"
+                ],
+                "ensTrans": [
+                    "ENST00000322301.4",
+                    "ENST00000594432.1"
+                ],
+                "ensGeneName": [
+                    "OR7A5"
+                ],
+                "entrezGenes": [
+                    26659
+                ],
+                "refSeqTrans": [
+                    "NM_001370480.1",
+                    "NM_001370481.1",
+                    "NM_001370482.1",
+                    "NM_001370483.1",
+                    "NM_017506.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000188340",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15035"
+                ],
+                "hgncSymbols": [
+                    "OR6N2"
+                ],
+                "ensTrans": [
+                    "ENST00000339258.1",
+                    "ENST00000641131.1"
+                ],
+                "ensGeneName": [
+                    "OR6N2"
+                ],
+                "entrezGenes": [
+                    81442
+                ],
+                "refSeqTrans": [
+                    "NM_001005278.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000196171",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15029"
+                ],
+                "hgncSymbols": [
+                    "OR6K2"
+                ],
+                "ensTrans": [
+                    "ENST00000359610.3"
+                ],
+                "ensGeneName": [
+                    "OR6K2"
+                ],
+                "entrezGenes": [
+                    81448
+                ],
+                "refSeqTrans": [
+                    "NM_001005279.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000196184",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8175"
+                ],
+                "hgncSymbols": [
+                    "OR10J1"
+                ],
+                "ensTrans": [
+                    "ENST00000423932.6",
+                    "ENST00000641630.1",
+                    "ENST00000642080.1"
+                ],
+                "ensGeneName": [
+                    "OR10J1"
+                ],
+                "entrezGenes": [
+                    26476
+                ],
+                "refSeqTrans": [
+                    "NM_001363557.1",
+                    "NM_001363558.1",
+                    "NM_012351.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000196266",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:14992"
+                ],
+                "hgncSymbols": [
+                    "OR10J3"
+                ],
+                "ensTrans": [
+                    "ENST00000332217.5",
+                    "ENST00000649616.1"
+                ],
+                "ensGeneName": [
+                    "OR10J3"
+                ],
+                "entrezGenes": [
+                    441911
+                ],
+                "refSeqTrans": [
+                    "NM_001004467.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000196383",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:15359"
+                ],
+                "hgncSymbols": [
+                    "OR4Q2"
+                ],
+                "ensTrans": [
+                    "ENST00000541415.2",
+                    "ENST00000622436.1"
+                ],
+                "ensGeneName": [
+                    "OR4Q2"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": [
+                    "NR_145508.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000197233",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8209"
+                ],
+                "hgncSymbols": [
+                    "OR1J2"
+                ],
+                "ensTrans": [
+                    "ENST00000335302.5"
+                ],
+                "ensGeneName": [
+                    "OR1J2"
+                ],
+                "entrezGenes": [
+                    26740
+                ],
+                "refSeqTrans": [
+                    "NM_054107.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000197403",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15034"
+                ],
+                "hgncSymbols": [
+                    "OR6N1"
+                ],
+                "ensTrans": [
+                    "ENST00000335094.4",
+                    "ENST00000641189.1",
+                    "ENST00000641846.1"
+                ],
+                "ensGeneName": [
+                    "OR6N1"
+                ],
+                "entrezGenes": [
+                    128372
+                ],
+                "refSeqTrans": [
+                    "NM_001005185.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000197437",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14999"
+                ],
+                "hgncSymbols": [
+                    "OR13G1"
+                ],
+                "ensTrans": [
+                    "ENST00000359688.4",
+                    "ENST00000642119.1"
+                ],
+                "ensGeneName": [
+                    "OR13G1"
+                ],
+                "entrezGenes": [
+                    441933
+                ],
+                "refSeqTrans": [
+                    "NM_001005487.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000197887",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15141"
+                ],
+                "hgncSymbols": [
+                    "OR1S2"
+                ],
+                "ensTrans": [
+                    "ENST00000302592.7",
+                    "ENST00000641683.1"
+                ],
+                "ensGeneName": [
+                    "OR1S2"
+                ],
+                "entrezGenes": [
+                    219958
+                ],
+                "refSeqTrans": [
+                    "NM_001004459.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000198678",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:19627"
+                ],
+                "hgncSymbols": [
+                    "OR5BS1P"
+                ],
+                "ensTrans": [
+                    "ENST00000328207.6"
+                ],
+                "ensGeneName": [
+                    "OR5BS1P"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000198965",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14820"
+                ],
+                "hgncSymbols": [
+                    "OR10R2"
+                ],
+                "ensTrans": [
+                    "ENST00000368152.1",
+                    "ENST00000641067.1",
+                    "ENST00000641400.1"
+                ],
+                "ensGeneName": [
+                    "OR10R2"
+                ],
+                "entrezGenes": [
+                    343406
+                ],
+                "refSeqTrans": [
+                    "NM_001004472.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000198967",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:14996"
+                ],
+                "hgncSymbols": [
+                    "OR10Z1"
+                ],
+                "ensTrans": [
+                    "ENST00000361284.1",
+                    "ENST00000641002.1"
+                ],
+                "ensGeneName": [
+                    "OR10Z1"
+                ],
+                "entrezGenes": [
+                    128368
+                ],
+                "refSeqTrans": [
+                    "NM_001004478.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000203757",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15030"
+                ],
+                "hgncSymbols": [
+                    "OR6K3"
+                ],
+                "ensTrans": [
+                    "ENST00000368145.2",
+                    "ENST00000368146.1"
+                ],
+                "ensGeneName": [
+                    "OR6K3"
+                ],
+                "entrezGenes": [
+                    391114
+                ],
+                "refSeqTrans": [
+                    "NM_001005327.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000212807",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:31230"
+                ],
+                "hgncSymbols": [
+                    "OR2A42"
+                ],
+                "ensTrans": [
+                    "ENST00000391496.1",
+                    "ENST00000641810.1"
+                ],
+                "ensGeneName": [
+                    "OR2A42"
+                ],
+                "entrezGenes": [
+                    402317
+                ],
+                "refSeqTrans": [
+                    "NM_001001802.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221836",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8232"
+                ],
+                "hgncSymbols": [
+                    "OR2A5"
+                ],
+                "ensTrans": [
+                    "ENST00000408906.2",
+                    "ENST00000641693.1",
+                    "ENST00000641779.1"
+                ],
+                "ensGeneName": [
+                    "OR2A5"
+                ],
+                "entrezGenes": [
+                    393046
+                ],
+                "refSeqTrans": [
+                    "NM_012365.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221840",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15162"
+                ],
+                "hgncSymbols": [
+                    "OR4A5"
+                ],
+                "ensTrans": [
+                    "ENST00000319760.8"
+                ],
+                "ensGeneName": [
+                    "OR4A5"
+                ],
+                "entrezGenes": [
+                    81318
+                ],
+                "refSeqTrans": [
+                    "NM_001005272.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221858",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15082"
+                ],
+                "hgncSymbols": [
+                    "OR2A12"
+                ],
+                "ensTrans": [
+                    "ENST00000408949.2",
+                    "ENST00000641592.1"
+                ],
+                "ensGeneName": [
+                    "OR2A12"
+                ],
+                "entrezGenes": [
+                    346525
+                ],
+                "refSeqTrans": [
+                    "NM_001004135.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221882",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8283"
+                ],
+                "hgncSymbols": [
+                    "OR3A2"
+                ],
+                "ensTrans": [
+                    "ENST00000408891.2",
+                    "ENST00000573491.5",
+                    "ENST00000573901.2",
+                    "ENST00000576166.2",
+                    "ENST00000641164.1",
+                    "ENST00000642052.1"
+                ],
+                "ensGeneName": [
+                    "OR3A2"
+                ],
+                "entrezGenes": [
+                    4995
+                ],
+                "refSeqTrans": [
+                    "NM_002551.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221888",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8182"
+                ],
+                "hgncSymbols": [
+                    "OR1C1"
+                ],
+                "ensTrans": [
+                    "ENST00000408896.4",
+                    "ENST00000641256.1"
+                ],
+                "ensGeneName": [
+                    "OR1C1"
+                ],
+                "entrezGenes": [
+                    26188
+                ],
+                "refSeqTrans": [
+                    "NM_012353.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221933",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:19562"
+                ],
+                "hgncSymbols": [
+                    "OR2A25"
+                ],
+                "ensTrans": [
+                    "ENST00000408898.2",
+                    "ENST00000641441.1",
+                    "ENST00000641663.1"
+                ],
+                "ensGeneName": [
+                    "OR2A25"
+                ],
+                "entrezGenes": [
+                    392138
+                ],
+                "refSeqTrans": [
+                    "NM_001004488.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221938",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15084"
+                ],
+                "hgncSymbols": [
+                    "OR2A14"
+                ],
+                "ensTrans": [
+                    "ENST00000408899.2",
+                    "ENST00000641068.1"
+                ],
+                "ensGeneName": [
+                    "OR2A14"
+                ],
+                "entrezGenes": [
+                    135941
+                ],
+                "refSeqTrans": [
+                    "NM_001001659.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221954",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15168"
+                ],
+                "hgncSymbols": [
+                    "OR4C12"
+                ],
+                "ensTrans": [
+                    "ENST00000335238.4"
+                ],
+                "ensGeneName": [
+                    "OR4C12"
+                ],
+                "entrezGenes": [
+                    283093
+                ],
+                "refSeqTrans": [
+                    "NM_001005270.4"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221970",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8229"
+                ],
+                "hgncSymbols": [
+                    "OR2A1"
+                ],
+                "ensTrans": [
+                    "ENST00000408951.1",
+                    "ENST00000641044.1"
+                ],
+                "ensGeneName": [
+                    "OR2A1"
+                ],
+                "entrezGenes": [
+                    346528
+                ],
+                "refSeqTrans": [
+                    "NM_001005287.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221977",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8297"
+                ],
+                "hgncSymbols": [
+                    "OR4E2"
+                ],
+                "ensTrans": [
+                    "ENST00000408935.1",
+                    "ENST00000641524.1"
+                ],
+                "ensGeneName": [
+                    "OR4E2"
+                ],
+                "entrezGenes": [
+                    26686
+                ],
+                "refSeqTrans": [
+                    "NM_001001912.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000221989",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8230"
+                ],
+                "hgncSymbols": [
+                    "OR2A2"
+                ],
+                "ensTrans": [
+                    "ENST00000408979.2"
+                ],
+                "ensGeneName": [
+                    "OR2A2"
+                ],
+                "entrezGenes": [
+                    442361
+                ],
+                "refSeqTrans": [
+                    "NM_001005480.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000225997",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:15165"
+                ],
+                "hgncSymbols": [
+                    "OR4A8"
+                ],
+                "ensTrans": [
+                    "ENST00000418689.1"
+                ],
+                "ensGeneName": [
+                    "OR4A8"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000230178",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8300"
+                ],
+                "hgncSymbols": [
+                    "OR4F3"
+                ],
+                "ensTrans": [
+                    "ENST00000456475.1"
+                ],
+                "ensGeneName": [
+                    "OR4F3"
+                ],
+                "entrezGenes": [
+                    26683
+                ],
+                "refSeqTrans": [
+                    "NM_001005224.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000237388",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:31266"
+                ],
+                "hgncSymbols": [
+                    "OR4A47"
+                ],
+                "ensTrans": [
+                    "ENST00000446524.1"
+                ],
+                "ensGeneName": [
+                    "OR4A47"
+                ],
+                "entrezGenes": [
+                    403253
+                ],
+                "refSeqTrans": [
+                    "NM_001005512.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000237521",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8396"
+                ],
+                "hgncSymbols": [
+                    "OR7E24"
+                ],
+                "ensTrans": [
+                    "ENST00000456448.2",
+                    "ENST00000641946.1"
+                ],
+                "ensGeneName": [
+                    "OR7E24"
+                ],
+                "entrezGenes": [
+                    26648
+                ],
+                "refSeqTrans": [
+                    "NM_001079935.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000239590",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8211"
+                ],
+                "hgncSymbols": [
+                    "OR1J4"
+                ],
+                "ensTrans": [
+                    "ENST00000340750.1"
+                ],
+                "ensGeneName": [
+                    "OR1J4"
+                ],
+                "entrezGenes": [
+                    26219
+                ],
+                "refSeqTrans": [
+                    "NM_001004452.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000243896",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8234"
+                ],
+                "hgncSymbols": [
+                    "OR2A7"
+                ],
+                "ensTrans": [
+                    "ENST00000493325.1",
+                    "ENST00000641841.1"
+                ],
+                "ensGeneName": [
+                    "OR2A7"
+                ],
+                "entrezGenes": [
+                    401427
+                ],
+                "refSeqTrans": [
+                    "NM_001005328.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000249730",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:15408"
+                ],
+                "hgncSymbols": [
+                    "OR10J4"
+                ],
+                "ensTrans": [
+                    "ENST00000504970.1"
+                ],
+                "ensGeneName": [
+                    "OR10J4"
+                ],
+                "entrezGenes": [
+                    391121
+                ],
+                "refSeqTrans": [
+                    "NM_001348286.2",
+                    "NR_145510.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000251608",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:8177"
+                ],
+                "hgncSymbols": [
+                    "OR12D1"
+                ],
+                "ensTrans": [
+                    "ENST00000514827.2"
+                ],
+                "ensGeneName": [
+                    "OR12D1"
+                ],
+                "entrezGenes": [
+                    26530
+                ],
+                "refSeqTrans": [
+                    "NM_001348208.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000254466",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15173"
+                ],
+                "hgncSymbols": [
+                    "OR4D10"
+                ],
+                "ensTrans": [
+                    "ENST00000530162.2"
+                ],
+                "ensGeneName": [
+                    "OR4D10"
+                ],
+                "entrezGenes": [
+                    390197
+                ],
+                "refSeqTrans": [
+                    "NM_001004705.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000255713",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8294"
+                ],
+                "hgncSymbols": [
+                    "OR4D2"
+                ],
+                "ensTrans": [
+                    "ENST00000545221.2",
+                    "ENST00000641866.1"
+                ],
+                "ensGeneName": [
+                    "OR4D2"
+                ],
+                "entrezGenes": [
+                    124538
+                ],
+                "refSeqTrans": [
+                    "NM_001004707.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000258817",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15169"
+                ],
+                "hgncSymbols": [
+                    "OR4C13"
+                ],
+                "ensTrans": [
+                    "ENST00000555099.1"
+                ],
+                "ensGeneName": [
+                    "OR4C13"
+                ],
+                "entrezGenes": [
+                    283092
+                ],
+                "refSeqTrans": [
+                    "NM_001001955.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000260811",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:31270"
+                ],
+                "hgncSymbols": [
+                    "OR4C45"
+                ],
+                "ensTrans": [
+                    "ENST00000568934.1"
+                ],
+                "ensGeneName": [
+                    "OR4C45"
+                ],
+                "entrezGenes": [
+                    403257
+                ],
+                "refSeqTrans": [
+                    "NM_001005513.1",
+                    "NR_160275.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000262085",
+                "geneType": "polymorphic_pseudogene",
+                "hgncIds": [
+                    "HGNC:8222"
+                ],
+                "hgncSymbols": [
+                    "OR1P1"
+                ],
+                "ensTrans": [
+                    "ENST00000571766.2"
+                ],
+                "ensGeneName": [
+                    "OR1P1"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000262628",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8186"
+                ],
+                "hgncSymbols": [
+                    "OR1D5"
+                ],
+                "ensTrans": [
+                    "ENST00000575751.1"
+                ],
+                "ensGeneName": [
+                    "OR1D5"
+                ],
+                "entrezGenes": [
+                    8386
+                ],
+                "refSeqTrans": [
+                    "NM_014566.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000274102",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15373"
+                ],
+                "hgncSymbols": [
+                    "OR4M2"
+                ],
+                "ensTrans": [
+                    "ENST00000614722.2",
+                    "ENST00000638815.1"
+                ],
+                "ensGeneName": [
+                    "OR4M2"
+                ],
+                "entrezGenes": [
+                    390538
+                ],
+                "refSeqTrans": [
+                    "NM_001004719.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000274792",
+                "geneType": "protein_coding",
+                "hgncIds": [],
+                "hgncSymbols": [],
+                "ensTrans": [
+                    "ENST00000622674.1"
+                ],
+                "ensGeneName": [
+                    "AC171558.1"
+                ],
+                "entrezGenes": [
+                    102723532
+                ],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000275249",
+                "geneType": "protein_coding",
+                "hgncIds": [],
+                "hgncSymbols": [],
+                "ensTrans": [
+                    "ENST00000612882.1"
+                ],
+                "ensGeneName": [
+                    "AC171558.3"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000276240",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8296"
+                ],
+                "hgncSymbols": [
+                    "OR4E1"
+                ],
+                "ensTrans": [
+                    "ENST00000610316.2",
+                    "ENST00000641792.1"
+                ],
+                "ensGeneName": [
+                    "OR4E1"
+                ],
+                "entrezGenes": [
+                    26687
+                ],
+                "refSeqTrans": [
+                    "NM_001317107.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000279408",
+                "geneType": "protein_coding",
+                "hgncIds": [],
+                "hgncSymbols": [],
+                "ensTrans": [
+                    "ENST00000623441.1"
+                ],
+                "ensGeneName": [
+                    "AC135068.3"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000279514",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15172"
+                ],
+                "hgncSymbols": [
+                    "OR4C16"
+                ],
+                "ensTrans": [
+                    "ENST00000623907.1"
+                ],
+                "ensGeneName": [
+                    "OR4C16"
+                ],
+                "entrezGenes": [
+                    219428
+                ],
+                "refSeqTrans": [
+                    "NM_001004701.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000280094",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8181"
+                ],
+                "hgncSymbols": [
+                    "OR1B1"
+                ],
+                "ensTrans": [
+                    "ENST00000623530.1"
+                ],
+                "ensGeneName": [
+                    "OR1B1"
+                ],
+                "entrezGenes": [
+                    347169
+                ],
+                "refSeqTrans": [
+                    "NM_001004450.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000280204",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8227"
+                ],
+                "hgncSymbols": [
+                    "OR1S1"
+                ],
+                "ensTrans": [
+                    "ENST00000624470.2",
+                    "ENST00000641544.1"
+                ],
+                "ensGeneName": [
+                    "OR1S1"
+                ],
+                "entrezGenes": [
+                    219959
+                ],
+                "refSeqTrans": [
+                    "NM_001004458.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000280236",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:8178"
+                ],
+                "hgncSymbols": [
+                    "OR12D2"
+                ],
+                "ensTrans": [
+                    "ENST00000623183.1",
+                    "ENST00000642051.1"
+                ],
+                "ensGeneName": [
+                    "OR12D2"
+                ],
+                "entrezGenes": [
+                    26529
+                ],
+                "refSeqTrans": [
+                    "NM_013936.3"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000280709",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:53069"
+                ],
+                "hgncSymbols": [
+                    "LINC02203"
+                ],
+                "ensTrans": [
+                    "ENST00000625989.2",
+                    "ENST00000628444.1"
+                ],
+                "ensGeneName": [
+                    "LINC02203"
+                ],
+                "entrezGenes": [
+                    727924
+                ],
+                "refSeqTrans": [
+                    "NR_015416.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000284662",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:15079"
+                ],
+                "hgncSymbols": [
+                    "OR4F16"
+                ],
+                "ensTrans": [
+                    "ENST00000332831.4"
+                ],
+                "ensGeneName": [
+                    "OR4F16"
+                ],
+                "entrezGenes": [
+                    81399
+                ],
+                "refSeqTrans": [
+                    "NM_001005277.1"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000284723",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:19628"
+                ],
+                "hgncSymbols": [
+                    "OR8S1"
+                ],
+                "ensTrans": [
+                    "ENST00000310194.1",
+                    "ENST00000641651.1"
+                ],
+                "ensGeneName": [
+                    "OR8S1"
+                ],
+                "entrezGenes": [
+                    341568
+                ],
+                "refSeqTrans": [
+                    "NM_001005203.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000284733",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:31275"
+                ],
+                "hgncSymbols": [
+                    "OR4F29"
+                ],
+                "ensTrans": [
+                    "ENST00000426406.3"
+                ],
+                "ensGeneName": [
+                    "OR4F29"
+                ],
+                "entrezGenes": [
+                    729759
+                ],
+                "refSeqTrans": [
+                    "NM_001005221.2"
+                ]
+            },
+            {
+                "famId": "fam0",
+                "ensGene": "ENSG00000285472",
+                "geneType": "protein_coding",
+                "hgncIds": [],
+                "hgncSymbols": [],
+                "ensTrans": [
+                    "ENST00000639059.1"
+                ],
+                "ensGeneName": [
+                    "AC134980.3"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": [
+                    "NR_110481.1"
+                ]
+            }
+        ]
+    },
+    {
+        "famId": "fam1",
+        "hgncSymbols": [
+            "TUBA1A",
+            "TUBA1B",
+            "TUBA1C",
+            "TUBA3C",
+            "TUBA3D",
+            "TUBA3E",
+            "TUBA4A",
+            "TUBA4B",
+            "TUBA8",
+            "TUBAL3",
+            "TUBB",
+            "TUBB1",
+            "TUBB2A",
+            "TUBB2B",
+            "TUBB3",
+            "TUBB4A",
+            "TUBB4B",
+            "TUBB6",
+            "TUBB8",
+            "TUBB8B",
+            "TUBD1",
+            "TUBE1",
+            "TUBG1",
+            "TUBG2"
+        ],
+        "promiscuous": false,
+        "genes": [
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000037042",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:12419"
+                ],
+                "hgncSymbols": [
+                    "TUBG2"
+                ],
+                "ensTrans": [
+                    "ENST00000251412.8",
+                    "ENST00000588870.1",
+                    "ENST00000590396.1"
+                ],
+                "ensGeneName": [
+                    "TUBG2"
+                ],
+                "entrezGenes": [
+                    27175
+                ],
+                "refSeqTrans": [
+                    "NM_001320509.2",
+                    "NM_016437.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000074935",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20775"
+                ],
+                "hgncSymbols": [
+                    "TUBE1"
+                ],
+                "ensTrans": [
+                    "ENST00000368657.7",
+                    "ENST00000368662.10",
+                    "ENST00000441191.5",
+                    "ENST00000603621.1",
+                    "ENST00000603651.1",
+                    "ENST00000603722.1",
+                    "ENST00000604689.1",
+                    "ENST00000604743.5",
+                    "ENST00000604814.5",
+                    "ENST00000604967.1",
+                    "ENST00000605457.5"
+                ],
+                "ensGeneName": [
+                    "TUBE1"
+                ],
+                "entrezGenes": [
+                    51175
+                ],
+                "refSeqTrans": [
+                    "NM_016262.5"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000075886",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:24071"
+                ],
+                "hgncSymbols": [
+                    "TUBA3D"
+                ],
+                "ensTrans": [
+                    "ENST00000321253.7",
+                    "ENST00000409047.2"
+                ],
+                "ensGeneName": [
+                    "TUBA3D"
+                ],
+                "entrezGenes": [
+                    113457
+                ],
+                "refSeqTrans": [
+                    "NM_080386.4"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000101162",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:16257"
+                ],
+                "hgncSymbols": [
+                    "TUBB1"
+                ],
+                "ensTrans": [
+                    "ENST00000217133.2"
+                ],
+                "ensGeneName": [
+                    "TUBB1"
+                ],
+                "entrezGenes": [
+                    81027
+                ],
+                "refSeqTrans": [
+                    "NM_030773.4"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000104833",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20774"
+                ],
+                "hgncSymbols": [
+                    "TUBB4A"
+                ],
+                "ensTrans": [
+                    "ENST00000264071.7",
+                    "ENST00000594075.5",
+                    "ENST00000594276.5",
+                    "ENST00000594290.5",
+                    "ENST00000595324.5",
+                    "ENST00000596291.1",
+                    "ENST00000596926.5",
+                    "ENST00000597686.5",
+                    "ENST00000598006.1",
+                    "ENST00000598635.1",
+                    "ENST00000600216.5",
+                    "ENST00000601152.5",
+                    "ENST00000601640.5"
+                ],
+                "ensGeneName": [
+                    "TUBB4A"
+                ],
+                "entrezGenes": [
+                    10382
+                ],
+                "refSeqTrans": [
+                    "NM_001289123.1",
+                    "NM_001289127.1",
+                    "NM_001289129.1",
+                    "NM_001289130.1",
+                    "NM_001289131.1",
+                    "NM_006087.4"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000108423",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:16811"
+                ],
+                "hgncSymbols": [
+                    "TUBD1"
+                ],
+                "ensTrans": [
+                    "ENST00000325752.8",
+                    "ENST00000340993.10",
+                    "ENST00000346141.10",
+                    "ENST00000376094.8",
+                    "ENST00000394239.7",
+                    "ENST00000539018.5",
+                    "ENST00000587476.1",
+                    "ENST00000588009.1",
+                    "ENST00000588706.1",
+                    "ENST00000590498.5",
+                    "ENST00000591548.5",
+                    "ENST00000591611.5",
+                    "ENST00000592145.1",
+                    "ENST00000592426.5",
+                    "ENST00000593110.5",
+                    "ENST00000613721.4"
+                ],
+                "ensGeneName": [
+                    "TUBD1"
+                ],
+                "entrezGenes": [
+                    51174
+                ],
+                "refSeqTrans": [
+                    "NM_001193609.1",
+                    "NM_001193610.1",
+                    "NM_001193611.1",
+                    "NM_001193612.1",
+                    "NM_001193613.1",
+                    "NM_016261.4"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000123416",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:18809"
+                ],
+                "hgncSymbols": [
+                    "TUBA1B"
+                ],
+                "ensTrans": [
+                    "ENST00000332858.10",
+                    "ENST00000336023.9",
+                    "ENST00000547476.5",
+                    "ENST00000547765.5",
+                    "ENST00000549870.5",
+                    "ENST00000550367.1",
+                    "ENST00000551324.5",
+                    "ENST00000552984.1"
+                ],
+                "ensGeneName": [
+                    "TUBA1B"
+                ],
+                "entrezGenes": [
+                    10376
+                ],
+                "refSeqTrans": [
+                    "NM_006082.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000127824",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:12407"
+                ],
+                "hgncSymbols": [
+                    "TUBA4A"
+                ],
+                "ensTrans": [
+                    "ENST00000248437.9",
+                    "ENST00000392088.6",
+                    "ENST00000398989.2",
+                    "ENST00000425551.1",
+                    "ENST00000427737.5",
+                    "ENST00000447205.1",
+                    "ENST00000456818.5",
+                    "ENST00000462806.5",
+                    "ENST00000475683.1",
+                    "ENST00000498660.1"
+                ],
+                "ensGeneName": [
+                    "TUBA4A"
+                ],
+                "entrezGenes": [
+                    7277
+                ],
+                "refSeqTrans": [
+                    "NM_001278552.1",
+                    "NM_006000.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000131462",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:12417"
+                ],
+                "hgncSymbols": [
+                    "TUBG1"
+                ],
+                "ensTrans": [
+                    "ENST00000251413.8",
+                    "ENST00000588056.1",
+                    "ENST00000589613.1",
+                    "ENST00000589688.1",
+                    "ENST00000591509.5"
+                ],
+                "ensGeneName": [
+                    "TUBG1"
+                ],
+                "entrezGenes": [
+                    7283
+                ],
+                "refSeqTrans": [
+                    "NM_001070.5"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000137267",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:12412"
+                ],
+                "hgncSymbols": [
+                    "TUBB2A"
+                ],
+                "ensTrans": [
+                    "ENST00000333628.4",
+                    "ENST00000489942.1"
+                ],
+                "ensGeneName": [
+                    "TUBB2A"
+                ],
+                "entrezGenes": [
+                    7280
+                ],
+                "refSeqTrans": [
+                    "NM_001069.3",
+                    "NM_001310315.2"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000137285",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:30829"
+                ],
+                "hgncSymbols": [
+                    "TUBB2B"
+                ],
+                "ensTrans": [
+                    "ENST00000259818.8",
+                    "ENST00000473006.1"
+                ],
+                "ensGeneName": [
+                    "TUBB2B"
+                ],
+                "entrezGenes": [
+                    347733
+                ],
+                "refSeqTrans": [
+                    "NM_178012.5"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000152086",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20765"
+                ],
+                "hgncSymbols": [
+                    "TUBA3E"
+                ],
+                "ensTrans": [
+                    "ENST00000312988.9"
+                ],
+                "ensGeneName": [
+                    "TUBA3E"
+                ],
+                "entrezGenes": [
+                    112714
+                ],
+                "refSeqTrans": [
+                    "NM_207312.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000167552",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20766"
+                ],
+                "hgncSymbols": [
+                    "TUBA1A"
+                ],
+                "ensTrans": [
+                    "ENST00000295766.9",
+                    "ENST00000301071.12",
+                    "ENST00000546918.1",
+                    "ENST00000547939.5",
+                    "ENST00000548363.1",
+                    "ENST00000550254.1",
+                    "ENST00000550767.5",
+                    "ENST00000550811.1",
+                    "ENST00000552924.1"
+                ],
+                "ensGeneName": [
+                    "TUBA1A"
+                ],
+                "entrezGenes": [
+                    7846
+                ],
+                "refSeqTrans": [
+                    "NM_001270399.1",
+                    "NM_001270400.1",
+                    "NM_006009.4"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000167553",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20768"
+                ],
+                "hgncSymbols": [
+                    "TUBA1C"
+                ],
+                "ensTrans": [
+                    "ENST00000301072.11",
+                    "ENST00000541364.5",
+                    "ENST00000548470.1",
+                    "ENST00000549183.1",
+                    "ENST00000549554.1",
+                    "ENST00000549818.5",
+                    "ENST00000550574.1",
+                    "ENST00000552125.1",
+                    "ENST00000552448.1",
+                    "ENST00000639419.1"
+                ],
+                "ensGeneName": [
+                    "TUBA1C"
+                ],
+                "entrezGenes": [
+                    84790
+                ],
+                "refSeqTrans": [
+                    "NM_001303114.1",
+                    "NM_001303115.2",
+                    "NM_001303116.2",
+                    "NM_001303117.2",
+                    "NM_032704.5"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000173213",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:24983"
+                ],
+                "hgncSymbols": [
+                    "TUBB8B"
+                ],
+                "ensTrans": [
+                    "ENST00000308911.8",
+                    "ENST00000594555.1"
+                ],
+                "ensGeneName": [
+                    "TUBB8B"
+                ],
+                "entrezGenes": [
+                    260334
+                ],
+                "refSeqTrans": [
+                    "NM_001358689.1"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000176014",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20776"
+                ],
+                "hgncSymbols": [
+                    "TUBB6"
+                ],
+                "ensTrans": [
+                    "ENST00000317702.10",
+                    "ENST00000417736.2",
+                    "ENST00000586653.5",
+                    "ENST00000586691.1",
+                    "ENST00000586810.5",
+                    "ENST00000587204.1",
+                    "ENST00000590103.5",
+                    "ENST00000590388.5",
+                    "ENST00000590693.5",
+                    "ENST00000590967.5",
+                    "ENST00000591208.1",
+                    "ENST00000591463.1",
+                    "ENST00000591909.5",
+                    "ENST00000592683.5"
+                ],
+                "ensGeneName": [
+                    "TUBB6"
+                ],
+                "entrezGenes": [
+                    84617
+                ],
+                "refSeqTrans": [
+                    "NM_001303524.1",
+                    "NM_001303525.1",
+                    "NM_001303526.2",
+                    "NM_001303527.2",
+                    "NM_001303528.2",
+                    "NM_001303529.2",
+                    "NM_001303530.2",
+                    "NM_032525.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000178462",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:23534"
+                ],
+                "hgncSymbols": [
+                    "TUBAL3"
+                ],
+                "ensTrans": [
+                    "ENST00000380419.8",
+                    "ENST00000479328.1"
+                ],
+                "ensGeneName": [
+                    "TUBAL3"
+                ],
+                "entrezGenes": [
+                    79861
+                ],
+                "refSeqTrans": [
+                    "NM_001171864.2",
+                    "NM_024803.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000183785",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:12410"
+                ],
+                "hgncSymbols": [
+                    "TUBA8"
+                ],
+                "ensTrans": [
+                    "ENST00000316027.10",
+                    "ENST00000330423.8",
+                    "ENST00000416740.1",
+                    "ENST00000426208.5",
+                    "ENST00000608634.1"
+                ],
+                "ensGeneName": [
+                    "TUBA8"
+                ],
+                "entrezGenes": [
+                    51807
+                ],
+                "refSeqTrans": [
+                    "NM_001193414.2",
+                    "NM_018943.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000188229",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20771"
+                ],
+                "hgncSymbols": [
+                    "TUBB4B"
+                ],
+                "ensTrans": [
+                    "ENST00000340384.5",
+                    "ENST00000604929.1"
+                ],
+                "ensGeneName": [
+                    "TUBB4B"
+                ],
+                "entrezGenes": [
+                    10383
+                ],
+                "refSeqTrans": [
+                    "NM_006088.6"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000196230",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20778"
+                ],
+                "hgncSymbols": [
+                    "TUBB"
+                ],
+                "ensTrans": [
+                    "ENST00000327892.13",
+                    "ENST00000330914.7",
+                    "ENST00000396384.1",
+                    "ENST00000396389.5"
+                ],
+                "ensGeneName": [
+                    "TUBB"
+                ],
+                "entrezGenes": [
+                    203068
+                ],
+                "refSeqTrans": [
+                    "NM_001293212.2",
+                    "NM_001293213.2",
+                    "NM_001293214.2",
+                    "NM_001293215.2",
+                    "NM_001293216.2",
+                    "NM_178014.4",
+                    "NR_120608.2"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000198033",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:12408"
+                ],
+                "hgncSymbols": [
+                    "TUBA3C"
+                ],
+                "ensTrans": [
+                    "ENST00000400113.8",
+                    "ENST00000618094.1"
+                ],
+                "ensGeneName": [
+                    "TUBA3C"
+                ],
+                "entrezGenes": [
+                    7278
+                ],
+                "refSeqTrans": [
+                    "NM_006001.3"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000198211",
+                "geneType": "protein_coding",
+                "hgncIds": [],
+                "hgncSymbols": [],
+                "ensTrans": [
+                    "ENST00000556922.1"
+                ],
+                "ensGeneName": [
+                    "AC092143.1"
+                ],
+                "entrezGenes": [],
+                "refSeqTrans": []
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000243910",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:18637"
+                ],
+                "hgncSymbols": [
+                    "TUBA4B"
+                ],
+                "ensTrans": [
+                    "ENST00000473885.5",
+                    "ENST00000485041.5",
+                    "ENST00000490341.3"
+                ],
+                "ensGeneName": [
+                    "TUBA4B"
+                ],
+                "entrezGenes": [
+                    80086
+                ],
+                "refSeqTrans": [
+                    "NM_001355221.1"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000258947",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20772"
+                ],
+                "hgncSymbols": [
+                    "TUBB3"
+                ],
+                "ensTrans": [
+                    "ENST00000315491.12",
+                    "ENST00000553656.5",
+                    "ENST00000553967.1",
+                    "ENST00000554116.5",
+                    "ENST00000554336.5",
+                    "ENST00000554444.5",
+                    "ENST00000554927.1",
+                    "ENST00000555576.5",
+                    "ENST00000555609.5",
+                    "ENST00000555810.5",
+                    "ENST00000556536.5",
+                    "ENST00000556565.5",
+                    "ENST00000557262.5",
+                    "ENST00000557490.5",
+                    "ENST00000625617.2"
+                ],
+                "ensGeneName": [
+                    "TUBB3"
+                ],
+                "entrezGenes": [
+                    10381
+                ],
+                "refSeqTrans": [
+                    "NM_001197181.2",
+                    "NM_006086.4"
+                ]
+            },
+            {
+                "famId": "fam1",
+                "ensGene": "ENSG00000261456",
+                "geneType": "protein_coding",
+                "hgncIds": [
+                    "HGNC:20773"
+                ],
+                "hgncSymbols": [
+                    "TUBB8"
+                ],
+                "ensTrans": [
+                    "ENST00000561967.1",
+                    "ENST00000562809.1",
+                    "ENST00000563456.1",
+                    "ENST00000564130.2",
+                    "ENST00000567466.1",
+                    "ENST00000568584.6",
+                    "ENST00000568866.5"
+                ],
+                "ensGeneName": [
+                    "TUBB8"
+                ],
+                "entrezGenes": [
+                    347688
+                ],
+                "refSeqTrans": [
+                    "NM_177987.3"
+                ]
+            }
+        ]
+    }
+]

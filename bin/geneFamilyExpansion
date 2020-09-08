@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+from collections import defaultdict
+from pycbio.sys import fileOps
+from pycbio.sys.objDict import OrderedObjDict
+# from pycbio.hgdata.bed import Bed, BedReader
+from geneFamilyLib import GeneBoundsBed, whackVersion
+
+# WARNING: assumes gencode right now
+
+# DID NOT DETECT ANY EXPANSION see t2t-chm13-gene-analysis
+
+def parseArgs():
+    usage = """Identify apparent gene family expansions based on data from
+    geneFamilyBuildInfo and geneBoundsFromBigBlatPsl """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--minExpansionCnt', type=int, default=2,
+                        help="minimum number of new loci in the family, negative will include contractions")
+    parser.add_argument('geneFamiliesJson',
+                        help="results from geneFamilyBuildInfo")
+    parser.add_argument('geneBoundsBed',
+                        help="results from geneBoundsFromBigBlatPsl")
+    parser.add_argument('expandedFamilyBed',
+                        help="BED with expanded families")
+    return parser.parse_args()
+
+def loadGeneFamilies(geneFamiliesJson):
+    with fileOps.opengz(geneFamiliesJson) as fh:
+        return json.load(fh, object_hook=OrderedObjDict)
+
+def loadGeneBounds(geneBoundsBed):
+    geneToBounds = defaultdict(list)
+    for bed in BedReader(geneBoundsBed, bedClass=GeneBoundsBed, numStdCols=6):
+        geneToBounds[whackVersion(bed.name)].append(bed)
+    return geneToBounds
+
+def shouldAnalyzeFamily(family):
+    return not family.promiscuous
+
+def getFamilyGeneBounds(family, genesBounds):
+    "get geneBounds for all genes in family"
+    boundsBeds = []
+    for gene in family.genes:
+        gb = genesBounds.get(gene.ensGene)
+        if gb is not None:
+            boundsBeds.append(gb)
+    return boundsBeds
+
+def hasExpansion(family, famGenes, minExpansionCnt):
+    print("@2", family.famId, len(family.genes), len(famGenes))
+    return (len(famGenes) - len(family.genes)) > minExpansionCnt
+
+def processExpandedFamily(family, famGenes, expandBedFh):
+    print("@3", family.famId, len(family.genes), len(famGenes))
+
+def expansionReport(families, genesBounds, minExpansionCnt, expandBedFh):
+    for family in families:
+        if shouldAnalyzeFamily(family):
+            famGenes = getFamilyGeneBounds(family, genesBounds)
+            if hasExpansion(family, famGenes, minExpansionCnt):
+                processExpandedFamily(family, famGenes, expandBedFh)
+
+
+def main(args):
+    families = loadGeneFamilies(args.geneFamiliesJson)
+    genesBounds = loadGeneBounds(args.geneBoundsBed)
+    with open(args.expandedFamilyBed, 'w') as expandBedFh:
+        expansionReport(families, genesBounds, args.minExpansionCnt, expandBedFh)
+
+main(parseArgs())

@@ -87,7 +87,7 @@ class SingleEndedStarAligner(StarAligner):
     --outFilterType BySJout \
     --outSAMattributes NH HI AS NM MD \
     --outSAMstrandField intronMotif \
-    --outSAMtype BAM SortedByCoordinate  \
+    --outSAMtype BAM SortedByCoordinate \
     --sjdbScore 1 \
     --limitBAMsortRAM {ramGB}000000000
     --outFileNamePrefix {outFileNamePrefix}"""

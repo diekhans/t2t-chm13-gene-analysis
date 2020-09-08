@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+
+import argparse
+from collections import defaultdict, deque
+from pycbio.sys import fileOps
+from pycbio.sys.symEnum import SymEnum
+import pyBigWig
+from geneFamilyLib import GeneBoundsBed
+
+class NameColumn(SymEnum):
+    geneId = 1
+    geneSym = 2
+
+def parseArgs():
+    usage = """Get bounds of genes for bigBlatPsl format alignments which have HGNC ids."""
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--nameField', choices=(NameColumn.geneId, NameColumn.geneSym),
+                        default=NameColumn.geneId, type=NameColumn,
+                        help="which column to use for in name")
+    parser.add_argument('bigBlatPsl',
+                        help="must follow bigBlatPsl.as")
+    parser.add_argument('geneBoundsBed',
+                        help="BED for each gene bounds, score field has number to distinguish between multiple mappings of the same gene.")
+    return parser.parse_args()
+
+strandColumnIdx = 2
+geneSymColumnIdx = 22
+geneIdColumnIdx = 23
+hgncIdColumnIdx = 24
+
+
+def isHgnc(v):
+    return v not in ("", "NULL")
+
+def loadGeneTransBeds(bbpFh, chrom, chromSize, nameField):
+    "only keep ones with HGNC ids"
+    geneTransBeds = defaultdict(list)
+
+    if nameField == NameColumn.geneId:
+        nameIdx = geneIdColumnIdx
+    elif nameField == NameColumn.geneSym:
+        nameIdx = geneSymColumnIdx
+    for entry in bbpFh.entries(chrom, 0, bbpFh.chroms(chrom)):
+        row = entry[2].split('\t')
+        if isHgnc(row[hgncIdColumnIdx]):
+            b = GeneBoundsBed(chrom, entry[0], entry[1], row[nameIdx], 0, row[strandColumnIdx],
+                              extraCols=(row[geneSymColumnIdx], row[hgncIdColumnIdx], row[geneIdColumnIdx]))
+            geneTransBeds[row[hgncIdColumnIdx]].append(b)
+    return geneTransBeds
+
+def overlaps(b1, b2):
+    return (b1.strand == b2.strand) and (b1.start < b2.end) and (b1.end > b2.start)
+
+def merge(b1, b2):
+    b = GeneBoundsBed(b1.chrom, min(b1.start, b2.start), max(b1.end, b2.end), b1.name, 0, b1.strand, extraCols=b1.extraCols)
+    b.addGeneIds(b2.geneIds)
+    return b
+
+def mergeOrAdd(outRanges, inBed):
+    for i in range(len(outRanges)):
+        if overlaps(outRanges[i], inBed):
+            outRanges[i] = merge(outRanges[i], inBed)
+            return True
+    outRanges.append(inBed)
+    return False
+
+def clusterPass(inRanges, outRanges):
+    mergedSome = False
+    while len(inRanges) > 0:
+        if mergeOrAdd(outRanges, inRanges.pop()):
+            mergedSome = True
+    return mergedSome
+
+def clusterGeneTrans(transBeds):
+    "cluster transcripts for a gene into overlapping beds"
+    inRanges = deque(transBeds)
+    outRanges = deque()
+    while True:
+        if not clusterPass(inRanges, outRanges):
+            break
+        inRanges, outRanges = outRanges, inRanges
+    assert len(inRanges) == 0
+    return list(outRanges)
+
+def clusterGenes(geneTransBeds):
+    "cluster all genes ranges on a chrom so we can sort"
+    genesRanges = []
+    for transBeds in geneTransBeds.values():
+        genesRanges.extend(clusterGeneTrans(transBeds))
+    return genesRanges
+
+def setLociNumbers(genesRanges, geneIdLociCounts):
+    for gr in genesRanges:
+        gr.score = geneIdLociCounts[gr.name]
+        geneIdLociCounts[gr.name] += 1
+
+def geneBoundsForChrom(bbpFh, chrom, chromSize, geneIdLociCounts, nameField, bedFh):
+    "one chrom at a time to save memory"
+    geneTransBeds = loadGeneTransBeds(bbpFh, chrom, chromSize, nameField)
+    genesRanges = clusterGenes(geneTransBeds)
+    setLociNumbers(genesRanges, geneIdLociCounts)
+    for geneRange in sorted(genesRanges, key=lambda b: (b.start, -b.end)):
+        geneRange.write(bedFh)
+
+def geneBoundsFromBigBlatPsl(bigBlatPsl, nameField, bedFh):
+    geneIdLociCounts = defaultdict(int)
+    bbpFh = pyBigWig.open(bigBlatPsl)
+    for chrom in sorted(bbpFh.chroms()):
+        geneBoundsForChrom(bbpFh, chrom, bbpFh.chroms(chrom), geneIdLociCounts, nameField, bedFh)
+
+def main(args):
+    with fileOps.opengz(args.geneBoundsBed, "w") as bedFh:
+        geneBoundsFromBigBlatPsl(args.bigBlatPsl, args.nameField, bedFh)
+
+main(parseArgs())

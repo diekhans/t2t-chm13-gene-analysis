@@ -1,0 +1,196 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+from collections import defaultdict, namedtuple
+from pycbio.sys import fileOps
+from pycbio.sys.objDict import OrderedObjDict
+from pycbio.tsv import TabFileReader
+from pycbio.hgdata import hgDb
+from pycbio.db import mysqlOps
+from geneFamilyLib import whackVersion
+
+mysqlOps.mySqlSetErrorOnWarn()
+
+def parseArgs():
+    usage = """Collect information on gene families given Ensembl definitions and ucsc database """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--testMode', action='store_true', default=False,
+                        help="test mode, don't preload all GENCODE genes")
+    parser.add_argument('ensemblFamiliesTab',
+                        help="TAB file from ensembl")
+    parser.add_argument('geneFamiliesJson',
+                        help="output info in JSON format")
+    return parser.parse_args()
+
+gencodeVer = "V35"
+
+def setToList(s):
+    return list(sorted(s))
+
+def addUniq(s, v):
+    if v is not None:
+        s.add(v)
+
+class GeneInfo(OrderedObjDict):
+    """one of these per-family, so duplicated when a gene gets places in
+    multiple families"""
+    def __init__(self, ensGene, famId):
+        self.famId = famId
+        self.ensGene = ensGene
+        self.geneType = None
+        self.hgncIds = set()
+        self.hgncSymbols = set()
+        self.ensTrans = set()
+        self.ensGeneName = set()
+        self.entrezGenes = set()
+        self.refSeqTrans = set()
+
+    def addOtherFamilies(self, famIds):
+        self.otherFamilies = famIds
+
+    def finish(self):
+        self.hgncIds = setToList(self.hgncIds)
+        self.hgncSymbols = setToList(self.hgncSymbols)
+        self.ensTrans = setToList(self.ensTrans)
+        self.ensGeneName = setToList(self.ensGeneName)
+        self.entrezGenes = setToList(self.entrezGenes)
+        self.refSeqTrans = setToList(self.refSeqTrans)
+        if hasattr(self, "otherFamilies"):
+            self.otherFamilies = setToList(self.otherFamilies)
+
+class Family(OrderedObjDict):
+    """information about a family, easily converted to JSON"""
+
+    def __init__(self, famIdNumber):
+        self.famId = "fam{}".format(famIdNumber)
+        self.hgncSymbols = set()
+        self.promiscuous = False   # genes in multiple familiues
+        self.genes = []
+
+    def finish(self):
+        for g in self.genes:
+            self.hgncSymbols |= g.hgncSymbols
+            g.finish()
+            if hasattr(g, "otherFamilies"):
+                self.promiscuous = True
+        self.hgncSymbols = setToList(self.hgncSymbols)
+
+class FamilyGene(namedtuple("GeneFamily", ("family", "gene"))):
+    "pair of family and gene objects"
+    pass
+
+def addToFamily(ensGeneId, fam, geneXRef):
+    g = GeneInfo(ensGeneId, fam.famId)
+    fam.genes.append(g)
+    acc = whackVersion(ensGeneId)
+    geneXRef[acc].append(FamilyGene(fam, g))
+
+def loadFamily(ensGeneIds, geneXRef, famIdNumber):
+    fam = Family(famIdNumber)
+    for ensGeneId in sorted(ensGeneIds):
+        addToFamily(ensGeneId, fam, geneXRef)
+    return fam
+
+def loadFamilyEnsIds(ensemblFamiliesTab):
+    """generate unique sets of gene ids, as the format
+    is geneId: otherIds, so rows are not unique"""
+
+    ignoreRow0 = "Gene stable ID"
+    ignoreEntires = ('', 'gene_split')
+    ensIdFamilies = set()
+    for row in TabFileReader(ensemblFamiliesTab):
+        if row[0] != ignoreRow0:
+            ensIdFamilies.add(frozenset([g for g in row if g not in ignoreEntires]))
+    return ensIdFamilies
+
+def loadFamilies(ensemblFamiliesTab):
+    families = []
+    geneXRef = defaultdict(list)  # genes can be in multiple families in list
+    for ensGeneIds in loadFamilyEnsIds(ensemblFamiliesTab):
+        if len(ensGeneIds) > 1:
+            families.append(loadFamily(ensGeneIds, geneXRef, len(families)))
+    return families, geneXRef
+
+class GencodeMetadataQuery:
+    """Obtain GENCODE metadata from UCSC browser database, with caching and
+    optional pre-load"""
+    sql = """
+    SELECT ga.transcriptId as ensTranscriptId, ga.geneId as ensGeneId, ga.geneName as ensGeneName, ga.geneType,
+       gs.symbol as hgncSymbol, gs.geneId as hgncId,
+       eg.entrezGeneId, rs.rnaAcc as refSeqTransId
+    FROM gencodeAttrs{gv} ga
+    LEFT JOIN gencodeToEntrezGene{gv} eg ON eg.transcriptId = ga.transcriptId
+    LEFT JOIN gencodeToGeneSymbol{gv} gs ON gs.transcriptId = ga.transcriptId
+    LEFT JOIN gencodeToRefSeq{gv} rs ON rs.transcriptId = ga.transcriptId""".format(gv=gencodeVer)
+
+    sqlWhere = sql + """ WHERE ga.geneId LIKE "{geneAcc}.%" """
+
+    def __init__(self, preload):
+        self.conn = hgDb.connect("hg38", dictCursor=True)
+        self.transcriptsByGeneAcc = defaultdict(list)
+        self._preloaded = preload
+        if preload:
+            self._preload()
+
+    def _addRec(self, rec):
+        self.transcriptsByGeneAcc[whackVersion(rec['ensGeneId'])].append(OrderedObjDict(rec))
+
+    def _preload(self):
+        for rec in mysqlOps.query(self.conn, self.sql):
+            self._addRec(rec)
+
+    def _loadByGeneAcc(self, geneAcc):
+        for rec in mysqlOps.query(self.conn, self.sqlWhere.format(geneAcc=geneAcc)):
+            self._addRec(rec)
+
+    def getByGeneAcc(self, geneAcc):
+        transMetas = self.transcriptsByGeneAcc.get(geneAcc)
+        if (transMetas is None) and (not self._preloaded):
+            self._loadByGeneAcc(geneAcc)
+            transMetas = self.transcriptsByGeneAcc.get(geneAcc)
+        if transMetas is None:
+            raise Exception("{} not found in database".format(geneAcc))
+        return transMetas
+
+def addGeneMetadata(gene, transMeta):
+    gene.geneType = transMeta.geneType
+    addUniq(gene.ensTrans, transMeta.ensTranscriptId)
+    addUniq(gene.ensGeneName, transMeta.ensGeneName)
+    addUniq(gene.hgncIds, transMeta.hgncId)
+    addUniq(gene.hgncSymbols, transMeta.hgncSymbol)
+    addUniq(gene.entrezGenes, transMeta.entrezGeneId)
+    addUniq(gene.refSeqTrans, transMeta.refSeqTransId)
+
+
+def addMetadata(families, metadataQuery):
+    for family in families:
+        for gene in sorted(family.genes, key=lambda g: g.ensGene):
+            for transMeta in sorted(metadataQuery.getByGeneAcc(gene.ensGene), key=lambda tm: tm.ensTranscriptId):
+                addGeneMetadata(gene, transMeta)
+
+def linkGeneToOtherFamilies(famsGenes):
+    """set other families field for gene objects for the same gene"""
+    famIds = set([f.family.famId for f in famsGenes])
+    for famGene in famsGenes:
+        famGene.gene.addOtherFamilies(famIds - set([famGene.family.famId]))
+
+def linkOtherFamilies(geneXRef):
+    for famsGenes in geneXRef.values():
+        if len(famsGenes) > 1:
+            linkGeneToOtherFamilies(famsGenes)
+
+def finishFamilies(families):
+    for fam in families:
+        fam.finish()
+
+def main(args):
+    families, geneXRef = loadFamilies(args.ensemblFamiliesTab)
+    metadataQuery = GencodeMetadataQuery(not args.testMode)
+    addMetadata(families, metadataQuery)
+    linkOtherFamilies(geneXRef)
+    finishFamilies(families)
+    with fileOps.opengz(args.geneFamiliesJson, "w") as jsonFh:
+        json.dump(families, jsonFh, indent=4)
+
+main(parseArgs())

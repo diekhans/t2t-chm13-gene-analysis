@@ -1,12 +1,13 @@
-* transferring Globus to S3 
+* data
+** transferring Globus to S3 
 http://docs.staging.globuscs.info/premium-storage-connectors/legacy/aws-s3-legacy/
 http://docs.staging.globuscs.info/premium-storage-connectors/aws-s3/
-* short RNA-Seq
-** encode
+** short RNA-Seq
+*** encode
 file encode-rnaseq.status.tsv in get is used to track the status
 in build/t2tChm13_20200727/shortRnaSeq
 
-*** set 1 2020-08-18
+**** set 1 2020-08-18
 - poly(A) RNA, 
 - tissues: brain, testis, liver, H1, GM12878
 
@@ -32,7 +33,7 @@ ln -s ../../../../t2t-chm13-gene-analysis/bin/starAlignPara
 para create -ram=32g jobs1 -batch=b1
 para push -ram=32g -batch=b1
 
-*** set 2 2020-08-23
+**** set 2 2020-08-23
 # get second set of RNAs, get  ploy-A min 100 bases
 ~/compbio/gencode/projs/icedb/gencode-icedb-dev/bin/rslEncodeDccQuery --assay=polyA_RNA --minReadLength=100  tmp.tsv
 
@@ -41,17 +42,17 @@ encode-rnaseq.set2.tsv  447
 # add this to status list
 tawk 'NR>1{print $2, "pending", ""}' encode-rnaseq.set2.tsv  >x
 
-*** all sets of unfiltered mappings in 
+**** all sets of unfiltered mappings in 
 /team-genes/20200727/shortRnaSeq/raw-mappings
 
-** intron calling: 
-*** Run by Ann Mc Cartney using intronProspector 0.6.o with commands in the form:
+*** intron calling: 
+**** Run by Ann Mc Cartney using intronProspector 0.6.o with commands in the form:
   intronProspector --genome-fasta=t2tChm13_20200727.fa.gz  --min-confidence-score=1.0 --intron-calls=$run.raw.introns.tsv  ../raw/$run.raw.bam
 on set1 and set2
 
-*** /team-genes/20200727/shortRnaSeq/raw-introns/
+**** /team-genes/20200727/shortRnaSeq/raw-introns/
 
-** generate combined TSV
+*** generate combined TSV
 cd shortRnaSeq/
 
 export PATH=${HOME}/compbio/gencode/projs/icedb/intronProspector/bin:${HOME}/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/bin/:${PATH}
@@ -61,5 +62,60 @@ intronMergeGenMake --inputsPerJob=5 raw-introns /data/tmp/markd/introns shortRna
 cd /data/tmp/markd/introns
 nice make -j 32 >&log&
 
-* longRnaSeq:
+** longRnaSeq:
 
+** refseqs not in GRCh38
+
+
+** gene family data  (geneFamilies)
+ DEAD END with MULTI FAMILY:
+
+*** data
+- Ann obtained list of gene families from ensembl
+  ensembl_multigenefamilies_GRCh38_FINAL.tab.gz
+- Note, it contains likes like:
+   ENSG00000260371	ENSG00000272617	gene_split	ENSG00000213380	
+- and line
+   Gene stable ID	Human paralogue gene stable ID	Human paralogue homology type
+  dropping these for now
+*** build
+cd geneFamilies/data
+geneBoundsFromBigBlatPsl ../../../../build/t2tChm13_20200727/refSeqBlat/refSeq-curated.bigBlatPsl refSeq-curated.genes.bed
+geneBoundsFromBigBlatPsl ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl gencode.genes.bed
+
+geneFamilyBuildInfo ensembl_multigenefamilies_GRCh38_FINAL.tab.gz multigenefamilies.json.gz
+
+geneFamilyExpansion multigenefamilies.json.gz gencode.genes.bed /dev/null >&exp.out
+didn't find any expansion, although appears to be working
+
+
+** geneDup
+
+Try looking for duplication
+** data
+% cd geneDup/data
+% geneBoundsFromBigBlatPsl ../../../../../build/t2tChm13_20200727/refSeqBlat/refSeq-curated.bigBlatPsl refSeq-curated.genes.bed
+% geneBoundsFromBigBlatPsl ../../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl gencode.genes.bed
+
+
+
+
+* analysis
+** segdup
+- rDNA
+
+* observations
+** gencode/refseq blat align different family members  than CAT
+chr3:99,053,792-99,056,919
+in seg dup
+
+** chr22 centomere
+chr22:458,239-6,761,699
+
+* future:
+** chr1:129,035,884-129,059,013 [bogus]
+- repetitive array of isoseq 
+- 1q21.1 - pass on to David and Colleen
+- MD:the PB signal is less clear
+  augustus is extending theses in some kind of interesting ways
+  It is pretty easy for a gene finding to make up an ORF in a GC region
