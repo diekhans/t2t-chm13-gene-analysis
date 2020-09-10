@@ -66,9 +66,8 @@ nice make -j 32 >&log&
 
 ** refseqs not in GRCh38
 
-
 ** gene family data  (geneFamilies)
- DEAD END with MULTI FAMILY:
+DEAD END with MULTI FAMILY:
 
 *** data
 - Ann obtained list of gene families from ensembl
@@ -89,20 +88,67 @@ geneFamilyExpansion multigenefamilies.json.gz gencode.genes.bed /dev/null >&exp.
 didn't find any expansion, although appears to be working
 
 
-** geneDup
-
-Try looking for duplication
-** data
-% cd geneDup/data
-% geneBoundsFromBigBlatPsl ../../../../../build/t2tChm13_20200727/refSeqBlat/refSeq-curated.bigBlatPsl refSeq-curated.genes.bed
-% geneBoundsFromBigBlatPsl ../../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl gencode.genes.bed
-
+** CAT proteins for Ann
+bigGenePredToGenePred ../../../../build/t2tChm13_20200727/CAT/assemblyHub/CHM13/consensus.bb  stdout |tawk '$6<$7' |genePredToProt stdin ../../../../build/t2tChm13_20200727/genome/t2tChm13_20200727.2bit cat-consensus-proteins.fa
+bgzip --threads=64 cat-consensus-proteins.fa 
 
 
 
 * analysis
-** segdup
-- rDNA
+
+** geneDup
+- Look a genes that have multiple alignments blat alignments in regions with
+
+*** data
+% cd geneDup
+% geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl data/gencode.lnc-prot.genes.bed
+
+# select to avoid small loci and very large number of duplication
+geneDupSelect --minDups=0 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.10k.bed 
+geneDupSelect --minDups=2 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup2_10k.bed 
+geneDupSelect --minDups=4 --maxDups=8 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup4-8_10k.bed 
+geneDupSelect --minDups=2 --maxDups=8 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup2-8_10k.bed 
+
+10k          65174
+dup2_10k     45841
+dup2-8_10k    5634
+dup4-8_10k    2423
+
+*** centromeres
+cd centormeres/
+- any gene in centromeres that are not aligned in primary assembly
+% overlapSelect -inCoordCols=0,1,2 ../data/cenRegions.bed ../selects/gencode.10k.bed centoGenes.bed
+  centoGenes 4992
+
+% overlapSelect -inCoordCols=0,1,2 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz centoGenes.bed centoGenes.unaligned.bed
+% overlapSelect -inCoordCols=0,1,2 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz centoGenes.bed centoGenes.unaligned-primary.bed
+  centoGenes.unaligned 3695
+  centoGenes.unaligned-primary 3900 
+
+
+- centromere browser
+     ~/public_html/t2t/genes-20200727/centromere/ctracks.bed
+      https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks/
+
+  mkdir ~/public_html/t2t/genes-20200727/centromere
+  bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed -title "Centromere regions t2tChm13_20200727" t2t-chm13.20200727 data/cenRegions.bed ~/public_html/t2t/genes-20200727/centromere
+
+
+Item: AL590807.1
+Position: chr1:118361330-119720545
+Genomic Size: 1359215
+Strand: +
+
+
+
+** intersections:
+lastz unaligned
+cetromeres
+short introns
+CAT annotations
+lastz transmap
+
+
 
 * observations
 ** gencode/refseq blat align different family members  than CAT
@@ -111,6 +157,9 @@ in seg dup
 
 ** chr22 centomere
 chr22:458,239-6,761,699
+
+
+
 
 * future:
 ** chr1:129,035,884-129,059,013 [bogus]

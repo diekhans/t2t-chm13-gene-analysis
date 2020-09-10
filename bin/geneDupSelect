@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+import argparse
+import statistics
+from collections import defaultdict
+from pycbio.sys import fileOps
+from pycbio.hgdata.bed import BedReader
+from geneFamilyLib import GeneBoundsBed
+
+def parseArgs():
+    usage = """select geneBoundsFromBigBlatPsl """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--minDups', type=int, default=2,
+                        help="minimum number of duplicated loci")
+    parser.add_argument('--maxDups', type=int,
+                        help="maximum number of duplicated loci")
+    parser.add_argument('--minMeanSize', type=int, default=0,
+                        help="minimum mean size of duplicated locus ")
+    parser.add_argument('geneBoundsBed',
+                        help="results from geneBoundsFromBigBlatPsl")
+    parser.add_argument('dupBed',
+                        help="BED passing filter")
+    return parser.parse_args()
+
+def loadGeneBounds(geneBoundsBed):
+    genesBounds = defaultdict(list)
+    for bed in BedReader(geneBoundsBed, bedClass=GeneBoundsBed, numStdCols=6):
+        genesBounds[bed.name].append(bed)
+    return genesBounds
+
+def selectDups(gb, minDups, maxDups, minMeanSize):
+    if not (((minDups is None) or (len(gb) >= minDups))
+            and ((maxDups is None) or (len(gb) <= maxDups))):
+        return False
+    if (minMeanSize > 0) and (statistics.mean([b.span for b in gb]) < minMeanSize):
+        return False
+    return True
+
+def filterDups(genesBounds, minDups, maxDups, minMeanSize):
+    return [gb for gb in genesBounds.values()
+            if selectDups(gb, minDups, maxDups, minMeanSize)]
+
+def joinSortBedSets(bedSets):
+    beds = []
+    for bs in bedSets:
+        beds.extend(bs)
+    return sorted(beds, key=lambda b: (b.name, b.start))
+
+def main(args):
+    genesBounds = loadGeneBounds(args.geneBoundsBed)
+    geneDups = filterDups(genesBounds, args.minDups, args.maxDups, args.minMeanSize)
+    with fileOps.opengz(args.dupBed, 'w') as fh:
+        for b in joinSortBedSets(geneDups):
+            b.write(fh)
+
+main(parseArgs())

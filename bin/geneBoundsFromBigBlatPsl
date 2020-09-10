@@ -5,6 +5,7 @@ from collections import defaultdict, deque
 from pycbio.sys import fileOps
 from pycbio.sys.symEnum import SymEnum
 import pyBigWig
+from pycbio.hgdata.bed import BedReader
 from geneFamilyLib import GeneBoundsBed
 
 class NameColumn(SymEnum):
@@ -12,28 +13,54 @@ class NameColumn(SymEnum):
     geneSym = 2
 
 def parseArgs():
-    usage = """Get bounds of genes for bigBlatPsl format alignments which have HGNC ids."""
+    usage = """Get bounds of genes for bigBlatPsl format alignments which have some extra columns."""
     parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--hgncOnly', action="store_true")
     parser.add_argument('--nameField', choices=(NameColumn.geneId, NameColumn.geneSym),
                         default=NameColumn.geneId, type=NameColumn,
-                        help="which column to use for in name")
+                        help="which column to use for in name and for grouping into genes")
+    parser.add_argument('--geneType', action='append',
+                        help='type of gene, maybe repeated')
+    parser.add_argument('--sourceAnnot',
+                        help='BED or more of source genes for expansion checking')
+    parser.add_argument('--maxSourceExpansion', type=float, default=1.5,
+                        help='max fraction of size source alignment increase (e.g. 1.5)')
     parser.add_argument('bigBlatPsl',
                         help="must follow bigBlatPsl.as")
     parser.add_argument('geneBoundsBed',
                         help="BED for each gene bounds, score field has number to distinguish between multiple mappings of the same gene.")
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.geneType is not None:
+        args.geneType = frozenset(args.geneType)
+    return args
 
+nameColumnIdx = 0
 strandColumnIdx = 2
 geneSymColumnIdx = 22
 geneIdColumnIdx = 23
 hgncIdColumnIdx = 24
+geneTypeColumnIdx = 25
 
+def loadSourceAnnotBed(sourceAnnotBed):
+    return {b.name: b for b in BedReader(sourceAnnotBed)}
 
 def isHgnc(v):
     return v not in ("", "NULL")
 
-def loadGeneTransBeds(bbpFh, chrom, chromSize, nameField):
-    "only keep ones with HGNC ids"
+def checkSourceExpansion(entry, row, sourceAnnots, maxSourceExpansion):
+    sourceRec = sourceAnnots[row[nameColumnIdx]]
+    srcSize = sourceRec.chromEnd - sourceRec.chromStart
+    destSize = entry[1] - entry[0]
+    return ((destSize - srcSize) / srcSize) <= maxSourceExpansion
+
+def useAnnot(entry, row, hgncOnly, geneTypes, sourceAnnots, maxSourceExpansion):
+    return (((not hgncOnly) or isHgnc(row[hgncIdColumnIdx]))
+            and ((geneTypes is None) or (row[geneTypeColumnIdx] in geneTypes))
+            and ((sourceAnnots is None) or checkSourceExpansion(entry, row, sourceAnnots, maxSourceExpansion)))
+
+def loadGeneTransBeds(bbpFh, chrom, chromSize, nameField, hgncOnly, geneTypes,
+                      sourceAnnots, maxSourceExpansion):
+    "filter bases on parameters"
     geneTransBeds = defaultdict(list)
 
     if nameField == NameColumn.geneId:
@@ -42,10 +69,10 @@ def loadGeneTransBeds(bbpFh, chrom, chromSize, nameField):
         nameIdx = geneSymColumnIdx
     for entry in bbpFh.entries(chrom, 0, bbpFh.chroms(chrom)):
         row = entry[2].split('\t')
-        if isHgnc(row[hgncIdColumnIdx]):
+        if useAnnot(entry, row, hgncOnly, geneTypes, sourceAnnots, maxSourceExpansion):
             b = GeneBoundsBed(chrom, entry[0], entry[1], row[nameIdx], 0, row[strandColumnIdx],
-                              extraCols=(row[geneSymColumnIdx], row[hgncIdColumnIdx], row[geneIdColumnIdx]))
-            geneTransBeds[row[hgncIdColumnIdx]].append(b)
+                              extraCols=(row[geneSymColumnIdx], row[hgncIdColumnIdx], row[geneIdColumnIdx], row[geneTypeColumnIdx],))
+            geneTransBeds[row[nameIdx]].append(b)
     return geneTransBeds
 
 def overlaps(b1, b2):
@@ -94,22 +121,28 @@ def setLociNumbers(genesRanges, geneIdLociCounts):
         gr.score = geneIdLociCounts[gr.name]
         geneIdLociCounts[gr.name] += 1
 
-def geneBoundsForChrom(bbpFh, chrom, chromSize, geneIdLociCounts, nameField, bedFh):
+def geneBoundsForChrom(bbpFh, chrom, chromSize, geneIdLociCounts, nameField, hgncOnly, geneTypes,
+                       sourceAnnots, maxSourceExpansion, bedFh):
     "one chrom at a time to save memory"
-    geneTransBeds = loadGeneTransBeds(bbpFh, chrom, chromSize, nameField)
+    geneTransBeds = loadGeneTransBeds(bbpFh, chrom, chromSize, nameField, hgncOnly, geneTypes,
+                                      sourceAnnots, maxSourceExpansion)
     genesRanges = clusterGenes(geneTransBeds)
     setLociNumbers(genesRanges, geneIdLociCounts)
     for geneRange in sorted(genesRanges, key=lambda b: (b.start, -b.end)):
         geneRange.write(bedFh)
 
-def geneBoundsFromBigBlatPsl(bigBlatPsl, nameField, bedFh):
+def geneBoundsFromBigBlatPsl(bigBlatPsl, nameField, hgncOnly, geneTypes,
+                             sourceAnnots, maxSourceExpansion, bedFh):
     geneIdLociCounts = defaultdict(int)
     bbpFh = pyBigWig.open(bigBlatPsl)
     for chrom in sorted(bbpFh.chroms()):
-        geneBoundsForChrom(bbpFh, chrom, bbpFh.chroms(chrom), geneIdLociCounts, nameField, bedFh)
+        geneBoundsForChrom(bbpFh, chrom, bbpFh.chroms(chrom), geneIdLociCounts, nameField, hgncOnly, geneTypes,
+                           sourceAnnots, maxSourceExpansion, bedFh)
 
 def main(args):
+    sourceAnnots = loadSourceAnnotBed(args.sourceAnnot) if args.sourceAnnot is not None else None
     with fileOps.opengz(args.geneBoundsBed, "w") as bedFh:
-        geneBoundsFromBigBlatPsl(args.bigBlatPsl, args.nameField, bedFh)
+        geneBoundsFromBigBlatPsl(args.bigBlatPsl, args.nameField, args.hgncOnly, args.geneType,
+                                 sourceAnnots, args.maxSourceExpansion, bedFh)
 
 main(parseArgs())
