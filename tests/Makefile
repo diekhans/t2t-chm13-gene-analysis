@@ -1,6 +1,6 @@
 
 
-test: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest
+test: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest
 
 # test out not deterministic:  geneFamilyTest
 # not useful: geneFamilyExpansionTest
@@ -18,7 +18,11 @@ geneBoundsSymTest: mkdirs output/gencode.bigBlatPsl
 	diff expected/$@.bed output/$@.bed
 
 geneBoundsExpandTest: mkdirs output/gencode.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode.source.bed output/gencode.bigBlatPsl output/$@.bed
+	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode.source.bed --maxSourceExpansion=1.5 output/gencode.bigBlatPsl output/$@.bed
+	diff expected/$@.bed output/$@.bed
+
+geneBoundsMinExonsTest: mkdirs output/gencode.bigBlatPsl
+	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode.source.bed --minExons=3 output/gencode.bigBlatPsl output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
 output/gencode.bigBlatPsl: input/gencode.bigBlatPslIn input/t2tChm13_20200727.sizes

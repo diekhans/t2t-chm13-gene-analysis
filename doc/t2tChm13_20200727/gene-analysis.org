@@ -101,45 +101,43 @@ bgzip --threads=64 cat-consensus-proteins.fa
 
 *** data
 % cd geneDup
-% geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl data/gencode.lnc-prot.genes.bed
+% genePredToBed /hive/data/genomes/hg38/bed/gencodeV33/data/gencode.gp data/gencode.srcsizes.bed
+% geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --sourceAnnot=data/gencode.srcsizes.bed  ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl data/gencode.lnc-prot.genes.bed
 
+#+BEGIN_SRC 
 # select to avoid small loci and very large number of duplication
 geneDupSelect --minDups=0 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.10k.bed 
 geneDupSelect --minDups=2 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup2_10k.bed 
 geneDupSelect --minDups=4 --maxDups=8 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup4-8_10k.bed 
 geneDupSelect --minDups=2 --maxDups=8 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup2-8_10k.bed 
+#+END_SRC
 
-10k          65174
-dup2_10k     45841
-dup2-8_10k    5634
-dup4-8_10k    2423
+10k.bed	32822
+dup2_10k.bed	13465
+dup2-8_10k.bed	4148
+dup4-8_10k.bed	1512
 
 *** centromeres
-cd centormeres/
 - any gene in centromeres that are not aligned in primary assembly
-% overlapSelect -inCoordCols=0,1,2 ../data/cenRegions.bed ../selects/gencode.10k.bed centoGenes.bed
-  centoGenes 4992
+# 100% in centromere regions, 80% overlap others
+#+BEGIN_SRC
+cd centromeres
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 ../data/cenRegions.bed ../selects/gencode.10k.bed 10k/centoGenes.bed
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz 10k/centoGenes.bed 10k/centoGenes.new.bed
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz 10k/centoGenes.bed 10k/centoGenes.new-pri.bed
+#+END_SRC
+10k/centoGenes.bed	2344
+10k/centoGenes.new.bed	1781
+10k/centoGenes.new-pri.bed	1868
 
-% overlapSelect -inCoordCols=0,1,2 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz centoGenes.bed centoGenes.unaligned.bed
-% overlapSelect -inCoordCols=0,1,2 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz centoGenes.bed centoGenes.unaligned-primary.bed
-  centoGenes.unaligned 3695
-  centoGenes.unaligned-primary 3900 
-
+../bin/mkCentroTracks 
 
 - centromere browser
-     ~/public_html/t2t/genes-20200727/centromere/ctracks.bed
-      https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks/
+    ~/public_html/t2t/genes-20200727/centromere/ctracks.bed
+     https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks/
 
   mkdir ~/public_html/t2t/genes-20200727/centromere
-  bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed -title "Centromere regions t2tChm13_20200727" t2t-chm13.20200727 data/cenRegions.bed ~/public_html/t2t/genes-20200727/centromere
-
-
-Item: AL590807.1
-Position: chr1:118361330-119720545
-Genomic Size: 1359215
-Strand: +
-
-
+  bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed -title "Centromere regions t2tChm13_20200727" t2t-chm13.20200727 ../data/cenRegions.bed ~/public_html/t2t/genes-20200727/centromere
 
 ** intersections:
 lastz unaligned
