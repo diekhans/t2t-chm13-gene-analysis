@@ -142,7 +142,7 @@ WEIGHT BY NUMBER OF MAPPED TRANSCRIPTS
      https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks/
 
   mkdir ~/public_html/t2t/genes-20200727/centromere
-  bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed -title "Centromere regions t2tChm13_20200727" t2t-chm13.20200727 ../data/cenRegions.bed ~/public_html/t2t/genes-20200727/centromere
+  bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed -title "Centromere regions t2tChm13_20200727" t2tChm13_20200727 ../data/cenRegions.bed ~/public_html/t2t/genes-20200727/centromere
 
     Error line 3541 of https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed: 
 
@@ -265,3 +265,20 @@ tmfe.AlignmentId IS NULL
   I have not run it yet, but Savannah has/is using it for proseq
 - mydennis For us, we need to work out the Hi-C mapping that Adam ran - let's take a peek and see how it's working within segdup and duplicated regions
 - karen https://github.com/arangrhie/T2T-Polish/blob/master/marker_assisted/single_copy_filter.sh
+
+* interesting stuff
+** chr22:1,093-476,524
+- chr22:270,477-358,961: weird region not in repeat masker that is unique DNA 
+- http://genome.ucsc.edu/s/Markd/chr22_centro_weird
+KM: Can we run some kind of “shape” code like what our friend Katie Pollard was doing?
+https://www.cell.com/cell-systems/pdfExtended/S2405-4712(18)30475-7
+
+
+
+** chr11:1,971,292-2,184,069
+- containing MRPL3
+- region alignments to both unplaced region and primary in GRCh38,
+  shown in cactus and lastz (not minimap)
+- 5' adjacent TNNT3 only in hg38 primary
+- theory, grch38 unplaced is wrong
+- grch38 has segdup
