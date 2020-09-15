@@ -1,7 +1,7 @@
 * data
-** transferring Globus to S3 
-http://docs.staging.globuscs.info/premium-storage-connectors/legacy/aws-s3-legacy/
-http://docs.staging.globuscs.info/premium-storage-connectors/aws-s3/
+
+export PATH=${HOME}/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/bin:${HOME}/compbio/nanopore/projs/t2t-chm13/T2T-CHM13-hub/bin:${PATH}
+
 ** short RNA-Seq
 *** encode
 file encode-rnaseq.status.tsv in get is used to track the status
@@ -47,7 +47,7 @@ tawk 'NR>1{print $2, "pending", ""}' encode-rnaseq.set2.tsv  >x
 
 *** intron calling: 
 **** Run by Ann Mc Cartney using intronProspector 0.6.o with commands in the form:
-  intronProspector --genome-fasta=t2tChm13_20200727.fa.gz  --min-confidence-score=1.0 --intron-calls=$run.raw.introns.tsv  ../raw/$run.raw.bam
+intronProspector --genome-fasta=t2tChm13_20200727.fa.gz  --min-confidence-score=1.0 --intron-calls=$run.raw.introns.tsv  ../raw/$run.raw.bam
 on set1 and set2
 
 **** /team-genes/20200727/shortRnaSeq/raw-introns/
@@ -89,9 +89,9 @@ didn't find any expansion, although appears to be working
 
 
 ** CAT proteins for Ann
-bigGenePredToGenePred ../../../../build/t2tChm13_20200727/CAT/assemblyHub/CHM13/consensus.bb  stdout |tawk '$6<$7' |genePredToProt stdin ../../../../build/t2tChm13_20200727/genome/t2tChm13_20200727.2bit cat-consensus-proteins.fa
-bgzip --threads=64 cat-consensus-proteins.fa 
-
+# get multiexon ones due to FPs in CAT because of low-quility exon
+bigGenePredToGenePred ../../../../build/t2tChm13_20200727/CAT/assemblyHub/CHM13/consensus.bb  stdout |tawk '$6<$7 && $8>1' |genePredToProt stdin ../../../../build/t2tChm13_20200727/genome/t2tChm13_20200727.2bit cat-consensus-proteins.meg.fa
+bgzip --threads=64 cat-consensus-proteins.meg.fa 
 
 
 * analysis
@@ -102,12 +102,14 @@ bgzip --threads=64 cat-consensus-proteins.fa
 *** data
 % cd geneDup
 % genePredToBed /hive/data/genomes/hg38/bed/gencodeV33/data/gencode.gp data/gencode.srcsizes.bed
-% geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --sourceAnnot=data/gencode.srcsizes.bed  ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl data/gencode.lnc-prot.genes.bed
+
+# only using multi-exon source genes, not using alignments with large expansion
+% geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --minExons=2 --sourceAnnot=data/gencode.srcsizes.bed  ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl data/gencode.lnc-prot.genes.bed
 
 #+BEGIN_SRC 
-# select to avoid small loci and very large number of duplication
+# select to avoid small loci, very large number of duplication
 geneDupSelect --minDups=0 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.10k.bed 
-geneDupSelect --minDups=2 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup2_10k.bed 
+geneDupSelect --minDups=2 --minMeanSize=10000 --minDups=0 data/gencode.lnc-prot.genes.bed selects/gencode.dup2_10k.bed 
 geneDupSelect --minDups=4 --maxDups=8 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup4-8_10k.bed 
 geneDupSelect --minDups=2 --maxDups=8 --minMeanSize=10000 data/gencode.lnc-prot.genes.bed selects/gencode.dup2-8_10k.bed 
 #+END_SRC
@@ -117,7 +119,7 @@ dup2_10k.bed	13465
 dup2-8_10k.bed	4148
 dup4-8_10k.bed	1512
 
-*** centromeres
+** centromeres
 - any gene in centromeres that are not aligned in primary assembly
 # 100% in centromere regions, 80% overlap others
 #+BEGIN_SRC
@@ -126,20 +128,38 @@ overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 ../data/cenRegions.bed ..
 overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz 10k/centoGenes.bed 10k/centoGenes.new.bed
 overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz 10k/centoGenes.bed 10k/centoGenes.new-pri.bed
 #+END_SRC
-10k/centoGenes.bed	2344
-10k/centoGenes.new.bed	1781
-10k/centoGenes.new-pri.bed	1868
+
+10k/centoGenes	2302
+10k/centoGenes.new	300
+10k/centoGenes.new-pri	484
 
 ../bin/mkCentroTracks 
 
-- centromere browser
+WEIGHT BY NUMBER OF MAPPED TRANSCRIPTS
+
+** centromere browser
     ~/public_html/t2t/genes-20200727/centromere/ctracks.bed
      https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks/
 
   mkdir ~/public_html/t2t/genes-20200727/centromere
   bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed -title "Centromere regions t2tChm13_20200727" t2t-chm13.20200727 ../data/cenRegions.bed ~/public_html/t2t/genes-20200727/centromere
 
-** intersections:
+    Error line 3541 of https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/centromere/ctracks.bed: 
+
+chromEnd larger than chrom chr20 size (66202773 > 64444167)
+chr20	66187167	66202773	WASHC1	6	+	WASHC1	HGNC:24361	ENSG00000181404.17	protein_coding
+
+
+** global blat compared in unique regions
+#+BEGIN_SRC
+cd global
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz ../selects/gencode.10k.bed 10k/globalGenes.new.bed
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz ../selects/gencode.10k.bed 10k/globalGenes.new-pri.bed
+#+END_SRC
+
+../bin/mkGlobalTracks
+
+** things to look at:
 lastz unaligned
 cetromeres
 short introns
@@ -148,15 +168,84 @@ lastz transmap
 
 
 
-* observations
-** gencode/refseq blat align different family members  than CAT
+
+* centromere observations
+** gencode/refseq blat align different family members than CAT
 chr3:99,053,792-99,056,919
 in seg dup
 
-** chr22 centomere
-chr22:458,239-6,761,699
+** MORC4 ENSG00000133131.15 / ENST00000604604.1
+- 96% ident, but no other alignments
+- chr3:89537725-89947865 (score 293??)
+- hg38:  chrX:106,813,871-106,993,340
+  suspect GENCODE; long isoform, overlapping 
+  EST BF203734 NIH_MGC_17
+  EST BF203688 NIH_MGC_17
+  mRNA BC009313  NIH_MGC_17
+
+** lncRNAs uniquely align to a different locations
+chr15:2,317,241-2,319,011
+
+- hg38
+  ENST00000619252.4 (CU633967.1) chr21:5553637-5590200
+
+* missingGenes
+** data
+generate gencode data (via bigPsl, because the tool isn't general enough)
+#+BEGIN_SRC
+blddir=../../../../build/t2tChm13_20200727/
+hgsql hg38 -Ne 'select * from wgEncodeGencodeCompV33;select * from wgEncodeGencodePseudoGeneV33;' | cut -f 2- >data/gencode.hg38.gp
+genePredToFakePsl no data/gencode.hg38.gp -chromSize=/hive/data/genomes/hg38/chrom.sizes data/gencode.hg38.psl data/gencode.hg38.cds
+genePredToBed data/gencode.hg38.gp data/gencode.hg38.bed
+hgsql hg38 -e 'select ga.transcriptId id, ga.geneName as geneSym, ga.geneId, gs.geneId as hgncId, ga.geneType from wgEncodeGencodeAttrsV33 ga left join wgEncodeGencodeGeneSymbolV33 gs on gs.transcriptId = ga.transcriptId' >data/gencode.hg38.meta.tsv
+pslToBigPsl -cds=data/gencode.hg38.cds data/gencode.hg38.psl stdout | sort -k1,1 -k2,2n > tmp/g.bigin1
+bedToBigBed -type=bed12+17 -tab -as=${blddir=}/../../../T2T-CHM13-hub/etc/bigBlatPsl.as tmp/g.bigin2 /hive/data/genomes/hg38/chrom.sizes data/gencode.hg38.bigPsl
+bigBlatPslAddColumns data/gencode.hg38.meta.tsv tmp/g.bigin1 tmp/g.bigin2gzip data/gencode.hg38.meg-lnc-prot.genes.bed
+/geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --minExons=2 --sourceAnnot=data/gencode.hg38.bed data/gencode.hg38.bigPsl data/gencode.hg38.meg-lnc-prot.genes.bed
+#+END_SRC
+
+get data for consensus
+need to convert bigGenePred to PSL indexed by ENST
+    name= $4
+    sourceGene = $21
+    sourceTranscript = $22, ENST or N/A
+    geneId = $27
+    geneName = $19
+    37 columns
+
+#+BEGIN_SRC 
+bigBedToBed ${blddir}/CAT/assemblyHub/CHM13/consensus.bb stdout | tawk '$22!="N/A"{$4=$22}{print}' >tmp/bigGp
+bedToBigBed -type=bed12+25 -tab -as=consensus.as tmp/bigGp ${blddir}/genome/t2tChm13_20200727.sizes tmp/cconsensus.bigGp
+bigGenePredToGenePred tmp/cconsensus.bigGp tmp/consensus.gp
+genePredToFakePsl -chromSize=${blddir}/genome/t2tChm13_20200727.sizes -qSizes=/hive/data/genomes/hg38/chrom.sizes no tmp/consensus.gp tmp/consensus.psl tmp/consensus.cds
+pslToBigPsl -cds=tmp/consensus.cds tmp/consensus.psl stdout | sort -k1,1 -k2,2n > tmp/cat.bigPslIn
+bigBlatPslAddColumns data/gencode.hg38.meta.tsv tmp/cat.bigPslIn  tmp/cat.bigPslIn2
+bedToBigBed -type=bed12+17 -tab -as=${blddir}/../../T2T-CHM13-hub/etc/bigBlatPsl.as tmp/cat.bigPslIn2 ${blddir}/genome/t2tChm13_20200727.sizes data/consensus.chm13.bigPsl
+geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --minExons=2 --sourceAnnot=data/gencode.hg38.bed data/consensus.chm13.bigPsl data/consensus.chm13.meg-lnc-prot.genes.bed
+#+END_SEC
 
 
+* CAT
+** getting missing genes
+ln -s ../../../../../build/t2tChm13_20200727/CAT/databases .
+
+import pandas as pd
+import tools.sqlInterface
+ref_df = tools.sqlInterface.load_annotation(args.ref_db_path)
+tm_filter_eval = tools.sqlInterface.load_filter_evaluation(args.db_path)
+merged = ref_df.merge(tm_filter_eval, on=["TranscriptId", "GeneId"], how="left")
+missing = merged[merged.AlignmentId.isnull()]
+missing_lnc_prot = missing[missing.GeneBiotype.isin(["protein_coding", "lncRNA"])]
+
+raw SQL, you are joining the tables TransMapFilterEvaluation in $genome.db with annotation in $refdb
+
+SELECT name FROM hg38.sqlite_master WHERE type='table';
+
+attach database "databases/GRCh38.db" as hg38;
+SELECT FROM TransMapFilterEvaluation tmfe, hg38.annotation ann
+
+
+tmfe.AlignmentId IS NULL
 
 
 * future:
@@ -166,3 +255,13 @@ chr22:458,239-6,761,699
 - MD:the PB signal is less clear
   augustus is extending theses in some kind of interesting ways
   It is pretty easy for a gene finding to make up an ORF in a GC region
+** chr13:9,841,861-9,855,951
+- no cat but cactus
+** better alignment mapping with kmers
+*** 2020-09-13
+- mydennis Arang has generated unique markers for the 0727 work: team-curation/marker_assisted/ and she has suggested running this pipeline to filter alignments: https://github.com/arangrhie/T2T-Polish/tree/master/marker_assisted
+- Karen Miga Yes, this is what we are using for the pro-seq data and CHIP seq analysis (21-mers)
+  Arang shared a short bash script with me for marker assisted mapping
+  I have not run it yet, but Savannah has/is using it for proseq
+- mydennis For us, we need to work out the Hi-C mapping that Adam ran - let's take a peek and see how it's working within segdup and duplicated regions
+- karen https://github.com/arangrhie/T2T-Polish/blob/master/marker_assisted/single_copy_filter.sh
