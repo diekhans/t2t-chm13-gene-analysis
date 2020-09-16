@@ -63,6 +63,7 @@ cd /data/tmp/markd/introns
 nice make -j 32 >&log&
 
 ** longRnaSeq:
+team-genes/isoseq/UW_20200727_alignments - Glennis Logsdon 
 
 ** refseqs not in GRCh38
 
@@ -149,6 +150,15 @@ WEIGHT BY NUMBER OF MAPPED TRANSCRIPTS
 chromEnd larger than chrom chr20 size (66202773 > 64444167)
 chr20	66187167	66202773	WASHC1	6	+	WASHC1	HGNC:24361	ENSG00000181404.17	protein_coding
 
+** genes in centromere regions:
+
+bigBedToBed ../../../../build/t2tChm13_20200727/CAT/assemblyHub/CHM13/consensus.bb consensus.bed
+
+# or together unique regions
+featureBits -countGaps -or -bed=combined.uniq.bed -chromSize=../../../../build/t2tChm13_20200727/uniqRegions/lastz/t2tChm13_20200727.sizes3 nodb ../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz ../../../../build/t2tChm13_20200727/uniqRegions/cactus/cactus-unique.bed 
+217689342 bases of 3056841030 (7.121%) in intersection
+
+cut -f 1 ../geneDup/data/gencode.lnc-prot.genes.bed  |sort -u
 
 ** global blat compared in unique regions
 #+BEGIN_SRC
@@ -248,6 +258,43 @@ SELECT FROM TransMapFilterEvaluation tmfe, hg38.annotation ann
 tmfe.AlignmentId IS NULL
 
 
+
+
+* proteinCodingUnplaced
+Ann's cases of coding intersecting unplaced aligned to T2T
+cut -f 1-6 proteincodinginunplacedGRCh38.bed >proteincodinginunplacedGRCh38.bed6
+bedToHtmlDir -loc-label-name -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -public-browser -title "Protein coding in unplaced (minimap)" t2tChm13_20200727 proteincodinginunplacedGRCh38.bed6  ~/public_html/t2t/for-ann/proteinCodingUnplaced/browser
+https://hgwdev.gi.ucsc.edu/~markd/t2t/for-ann/proteinCodingUnplaced/browser/
+
+** cases
+** chr1:16158681-16211287	NBPF10	0	-	NBPF10	HGNC:31992	ENSG00000271425.9	protein_coding -> GO TERM: Cytoplasm -> Full name :Neuroblastoma breakpoint family member 10)
+** chr11:2035066-2072180	MRPL23	0	+	MRPL23	HGNC:10322	ENSG00000214026.11	protein_coding -> Placed in 2 places in GRCh38 but only 1 in CHM13 -> mitochondrial Ribosomal protein (involved in mitocondrial translation)
+known problem in GRCh38 - random was duplicate of the assembly
+** chr15:19505915-19586667	AC134980.3	0	+	AC134980.3	NULL	ENSG00000285472.1	protein_coding
+chr15_KI270727v1_random:296,519-448,247
+got have GRC incidents
+** chr15:19535114-19586674	LINC02203	0	+	LINC02203	HGNC:53069	ENSG00000280709.2	protein_coding
+minimap: chr15_KI270727v1_random:296,519-448,247
+Cactus only partially aligns the alt/random
+chr15 and random have GRC incidents
+** chr15:19560997-19573949	OR4M2	0	+	OR4M2	HGNC:15373	ENSG00000274102.2	protein_coding
+** chr16:32640154-32643358	TP53TG3D	0	+	TP53TG3D	HGNC:44657	ENSG00000205456.11	protein_coding
+** chr16:33087988-33091193	TP53TG3C	0	-	TP53TG3C	HGNC:42962	ENSG00000205457.11	protein_coding
+** chr16:33607936-33611141	TP53TG3	0	+	TP53TG3	HGNC:30759	ENSG00000183632.14	protein_coding
+** chr16:33607936-33611141	TP53TG3B	0	+	TP53TG3B	HGNC:37202	ENSG00000261509.6	protein_coding
+** chr16:33608541-33611141	TP53TG3F	0	+	TP53TG3F	HGNC:51817	ENSG00000278848.2	protein_coding
+** chr16:33608541-33610516	TP53TG3E	0	+	TP53TG3E	HGNC:51816	ENSG00000275034.2	protein_coding
+** chr20:33189587-33200971	DEFB124	0	-	DEFB124	HGNC:18104	ENSG00000180383.3	protein_coding
+** chr21:12689317-12721070	POTED	0	+	POTED	HGNC:23822	ENSG00000166351.10	protein_coding
+GRCh38 error with fixe
+** chr22:19310164-19318409	DGCR6	0	+	DGCR6	HGNC:2846	ENSG00000183628.14	protein_coding
+** chr22:19310374-19351909	AC007326.4	0	+	AC007326.4	NULL	ENSG00000283809.1	protein_coding
+** chr22:19316947-19340726	PRODH	0	-	PRODH	HGNC:9453	ENSG00000100033.16	protein_coding
+** chr4:52811-87731	ZNF595	0	+	ZNF595	HGNC:27196	ENSG00000272602.6	protein_coding
+** chr4:162237470-162383089	C4orf45	0	-	C4orf45	HGNC:26342	ENSG00000164123.7	protein_coding
+doesn't hit unplaced
+** chr9:40658019-40723273	CBWD5	0	-	CBWD5	HGNC:24584	ENSG00000147996.16	protein_coding
+
 * future:
 ** chr1:129,035,884-129,059,013 [bogus]
 - repetitive array of isoseq 
@@ -282,3 +329,14 @@ https://www.cell.com/cell-systems/pdfExtended/S2405-4712(18)30475-7
 - 5' adjacent TNNT3 only in hg38 primary
 - theory, grch38 unplaced is wrong
 - grch38 has segdup
+- Known problem in GRCh38!!!
+
+** on unplaced in GRCh38
+*** Justin Zook hi @Ann Mc Cartney and @Mark Diekhans -  I've found a few more genes that seem to be duplicated in CHM13 relative to GRCh38, potentially resolving some issues. Here are Valerie's responses to what she/GRC know about the genes:
+Chr17: MAP2K3 region. The relevant GRC ticket here is HG-2284, but there's been work on this region since GRCh37. The MAP2K3 gene and the nearby KCNJ12 gene are part of a segmental duplication that was largely missing in GRCh37, and for which we added partial representation in GRCh38 (adding representation for KCNJ18). However there is still an assembly gap in GRCh38 (~21.79-21.81 Mb), and we are aware that we didn't capture the full segmental duplication. As part of our most recent curation push to close gaps, I'm happy to report that Milinn, one of the WashU curators, was able to identify a collection of WGS contigs from the CHM1 GCA_001297185.2 assembly (with a little HuRef WGS and couple of fosmids) that completely spanned the gap, adding 732Kb sequence (the 50Kb gap in GRCh38 reflects default sizing). I aligned a MAP2K3 transcript (NM_145109.3) across this gap-closing path and see a partial hit on the WGS contig LJII02000447.1, suggesting there is either another MAP2K3 gene/pseudogene copy that falls in the gap. This gap-spanning fix will be released as part of GRCh38.p14, which we are aiming to release sometime shortly after ASHG.
+Chr3: ZNF717 and FRG2C region. The relevant ticket here is HG-1260. We also had a report on GRCh37 about a possible collapse or alternate haplotype in this region from RefSeq. Review prior to the release of GRCh38 showed that there's a component join near here between AC108724.4 and AC133123.3 that is comprised entirely of repeat, and we were concerned that we might have dropped out some repeat copies. This is also known to be a regions with seg dups. However, the data we have suggests that the GRCh38 join is good: we've got CHM1 clones that span the join and the alignment looks good in the region of the overlap (picture below). However, the pattern of mismatches in the alignment is unusual- there are some very high quality regions and some low quality regions. B/c those pattern switches occur within the middle of GRCh38 components (and not at component boundaries) I don't think that the GRCh38 path here is wrong. Given your observations, and those of RefSeq, I think it's more likely that this is a case where there's variability in the population for this region. I've flagged the ticket for another round of review, now that there are more sequences available, to see if we can understand alternate representations and consider whether an alt would be warranted.
+Chr7: MUC3A/MUC12. The relevant ticket here is HG-2313 (although the problems for this region have been known for a long time- all the way back to build 36, with ticket HG-15!). For GRCh38, we improved the representation for MUC3A, but we also received a report from RefSeq after the release of GRCh38 that the central exon of MUC12 (which has a nasty tandem repeat) was collapsed. Thanks to your alerting us, I took a look at sequence that's now available, and found we now have a CHM1 clone (AC256220.1) that appears to correct the issue.  I've pinged the ticket to make sure this fix makes it into GRCh38.p14.
+**** Ann Mc Cartney
+Wow Justin, this is really neat! Was was your methods of identifying these problematic genes? :slightly_smiling_face:
+**** Justin Zook
+We simulated perfect short reads from chm13, aligned them to GRCh38, called variants, and looked at genes in GRCh38 that had the largest number of heterozygous variants, indicating a potential duplication in chm13 relative to GRCh38.  I'm still trying to figure out a way to do this more comprehensively, but it's been good for
