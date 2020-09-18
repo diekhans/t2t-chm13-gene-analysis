@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+
+import argparse
+from dataclasses import dataclass
+from collections import defaultdict
+from pycbio.sys import fileOps
+from pycbio.hgdata.genePred import GenePredReader
+from pycbio.tsv import TsvTable
+
+def parseArgs():
+    usage = """find frameshifts in genePreds
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--catMetaTsv',
+                        help="use CAT metadata TSV to find protein-coding instead of cdsStart < cdsEnd")
+    parser.add_argument('inGenePred',
+                        help="in genePred")
+    parser.add_argument('reportTsv',
+                        help="stats on frameshifts")
+    parser.add_argument('outGenePred',
+                        help="output genePreds with frameshits")
+    return parser.parse_args()
+
+@dataclass
+class Counts:
+    trans_cnt: int = 0
+    trans_fs_cnt: int = 0
+
+def fmtRate(amt, total):
+    if total == 0:
+        rate = 0.0
+    else:
+        rate = amt / total
+    return "%0.4f" % rate
+
+maxGapSize = 15
+
+def loadCatMetadata(catGpInfo):
+    return TsvTable(catGpInfo, uniqKeyCols=("transcript_id",))
+
+
+def hasFrameShiftGap(gp):
+    for iExon in range(len(gp.exons) - 1):
+        if (gp.exons[iExon].frame >= 0) and (gp.exons[iExon + 1].frame >= 0):
+            gap = gp.exons[iExon + 1].start - gp.exons[iExon].end
+            if (gap <= maxGapSize) and ((gap % 3) != 0):
+                return True
+    return False
+
+def checkCodingTrans(gp, transCounts, geneCounts, outGpFh):
+    transCounts.trans_cnt += 1
+    geneCounts[gp.name2].trans_cnt += 1
+    if hasFrameShiftGap(gp):
+        transCounts.trans_fs_cnt += 1
+        geneCounts[gp.name2].trans_fs_cnt += 1
+        gp.write(outGpFh)
+
+def isCoding(gp, catMetaTbl):
+    if catMetaTbl is None:
+        return gp.hasCds()
+    else:
+        catMeta = catMetaTbl.idx.transcript_id[gp.name]
+        return catMeta.transcript_biotype == "protein_coding"
+
+def genePredFrameShifts(inGenePred, catMetaTbl, transCounts, geneCounts, outGpFh):
+    for gp in GenePredReader(inGenePred):
+        if isCoding(gp, catMetaTbl):
+            checkCodingTrans(gp, transCounts, geneCounts, outGpFh)
+
+def writeReport(transCounts, geneCounts, reportFh):
+    genesNum = len(geneCounts)
+    genesWithFs = sum([1 for gc in geneCounts.values() if gc.trans_fs_cnt > 0])
+    genesWithAllFs = sum([1 for gc in geneCounts.values() if gc.trans_fs_cnt == gc.trans_cnt])
+
+    fileOps.prRowv(reportFh, "cat", "count", "rate")
+    fileOps.prRowv(reportFh, "transcripts", transCounts.trans_cnt, fmtRate(transCounts.trans_cnt, transCounts.trans_cnt))
+    fileOps.prRowv(reportFh, "transFrameShift", transCounts.trans_fs_cnt, fmtRate(transCounts.trans_fs_cnt, transCounts.trans_cnt))
+    fileOps.prRowv(reportFh, "genes", genesNum, fmtRate(genesNum, genesNum))
+    fileOps.prRowv(reportFh, "geneFrameShift", genesWithFs, fmtRate(genesWithFs, genesNum))
+    fileOps.prRowv(reportFh, "geneAllFrameShift", genesWithAllFs, fmtRate(genesWithAllFs, genesNum))
+
+
+def main(args):
+    catMetaTbl = loadCatMetadata(args.catMetaTsv) if args.catMetaTsv is not None else None
+    transCounts = Counts()
+    geneCounts = defaultdict(Counts)
+    with fileOps.opengz(args.outGenePred, "w") as outGpFh:
+        genePredFrameShifts(args.inGenePred, catMetaTbl, transCounts, geneCounts, outGpFh)
+
+    with fileOps.opengz(args.reportTsv, "w") as reportFh:
+        writeReport(transCounts, geneCounts, reportFh)
+
+
+main(parseArgs())

@@ -151,55 +151,100 @@ WEIGHT BY NUMBER OF MAPPED TRANSCRIPTS
 chromEnd larger than chrom chr20 size (66202773 > 64444167)
 chr20	66187167	66202773	WASHC1	6	+	WASHC1	HGNC:24361	ENSG00000181404.17	protein_coding
 
-** catGeneBounds
+** catFrameShifts
+CAT annotation of frameshifts is wrong
+cd catFrameShifts
+genePredFrameShifts --catMetaTsv=../catGeneBounds/CHM13.no-user_filtered.gp_info ../catGeneBounds/CHM13.no-user_filtered.gp  cat.frameshifts.tsv cat.frameshifts.g
+genePredToBed cat.frameshifts.gp cat.frameshifts.bed
+# make cat.frameshifts.ctrack by hand
+bedToHtmlDir -hub http://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/for-marina/frameshifts/browser/cat.frameshifts.ctrack -title "Centromere regions t2tChm13_20200727" t2tChm13_20200727 cat.frameshifts.bed ~/public_html/t2t/for-marina/frameshifts/browser
+cp cat.frameshifts.ctrack  ~/public_html/t2t/for-marina/frameshifts/browser
 
-#+BEGIN_SRC 
-bigBedToBed ${blddir}/CAT/assemblyHub/CHM13/consensus.bb stdout | tawk '$22!="N/A"{$4=$22}{print}' >tmp/bigGp
-bedToBigBed -type=bed12+25 -tab -as=consensus.as tmp/bigGp ${blddir}/genome/t2tChm13_20200727.sizes tmp/cconsensus.bigGp
-bigGenePredToGenePred tmp/cconsensus.bigGp tmp/consensus.gp
-genePredToFakePsl -chromSize=${blddir}/genome/t2tChm13_20200727.sizes -qSizes=/hive/data/genomes/hg38/chrom.sizes no tmp/consensus.gp tmp/consensus.psl tmp/consensus.cds
-pslToBigPsl -cds=tmp/consensus.cds tmp/consensus.psl stdout | sort -k1,1 -k2,2n > tmp/cat.bigPslIn
-bigBlatPslAddColumns data/gencode.hg38.meta.tsv tmp/cat.bigPslIn  tmp/cat.bigPslIn2
-bedToBigBed -type=bed12+17 -tab -as=${blddir}/../../T2T-CHM13-hub/etc/bigBlatPsl.as tmp/cat.bigPslIn2 ${blddir}/genome/t2tChm13_20200727.sizes data/consensus.chm13.bigPsl
-geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --minExons=2 --sourceAnnot=data/gencode.hg38.bed data/consensus.chm13.bigPsl data/consensus.chm13.meg-lnc-prot.genes.bed
-#+END_SEC
+
+** catGeneBounds
+ln ../../../../build/t2tChm13_20200727/CAT/consensus_gene_set/CHM13.no-user_filtered.gp* .
+
+# CAT doesn't have extensive expansion, filter of  --maxSourceExpansion=1.2 dropped nothing
+genePredSourceFilter --minExons=2 CHM13.no-user_filtered.gp CHM13.meg.gp
+
+# try clusters: (tried -minOverlappingBases=100, but it create more clusters than input!!)
+clusterGenes -clusterBed=CHM13.clusters.bed CHM13.clusters.tsv no CHM13.no-user_filtered.gp
+clusterGenes -clusterBed=CHM13.meg.clusters.bed CHM13.meg.clusters.tsv no CHM13.meg.gp
+
+
+# try bounds based on name
+geneBoundsForCat --nameField=geneSym CHM13.no-user_filtered.gp CHM13.no-user_filtered.gp_info CHM13.genes-sym.bed &
+geneBoundsForCat --nameField=geneSym CHM13.meg.gp CHM13.no-user_filtered.gp_info CHM13.meg.genes-sym.bed &
+
+| CHM13.no-user_filtered.gp | 227240 |
+| CHM13.clusters.bed        |  55819 |
+| CHM13.genes-sym.bed       |  59793 |
+| CHM13.meg.gp              | 202241 |
+| CHM13.meg.clusters.bed    |  34904 |
+| CHM13.meg.genes-sym.bed   |  37467 |
+
+# ugg, PB is BAD; user-filtered not excluded, so above redone
 
 
 ** genes in centromere regions (FOR TALK)
 
-# or together unique regions
+*** unique regions
+# OR together unique regions
+
 featureBits -countGaps -or -bed=combined.uniq.bed -chromSize=../../../../build/t2tChm13_20200727/uniqRegions/lastz/t2tChm13_20200727.sizes3 nodb ../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz ../../../../build/t2tChm13_20200727/uniqRegions/cactus/cactus-unique.bed 
 217689342 bases of 3056841030 (7.121%) in intersection
 
-# get gene bounds for 
-bigBedToBed ../../../../../build/t2tChm13_20200727/CAT/assemblyHub/CHM13/consensus.bb consensus.bed
+# OR together primary unique regions
+featureBits -countGaps -or -bed=combined.pri-uniq.bed -chromSize=../../../../build/t2tChm13_20200727/uniqRegions/lastz/t2tChm13_20200727.sizes3 nodb ../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz ../../../../build/t2tChm13_20200727/uniqRegions/cactus/cactus-unique-primary.bed 
+230031160 bases of 3056841030 (7.525%) in intersection
 
-#+BEGIN_SRC
-blddir=../../../../build/t2tChm13_20200727/
-hgsql hg38 -Ne 'select * from wgEncodeGencodeCompV33;select * from wgEncodeGencodePseudoGeneV33;' | cut -f 2- >data/gencode.hg38.gp
-genePredToFakePsl no data/gencode.hg38.gp -chromSize=/hive/data/genomes/hg38/chrom.sizes data/gencode.hg38.psl data/gencode.hg38.cds
-genePredToBed data/gencode.hg38.gp data/gencode.hg38.bed
-hgsql hg38 -e 'select ga.transcriptId id, ga.geneName as geneSym, ga.geneId, gs.geneId as hgncId, ga.geneType from wgEncodeGencodeAttrsV33 ga left join wgEncodeGencodeGeneSymbolV33 gs on gs.transcriptId = ga.transcriptId' >data/gencode.hg38.meta.tsv
-pslToBigPsl -cds=data/gencode.hg38.cds data/gencode.hg38.psl stdout | sort -k1,1 -k2,2n > tmp/g.bigin1
-bedToBigBed -type=bed12+17 -tab -as=${blddir=}/../../../T2T-CHM13-hub/etc/bigBlatPsl.as tmp/g.bigin2 /hive/data/genomes/hg38/chrom.sizes data/gencode.hg38.bigPsl
-bigBlatPslAddColumns data/gencode.hg38.meta.tsv tmp/g.bigin1 tmp/g.bigin2gzip data/gencode.hg38.meg-lnc-prot.genes.bed
-/geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --minExons=2 --sourceAnnot=data/gencode.hg38.bed data/gencode.hg38.bigPsl data/gencode.hg38.meg-lnc-prot.genes.bed
-#+END_SRC
+*** genes in regions
 
-
-ln -s ../missingGenes/data/consensus.chm13.meg-lnc-prot.genes.bed 
-ln -s ../../../../build/t2tChm13_20200727/cenRegions/t2t-chm13.20200727.cenRegions.bed.gz 
-
-# centromere  genes
-overlapSelect -overlapThreshold=1.0 -inCoordCols=0,1,2 t2t-chm13.20200727.cenRegions.bed.gz consensus.chm13.meg-lnc-prot.genes.bed  meg-lnc-prot.centro.genes.bed 
+# centromere genes
+overlapSelect -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.clusters.bed  CHM13.clusters.centro.bed 
+overlapSelect -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.meg.clusters.bed  CHM13.meg.clusters.centro.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.genes-sym.bed  CHM13.genes-sym.centro.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.meg.genes-sym.bed  CHM13.meg.genes-sym.centro.bed 
 
 # centromere genes in unique regions
-overlapSelect -overlapThreshold=0.8 -inCoordCols=0,1,2 combined.uniq.bed   meg-lnc-prot.centro.genes.bed   meg-lnc-prot.centro.uniq.genes.bed 
+overlapSelect -overlapThreshold=0.8 combined.uniq.bed  CHM13.clusters.centro.bed   CHM13.clusters.centro.uniq.bed 
+overlapSelect -overlapThreshold=0.8 combined.uniq.bed  CHM13.meg.clusters.centro.bed   CHM13.meg.clusters.centro.uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.uniq.bed  CHM13.genes-sym.centro.bed   CHM13.genes-sym.centro.uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.uniq.bed  CHM13.meg.genes-sym.centro.bed   CHM13.meg.genes-sym.centro.uniq.bed 
 
-consensus.chm13.meg-lnc-prot.genes.bed	33047
-meg-lnc-prot.centro.genes.bed	791
-meg-lnc-prot.centro.uniq.genes.bed	17
+# centromere genes in primary-unique regions
+overlapSelect -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.clusters.centro.bed   CHM13.clusters.centro.pri-uniq.bed 
+overlapSelect -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.meg.clusters.centro.bed   CHM13.meg.clusters.centro.pri-uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.genes-sym.centro.bed   CHM13.genes-sym.centro.pri-uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.meg.genes-sym.centro.bed   CHM13.meg.genes-sym.centro.pri-uniq.bed 
 
+ |              | cluster |  sym |
+ | centro       |    2393 | 2597 |
+ | unique       |     109 |  112 |
+ | pri-uniq     |     149 |  156 |
+ | MEG-centro   |    1279 | 1402 |
+ | MEG-unique   |      52 |   53 |
+ | MEG-pri-uniq |      79 |   84 |
+*** browsers
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Genes in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.clusters.centro.bed  ~/public_html/t2t/centroGenes/centroAll &
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Multi-exon in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.meg.clusters.centro.bed  ~/public_html/t2t/centroGenes/centroMeg &
+
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Genes in Unique Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.clusters.centro.uniq.bed  ~/public_html/t2t/centroGenes/centroAllUniq &
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Multi-exon Genes in Unique Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.meg.clusters.centro.uniq.bed  ~/public_html/t2t/centroGenes/centroMegUniq &
+
+https://hgwdev.gi.ucsc.edu/~markd/t2t/centroGenes/
+
+*** overlap with gencode blats for 
+# need to overlap with trans in clusters
+selectById -tsv 4 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.clusters.tsv | >CHM13.clusters.centro.tsv
+selectById 1 CHM13.clusters.centro.catids 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.clusters.centro.gp
+overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz CHM13.clusters.centro.gp CHM13.clusters.centro.blatover.stats
+
+
+## function and type annotation
+
+
+*** try excluding PB 
 
 
 ** global blat compared in unique regions
@@ -295,6 +340,8 @@ tmfe.AlignmentId IS NULL
 
 
 
+
+
 * proteinCodingUnplaced
 Ann's cases of coding intersecting unplaced aligned to T2T
 cut -f 1-6 proteincodinginunplacedGRCh38.bed >proteincodinginunplacedGRCh38.bed6
@@ -348,6 +395,13 @@ doesn't hit unplaced
 - mydennis For us, we need to work out the Hi-C mapping that Adam ran - let's take a peek and see how it's working within segdup and duplicated regions
 - karen https://github.com/arangrhie/T2T-Polish/blob/master/marker_assisted/single_copy_filter.sh
 
+** CAT losing paralogs:
+- cases of getting in paralogs
+6) Perform a rescue step where transMaps that were filtered out by paralog resolution but overlap a valid cluster
+   are re-added to the set despite not being globalNearBest.
+step 6 is supposed to sort of do what we want, but it only looks at the 2nd highest scoring
+and it might not work quite as advertised
+
 * interesting stuff
 ** chr22:1,093-476,524
 - chr22:270,477-358,961: weird region not in repeat masker that is unique DNA 
@@ -375,3 +429,7 @@ Chr7: MUC3A/MUC12. The relevant ticket here is HG-2313 (although the problems fo
 Wow Justin, this is really neat! Was was your methods of identifying these problematic genes? :slightly_smiling_face:
 **** Justin Zook
 We simulated perfect short reads from chm13, aligned them to GRCh38, called variants, and looked at genes in GRCh38 that had the largest number of heterozygous variants, indicating a potential duplication in chm13 relative to GRCh38.  I'm still trying to figure out a way to do this more comprehensively, but it's been good for
+
+* NEXT RUN:
+-- make sure we have common definitions of what we are using
+compare_multiple_runs_v6.py vs others

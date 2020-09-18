@@ -6,7 +6,6 @@ from pycbio.sys import fileOps
 from pycbio.sys.symEnum import SymEnum
 from pycbio.hgdata.genePred import GenePredReader
 from pycbio.tsv import TsvTable
-from pycbio.hgdata.bed import BedReader
 from geneFamilyLib import GeneBoundsBed, buildGeneBounds
 
 class NameColumn(SymEnum):
@@ -16,18 +15,12 @@ class NameColumn(SymEnum):
 def parseArgs():
     usage = """Get bounds of genes for CAT gp + gp_info"""
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('--hgncOnly', action="store_true")
     parser.add_argument('--nameField', choices=(NameColumn.geneId, NameColumn.geneSym),
                         default=NameColumn.geneId, type=NameColumn,
                         help="which column to use for in name and for grouping into genes")
+    parser.add_argument('--hgncOnly', action="store_true")
     parser.add_argument('--geneType', action='append',
                         help='type of gene, maybe repeated')
-    parser.add_argument('--sourceAnnot',
-                        help='''BED of source genes for expansion checking and exon counts''')
-    parser.add_argument('--maxSourceExpansion', type=float,
-                        help='max fraction of size source alignment increase (e.g. 1.5)')
-    parser.add_argument('--minExons', type=int,
-                        help='minimum number of exons')
     parser.add_argument('catGenePred',
                         help="gp from cat")
     parser.add_argument('catGenePredInfo',
@@ -37,39 +30,20 @@ def parseArgs():
     args = parser.parse_args()
     if args.geneType is not None:
         args.geneType = frozenset(args.geneType)
-    if (args.maxSourceExpansion is not None) and (args.sourceAnnot is None):
-        parser.error('--maxSourceExpansion requires --sourceAnnot')
-    if (args.minExons is not None) and (args.sourceAnnot is None):
-        parser.error('--minExons requires --sourceAnnot')
     return args
 
 class BoundsOpts(namedtuple("BoundsOpts",
-                            ("nameField", "hgncOnly", "geneTypes", "sourceAnnots",
-                             "maxSourceExpansion", "minExons",))):
+                            ("nameField", "hgncOnly", "geneTypes",))):
     pass
 
 
-def loadSourceAnnotBed(sourceAnnotBed):
-    return {b.name: b for b in BedReader(sourceAnnotBed)}
-
 def isHgnc(v):
     return v not in ("", "NULL")
-
-def checkSourceExpansion(gp, sourceRec, maxSourceExpansion):
-    srcSize = sourceRec.chromEnd - sourceRec.chromStart
-    destSize = gp.txEnd - gp.txStart
-    return ((destSize - srcSize) / srcSize) <= maxSourceExpansion
 
 def useAnnot(gp, catMeta, opts):
     if not (((not opts.hgncOnly) or isHgnc(catMeta.hgncId))
             and ((opts.geneTypes is None) or (catMeta.gene_biotype in opts.geneTypes))):
         return False
-    if opts.sourceAnnots is not None:
-        sourceRec = opts.sourceAnnots[gp.name]
-        if (opts.maxSourceExpansion is not None) and not checkSourceExpansion(gp, sourceRec, opts.maxSourceExpansion):
-            return False
-        if (opts.minExons is not None) and (sourceRec.blockCount < opts.minExons):
-            return False
     return True
 
 def loadGenesMeta(catGpInfo):
@@ -93,15 +67,11 @@ def loadTrans(catGp, catMetaTbl, opts):
     return geneTransBeds
 
 def main(args):
-    sourceAnnots = loadSourceAnnotBed(args.sourceAnnot) if args.sourceAnnot is not None else None
     opts = BoundsOpts(nameField=args.nameField,
                       hgncOnly=args.hgncOnly,
-                      geneTypes=args.geneType,
-                      sourceAnnots=sourceAnnots,
-                      maxSourceExpansion=args.maxSourceExpansion,
-                      minExons=args.minExons)
-    catMetaTbl = loadGenesMeta(args.catGpInfo)
-    geneTransBeds = loadTrans(args.catGp, catMetaTbl, opts)
+                      geneTypes=args.geneType)
+    catMetaTbl = loadGenesMeta(args.catGenePredInfo)
+    geneTransBeds = loadTrans(args.catGenePred, catMetaTbl, opts)
     with fileOps.opengz(args.geneBoundsBed, "w") as bedFh:
         buildGeneBounds(geneTransBeds, bedFh)
 

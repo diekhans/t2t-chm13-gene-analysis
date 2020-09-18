@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+
+import argparse
+from collections import namedtuple
+from pycbio.sys import fileOps
+from pycbio.hgdata.genePred import GenePredReader
+
+def parseArgs():
+    usage = """filter a genePred based on it source gene and other attributes.
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--sourceAnnot',
+                        help='''source genePred for expansion checking and exon counts''')
+    parser.add_argument('--maxSourceExpansion', type=float,
+                        help='max fraction of size source alignment increase (e.g. 1.5)')
+    parser.add_argument('--minExons', type=int,
+                        help='minimum number of exons, uses source if specified')
+    parser.add_argument('inGenePred',
+                        help="in genePred")
+    parser.add_argument('outGenePred',
+                        help="output genePred")
+    args = parser.parse_args()
+    if (args.maxSourceExpansion is not None) and (args.sourceAnnot is None):
+        parser.error('--maxSourceExpansion requires --sourceAnnot')
+    return args
+
+class FilterOpts(namedtuple("FilterOpts",
+                            ("sourceAnnots", "maxSourceExpansion", "minExons",))):
+    pass
+
+def loadSourceAnnotBed(sourceAnnotGp):
+    return {t.name: t for t in GenePredReader(sourceAnnotGp)}
+
+def checkSourceExpansion(gp, sourceGp, maxSourceExpansion):
+    srcSize = sourceGp.txEnd - sourceGp.txStart
+    destSize = gp.txEnd - gp.txStart
+    return ((destSize - srcSize) / srcSize) <= maxSourceExpansion
+
+def keep(gp, opts):
+    sourceGp = None if opts.sourceAnnots is None else opts.sourceAnnots.get(gp.name)
+    if sourceGp is not None:
+        if (opts.maxSourceExpansion is not None) and not checkSourceExpansion(gp, sourceGp, opts.maxSourceExpansion):
+            return False
+        if (opts.minExons is not None) and (len(sourceGp.exons) < opts.minExons):
+            return False
+    else:
+        if (opts.minExons is not None) and (len(gp.exons) < opts.minExons):
+            return False
+    return True
+
+def genePredSourceFilter(opts, inGenePred, outGpFh):
+    for gp in GenePredReader(inGenePred):
+        if keep(gp, opts):
+            gp.write(outGpFh)
+
+def main(args):
+    sourceAnnots = loadSourceAnnotBed(args.sourceAnnot) if args.sourceAnnot is not None else None
+    opts = FilterOpts(sourceAnnots=sourceAnnots,
+                      maxSourceExpansion=args.maxSourceExpansion,
+                      minExons=args.minExons)
+    with fileOps.opengz(args.outGenePred, "w") as outGpFh:
+        genePredSourceFilter(opts, args.inGenePred, outGpFh)
+
+main(parseArgs())

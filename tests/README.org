@@ -1,0 +1,19 @@
+
+* catClustersToGenes test cases
+** ids
+CHM13_T0011570  lncRNA  blat/same
+CHM13_T0011571
+CHM13_T0034022  coding  noblat
+CHM13_T0034023
+CHM13_T0034024
+CHM13_T0034025
+CHM13_T0022355  novel   noblat
+CHM13_T0067675  pseudo  noblat
+CHM13_T0067699  novel   blat/coding
+CHM13_T0240196  lncRNA  blat/same/not HGNC
+CHM13_T0240911  novel  blat/same
+CHM13_T0240912  
+** how these were built
+(head -1 ../catGeneBounds/CHM13.clusters.tsv ; fgrep -f ex.catids  ../catGeneBounds/CHM13.clusters.tsv) >ex.clusters.tsv
+(head -1 ../catGeneBounds/CHM13.no-user_filtered.gp_info ; fgrep -f ex.catids  ../catGeneBounds/CHM13.no-user_filtered.gp_info ) >ex.gp_info
+selectById -tsv 1 ex.catids 1 CHM13.clusters.centro.blatover.stats >ex.overstats

@@ -1,6 +1,8 @@
 
 
-test: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest
+test: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest \
+	genePredFrameShiftsTests catClustersToGenesTest
+
 
 # test out not deterministic:  geneFamilyTest
 # not useful: geneFamilyExpansionTest
@@ -32,6 +34,15 @@ output/gencode.bigBlatPsl: input/gencode.bigBlatPslIn input/t2tChm13_20200727.si
 geneFamilyExpansionTest: mkdirs
 	../bin/geneFamilyExpansion --minExpansionCnt=-100 expected/geneFamilyTest.json expected/geneBoundsTest.bed output/$@.bed
 
+genePredFrameShiftsTests: mkdirs
+	../bin/genePredFrameShifts --catMetaTsv=input/fakeCat.gp_info input/fakeCat.gp output/$@.tsv output/$@.gp
+	diff expected/$@.tsv output/$@.tsv
+	diff expected/$@.gp output/$@.gp
+
+catSourceDb =  ../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db 
+catClustersToGenesTest: mkdirs
+	../bin/catClustersToGenes ${catSourceDb} input/catToGenes.gp_info input/catToGenes.blat.overstats input/catToGenes.clusters.tsv output/$@.tsv
+	diff expected/$@.tsv output/$@.tsv
 
 clean:
 	rm -rf output

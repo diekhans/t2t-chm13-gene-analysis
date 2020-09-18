@@ -26,7 +26,7 @@ def parseArgs():
 gencodeVer = "V35"
 
 def setToList(s):
-    return list(sorted(s))
+    return sorted(s)
 
 def addUniq(s, v):
     if v is not None:
