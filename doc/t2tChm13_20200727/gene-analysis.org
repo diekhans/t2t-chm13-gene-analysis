@@ -234,18 +234,20 @@ overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.pri-uniq.bed  CH
 
 https://hgwdev.gi.ucsc.edu/~markd/t2t/centroGenes/
 
-*** overlap with gencode blats for 
-# need to overlap with trans in clusters
+*** function and type annotation
+# need to overlap with gencide blat clusters to handle novel
 selectById -tsv 4 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.clusters.tsv | >CHM13.clusters.centro.tsv
 selectById 1 CHM13.clusters.centro.catids 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.clusters.centro.gp
 overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz CHM13.clusters.centro.gp CHM13.clusters.centro.blatover.stats
 
 
-## function and type annotation
+catClustersToGenes ../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db  ../catGeneBounds/CHM13.no-user_filtered.gp_info CHM13.clusters.centro.blatover.stats CHM13.clusters.centro.tsv CHM13.clusters.centro.genes.tsv 
 
+# get GO terms for hgnc ids
+HGNC:4810
+https://api.monarchinitiative.org/api/bioentity/gene/{id}/functionp
 
-*** try excluding PB 
-
+curl -X GET -O HGNC:4810.json https://api.monarchinitiative.org/api/bioentity/gene/HGNC:4810/function
 
 ** global blat compared in unique regions
 #+BEGIN_SRC

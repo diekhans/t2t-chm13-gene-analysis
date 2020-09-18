@@ -1,7 +1,7 @@
 
 
 test: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest \
-	genePredFrameShiftsTests catClustersToGenesTest
+	genePredFrameShiftsTests catClustersToGenesTest catClustersAddGoTest
 
 
 # test out not deterministic:  geneFamilyTest
@@ -42,6 +42,10 @@ genePredFrameShiftsTests: mkdirs
 catSourceDb =  ../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db 
 catClustersToGenesTest: mkdirs
 	../bin/catClustersToGenes ${catSourceDb} input/catToGenes.gp_info input/catToGenes.blat.overstats input/catToGenes.clusters.tsv output/$@.tsv
+	diff expected/$@.tsv output/$@.tsv
+
+catClustersAddGoTest: mkdirs
+	../bin/catClustersAddGo expected/catClustersToGenesTest.tsv output/$@.tsv
 	diff expected/$@.tsv output/$@.tsv
 
 clean:

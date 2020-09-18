@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+
+import sys
+import os.path as ops
+import argparse
+import json
+import requests
+import functools
+from pycbio.sys import fileOps
+from pycbio.sys.objDict import ObjDict
+from pycbio.tsv import TsvReader
+
+def parseArgs():
+    usage = """
+    Take output of catClustersToGenes and add GO ids.
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('inClusterInfoTsv',
+                        help="")
+    parser.add_argument('outClusterInfoTsv',
+                        help="")
+    args = parser.parse_args()
+    return args
+
+def strArraySplit(commaStr):
+    "parser for comma-separated string list into a list"
+    if len(commaStr) == 0:
+        return []
+    return commaStr.split(",")
+
+def strArrayJoin(strs):
+    "formatter for a list into a comma separated string"
+    return ",".join(strs)
+
+def parseMonarchAssocs(assocs):
+    goIds = set()
+    for assoc in assocs.associations:
+        objId = assoc.object.id
+        if objId.startswith("GO:"):
+            goIds.add(objId)
+    return goIds
+
+@functools.lru_cache(maxsize=None)
+def lookupGoIdsForGene(hgncId):
+    resp = requests.get(f"https://api.monarchinitiative.org/api/bioentity/gene/{hgncId}/function")
+    resp.raise_for_status()
+    assocs = resp.json(object_pairs_hook=ObjDict)
+    # json.dump(assocs, sys.stdout, indent=4)
+    goIds = parseMonarchAssocs(assocs)
+    return frozenset(goIds)
+
+def lookupGoIds(hgncIds):
+    goIds = set()
+    for hgncId in hgncIds:
+        goIds |= lookupGoIdsForGene(hgncId)
+    return goIds
+
+def addGoIds(cluster, outClusterFh):
+    fileOps.prRow(outClusterFh, cluster.getRow() + [strArrayJoin(sorted(lookupGoIds(cluster.hgncIds)))])
+
+def catClustersAddGo(inClusterRd, outClusterFh):
+    fileOps.prRow(outClusterFh, inClusterRd.columns + ["goId"])
+    for cluster in inClusterRd:
+        addGoIds(cluster, outClusterFh)
+
+def main(args):
+    inClusterRd = TsvReader(args.inClusterInfoTsv, typeMap={"hgncIds": (strArraySplit, strArrayJoin)})
+    with open(args.outClusterInfoTsv, "w") as outClusterFh:
+        catClustersAddGo(inClusterRd, outClusterFh)
+
+main(parseArgs())

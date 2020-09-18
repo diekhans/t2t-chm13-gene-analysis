@@ -167,10 +167,20 @@ def genMetaHgncId(genMeta):
         return None
 
 def genMetasHgncIds(genMetas):
+    hgncIds = set()
     for genMeta in genMetas:
         hgnc = genMetaHgncId(genMeta)
         if hgnc is not None:
-            yield hgnc
+            hgncIds.add(hgnc)
+    return sorted(hgncIds)
+
+def getClusterType(catMetas, genMetas, hgncIds):
+    if sum([1 for cm in catMetas if cm.source_transcript is not None]) > 0:
+        return "known"  # CAT mapped to gencode
+    elif len(genMetas) > 0:
+        return "paralog"
+    else:
+        return "unknown"
 
 def processCluster(cluster, catSourceConn, catMetaTbl, blatOverStatsTbl, infoTsvFh):
     def ljoin(l):
@@ -181,19 +191,21 @@ def processCluster(cluster, catSourceConn, catMetaTbl, blatOverStatsTbl, infoTsv
     bioCat, genMeta = pickGenMetaGeneClass(genMetas)
     if bioCat is None:
         bioCat = bioCategoryfromCat(cluster, catMetaTbl)
+    hgncIds = genMetasHgncIds(genMetas)
 
-    row = [cluster.clusterId, f"{cluster.chrom}:{cluster.start}-{cluster.end}", bioCat,
+    row = [cluster.clusterId, f"{cluster.chrom}:{cluster.start}-{cluster.end}",
+           getClusterType(catMetas, genMetas, hgncIds), bioCat,
            ljoin([cm.gene_id for cm in catMetas])]
     if genMetas is not None:
         row += [ljoin([gm.GeneId for gm in genMetas]),
                 ljoin([gm.GeneName for gm in genMetas]),
-                ljoin(genMetasHgncIds(genMetas))]
+                ljoin(hgncIds)]
     else:
         row += 3 * "[]"
     fileOps.prRow(infoTsvFh, row)
 
 def catClustersToGenes(catSourceConn, catMetaTbl, blatOverStatsTbl, catClustersTbl, infoTsvFh):
-    fileOps.prRowv(infoTsvFh, "cluster", "coords", "bioCat", "catGeneIds", "gencodeGeneIds", "geneSymbols", "hgncIds")
+    fileOps.prRowv(infoTsvFh, "cluster", "coords", "clusterType", "bioCat", "catGeneIds", "gencodeGeneIds", "geneSymbols", "hgncIds")
     for cluster in catClustersTbl:
         processCluster(cluster, catSourceConn, catMetaTbl, blatOverStatsTbl, infoTsvFh)
 
