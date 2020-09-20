@@ -10,19 +10,16 @@ from pycbio.sys import fileOps
 from pycbio.sys.objDict import ObjDict
 from pycbio.db import sqliteOps
 from pycbio.tsv import TsvTable
-from pycbio.hgdata.clusterGenes import ClusterGenes
 from pycbio.hgdata.overlapSelectStats import OverlapSelectStatsTbl
 from pycbio.sys.symEnum import SymEnum, auto
+from geneFamilyLib import GeneBoundsBedReader
 
 def parseArgs():
     usage = """
-    take clusterGenes output, along with overlapSelect output of GENCODE blat to
-    assign genes to all clusters, including novel
+    take geneBoundsForCat output, along with overlapSelect output of GENCODE blat to
+    assign paraloguous genes symbols to novel genes.
 
-    select file should be built like this
-    selectById 4 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.clusters.tsv | cut -f 3 >CHM13.clusters.centro.catids
-    selectById 1 CHM13.clusters.centro.catids 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.clusters.centro.gp
-    overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz CHM13.clusters.centro.gp CHM13.clusters.centro.blatover.stats
+     overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz cat.gp cat-blat.overstats
 """
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('catSourceDb',
@@ -31,9 +28,9 @@ def parseArgs():
                         help="metadata TSV")
     parser.add_argument('blatOverStats',
                         help="")
-    parser.add_argument('catClusters',
-                        help="clusterGenes")
-    parser.add_argument('clusterInfoTsv',
+    parser.add_argument('geneBoundsBed',
+                        help="GeneBoundsBed format")
+    parser.add_argument('outBoundBed',
                         help="")
     args = parser.parse_args()
     return args
@@ -89,21 +86,16 @@ def loadCatMetadata(catGpInfo):
     #    adj_stop	proper_orf	level	transcript_support_level	tag	havana_gene	havana_transcript	paralogy	unfiltered_paralogy
     #    gene_alternate_contigs	source_gene_common_name	pacbio_isoform_supported	novel_5p_cap	novel_poly_a	intron_rna_support	exon_rna_support
     #    alternative_source_transcripts	protein_id	hgnc_id	ccdsid	collapsed_gene_ids	collapsed_gene_names	ont	possible_split_gene_locations
-    return TsvTable(catGpInfo, uniqKeyCols=("transcript_id",),
+    return TsvTable(catGpInfo, uniqKeyCols=("transcript_id",), multiKeyCols=("gene_id",),
                     defaultColType=lambda v: None if v == "N/A" else v)
 
 
-def getClusterCatMeta(cluster, catMetaTbl):
-    catMetas = [catMetaTbl.idx.transcript_id[ent.gene] for ent in cluster]
-    if len(catMetas) == 0:
-        raise Exception(f"No CAT metadata found for cluster {cluster.clusterId}")
-    return catMetas
+def getCatMetas(geneId, catMetaTbl):
+    return catMetaTbl.idx.gene_id[geneId]
 
-def getClusterBlatOver(cluster, blatOverStatsTbl):
-    blatOver = []
-    for ent in cluster:
-        blatOver.extend(blatOverStatsTbl.idx.inId[ent.gene])
+def getBlatOver(geneId, blatOverStatsTbl):
     # better first
+    blatOver = blatOverStatsTbl.idx.inId.get(geneId, [])
     blatOver.sort(key=lambda s: -s.similarity)
     return blatOver
 
@@ -126,11 +118,11 @@ def getSourceMetaForBlatOver(catSourceConn, blatOver):
     return getSourceGenMeta(catSourceConn,
                             [bo.selectId for bo in blatOver])
 
-def getClusterSourceMeta(cluster, catSourceConn, catMetas, blatOverStatsTbl):
+def getSourceMeta(geneId, catSourceConn, catMetas, blatOverStatsTbl):
     genMetas = getSourceMetaForCatMeta(catSourceConn, catMetas)
     if len(genMetas) == 0:
         genMetas = getSourceMetaForBlatOver(catSourceConn,
-                                            getClusterBlatOver(cluster, blatOverStatsTbl))
+                                            getBlatOver(geneId, blatOverStatsTbl))
     return genMetas
 
 def pickByPreferedBioCat(bioCatMap):
@@ -150,7 +142,7 @@ def pickGenMetaGeneClass(genMetas):
 
     return pickByPreferedBioCat(catFirstMeta)
 
-def bioCategoryfromCat(cluster, catMetas):
+def bioCategoryfromCat(catMetas):
     catFirstMeta = {}
     for cm in catMetas:
         bioCat = BioCategory.fromCatType(cm.transcript_biotype)
@@ -166,13 +158,12 @@ def genMetaHgncId(genMeta):
     else:
         return None
 
-def genMetasHgncIds(genMetas):
-    hgncIds = set()
+def genMetasHgncId(genMetas):
     for genMeta in genMetas:
         hgnc = genMetaHgncId(genMeta)
         if hgnc is not None:
-            hgncIds.add(hgnc)
-    return sorted(hgncIds)
+            return hgnc
+    return None
 
 def getClusterType(catMetas, genMetas, hgncIds):
     if sum([1 for cm in catMetas if cm.source_transcript is not None]) > 0:
@@ -182,39 +173,36 @@ def getClusterType(catMetas, genMetas, hgncIds):
     else:
         return "unknown"
 
-def processCluster(cluster, catSourceConn, catMetaTbl, blatOverStatsTbl, infoTsvFh):
-    def ljoin(l):
-        return ",".join(sorted(set(l)))
-
-    catMetas = getClusterCatMeta(cluster, catMetaTbl)
-    genMetas = getClusterSourceMeta(cluster, catSourceConn, catMetas, blatOverStatsTbl)
+def processGene(boundBed, catSourceConn, catMetaTbl, blatOverStatsTbl, outBedFh):
+    catMetas = getCatMetas(boundBed.name, catMetaTbl)
+    genMetas = getSourceMeta(boundBed.name, catSourceConn, catMetas, blatOverStatsTbl)
     bioCat, genMeta = pickGenMetaGeneClass(genMetas)
     if bioCat is None:
-        bioCat = bioCategoryfromCat(cluster, catMetaTbl)
-    hgncIds = genMetasHgncIds(genMetas)
+        bioCat = bioCategoryfromCat(catMetaTbl)
+    hgncId = genMetasHgncId(genMetas)
 
-    row = [cluster.clusterId, f"{cluster.chrom}:{cluster.start}-{cluster.end}",
-           getClusterType(catMetas, genMetas, hgncIds), bioCat,
-           ljoin([cm.gene_id for cm in catMetas])]
-    if genMetas is not None:
-        row += [ljoin([gm.GeneId for gm in genMetas]),
-                ljoin([gm.GeneName for gm in genMetas]),
-                ljoin(hgncIds)]
-    else:
-        row += 3 * "[]"
-    fileOps.prRow(infoTsvFh, row)
+    if (not boundBed.hgncId) and (hgncId is not None):
+        boundBed.setHgncId(hgncId)
+    boundBed.setGeneType(bioCat)
+    if (not boundBed.geneIds):
+        boundBed.addGeneIds([cm.gene_id for cm in catMetas])
+    return boundBed
 
-def catClustersToGenes(catSourceConn, catMetaTbl, blatOverStatsTbl, catClustersTbl, infoTsvFh):
-    fileOps.prRowv(infoTsvFh, "cluster", "coords", "clusterType", "bioCat", "catGeneIds", "gencodeGeneIds", "geneSymbols", "hgncIds")
-    for cluster in catClustersTbl:
-        processCluster(cluster, catSourceConn, catMetaTbl, blatOverStatsTbl, infoTsvFh)
+def shouldUpdate(boundBed):
+    return boundBed.geneSym == ""
+
+def catBoundsAddBlatOver(catSourceConn, catMetaTbl, blatOverStatsTbl, boundsReader, outBedFh):
+    for boundBed in boundsReader:
+        if shouldUpdate(boundBed):
+            boundBed = processGene(boundBed, catSourceConn, catMetaTbl, blatOverStatsTbl, outBedFh)
+        boundBed.write(outBedFh)
 
 def main(args):
     catSourceConn = sqliteOps.connect(args.catSourceDb)
     catMetaTbl = loadCatMetadata(args.catGenePredInfo)
     blatOverStatsTbl = OverlapSelectStatsTbl(args.blatOverStats)
-    catClustersTbl = ClusterGenes(args.catClusters)
-    with fileOps.opengz(args.clusterInfoTsv, "w") as infoTsvFh:
-        catClustersToGenes(catSourceConn, catMetaTbl, blatOverStatsTbl, catClustersTbl, infoTsvFh)
+    boundsReader = GeneBoundsBedReader(args.geneBoundsBed)
+    with fileOps.opengz(args.outBoundBed, "w") as outBedFh:
+        catBoundsAddBlatOver(catSourceConn, catMetaTbl, blatOverStatsTbl, boundsReader, outBedFh)
 
 main(parseArgs())

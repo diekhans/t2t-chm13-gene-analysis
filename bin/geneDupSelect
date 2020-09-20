@@ -4,8 +4,7 @@ import argparse
 import statistics
 from collections import defaultdict
 from pycbio.sys import fileOps
-from pycbio.hgdata.bed import BedReader
-from geneFamilyLib import GeneBoundsBed
+from geneFamilyLib import GeneBoundsBedReader
 
 def parseArgs():
     usage = """select geneBoundsFromBigBlatPsl """
@@ -24,7 +23,7 @@ def parseArgs():
 
 def loadGeneBounds(geneBoundsBed):
     genesBounds = defaultdict(list)
-    for bed in BedReader(geneBoundsBed, bedClass=GeneBoundsBed, numStdCols=6):
+    for bed in GeneBoundsBedReader(geneBoundsBed):
         genesBounds[bed.name].append(bed)
     return genesBounds
 

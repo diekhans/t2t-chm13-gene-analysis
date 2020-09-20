@@ -162,15 +162,17 @@ cp cat.frameshifts.ctrack  ~/public_html/t2t/for-marina/frameshifts/browser
 
 
 ** catGeneBounds
-ln ../../../../build/t2tChm13_20200727/CAT/consensus_gene_set/CHM13.no-user_filtered.gp* .
+ln ../../../../build/t2tChm13_20200727/CAT/consensus_gene_set/CHM13.no-user_filtered.gp cat.gp
+ln ../../../../build/t2tChm13_20200727/CAT/consensus_gene_set/CHM13.no-user_filtered.gp_info cat.gp_info
 
 # CAT doesn't have extensive expansion, filter of  --maxSourceExpansion=1.2 dropped nothing
-genePredSourceFilter --minExons=2 CHM13.no-user_filtered.gp CHM13.meg.gp
+genePredSourceFilter --minExons=2 cat.gp cat.meg.gp
 
-# try clusters: (tried -minOverlappingBases=100, but it create more clusters than input!!)
-clusterGenes -clusterBed=CHM13.clusters.bed CHM13.clusters.tsv no CHM13.no-user_filtered.gp
-clusterGenes -clusterBed=CHM13.meg.clusters.bed CHM13.meg.clusters.tsv no CHM13.meg.gp
+geneBoundsForCat cat.gp cat.gp_info cat.bounds.bed &
+overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz cat.gp cat-blat.overstats
 
+
+*** old:
 
 # try bounds based on name
 geneBoundsForCat --nameField=geneSym CHM13.no-user_filtered.gp CHM13.no-user_filtered.gp_info CHM13.genes-sym.bed &
@@ -184,6 +186,8 @@ geneBoundsForCat --nameField=geneSym CHM13.meg.gp CHM13.no-user_filtered.gp_info
 | CHM13.meg.genes-sym.bed   |  37467 |
 
 # ugg, PB is BAD; user-filtered not excluded, so above redone
+
+catClustersToGenes ../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db  ../catGeneBounds/CHM13.no-user_filtered.gp_info CHM13.clusters.centro.blatover.stats CHM13.clusters.centro.tsv CHM13.clusters.centro.genes.tsv 
 
 
 ** genes in centromere regions (FOR TALK)
@@ -225,6 +229,10 @@ overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.pri-uniq.bed  CH
  | MEG-centro   |    1279 | 1402 |
  | MEG-unique   |      52 |   53 |
  | MEG-pri-uniq |      79 |   84 |
+
+
+
+
 *** browsers
   bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Genes in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.clusters.centro.bed  ~/public_html/t2t/centroGenes/centroAll &
   bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Multi-exon in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.meg.clusters.centro.bed  ~/public_html/t2t/centroGenes/centroMeg &
@@ -236,19 +244,58 @@ https://hgwdev.gi.ucsc.edu/~markd/t2t/centroGenes/
 
 *** function and type annotation
 # need to overlap with gencide blat clusters to handle novel
-selectById -tsv 4 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.clusters.tsv | >CHM13.clusters.centro.tsv
-selectById 1 CHM13.clusters.centro.catids 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.clusters.centro.gp
+selectById -tsv 4 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.clusters.tsv >CHM13.clusters.centro.tsv
+selectById 1 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.clusters.centro.gp
 overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz CHM13.clusters.centro.gp CHM13.clusters.centro.blatover.stats
 
-
 catClustersToGenes ../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db  ../catGeneBounds/CHM13.no-user_filtered.gp_info CHM13.clusters.centro.blatover.stats CHM13.clusters.centro.tsv CHM13.clusters.centro.genes.tsv 
+catClustersAddGo CHM13.clusters.centro.genes.tsv CHM13.clusters.centro.genes.go.tsv >&log&
 
-# get GO terms for hgnc ids
-HGNC:4810
-https://api.monarchinitiative.org/api/bioentity/gene/{id}/functionp
+# must do meg separate, as they were clustered independent
+selectById -tsv 4 CHM13.meg.clusters.centro.bed 1 ../catGeneBounds/CHM13.meg.clusters.tsv >CHM13.meg.clusters.centro.tsv
+selectById 1 CHM13.meg.clusters.centro.bed 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.meg.clusters.centro.gp
+overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz CHM13.meg.clusters.centro.gp CHM13.meg.clusters.centro.blatover.stats
 
-curl -X GET -O HGNC:4810.json https://api.monarchinitiative.org/api/bioentity/gene/HGNC:4810/function
+catClustersToGenes ../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db  ../catGeneBounds/CHM13.no-user_filtered.gp_info CHM13.meg.clusters.centro.blatover.stats CHM13.meg.clusters.centro.tsv CHM13.meg.clusters.centro.genes.tsv 
+catClustersAddGo CHM13.meg.clusters.centro.genes.tsv CHM13.meg.clusters.centro.genes.go.tsv >&log&
 
+tawk 'NR>1 && $8!=""{print $8}' CHM13.meg.clusters.centro.genes.go.tsv |tr ',' '\n' |sort -u >CHM13.meg.clusters.centro.hgncids
+tawk 'NR>1 && $9!=""{print $9}' CHM13.meg.clusters.centro.genes.go.tsv |tr ',' '\n' |sort -u >CHM13.meg.clusters.centro.goid
+
+*** more stats
+cp CHM13.clusters.centro.genes.go.tsv genes/centro.genes.go.tsv
+selectById -tsv 4 CHM13.clusters.centro.uniq.bed 1 genes/centro.genes.go.tsv >genes/centro.uniq.genes.go.tsv 
+selectById -tsv 4 CHM13.clusters.centro.pri-uniq.bed 1 genes/centro.genes.go.tsv >genes/centro.pri-uniq.genes.go.tsv 
+
+cp CHM13.meg.clusters.centro.genes.go.tsv genes/centro.meg.genes.go.tsv
+selectById -tsv 4 CHM13.meg.clusters.centro.uniq.bed 1 genes/centro.meg.genes.go.tsv >genes/centro.meg.uniq.genes.go.tsv 
+selectById -tsv 4 CHM13.meg.clusters.centro.pri-uniq.bed 1 genes/centro.meg.genes.go.tsv >genes/centro.meg.pri-uniq.genes.go.tsv 
+
+
+cd genes
+for filling in tables
+ | centro       | centro.genes.go.tsv              |
+ | unique       | centro.uniq.genes.go.tsv         |
+ | pri-uniq     | centro.pri-uniq.genes.go.tsv     |
+ | MEG-centro   | centro.meg.genes.go.tsv          |
+ | MEG-unique   | centro.meg.uniq.genes.go.tsv     |
+ | MEG-pri-uniq | centro.meg.pri-uniq.genes.go.tsv |
+
+# segdup
+# acrocentric vs metacentric and per megabase
+ |              | genes | metacentric | acrocentric | metacentric | acrocentric |   |
+ | centro       |  2393 |        1833 |         560 |         8.7 |         6.3 |   |
+ | unique       |   109 |          54 |          55 |         0.3 |         0.6 |   |
+ | pri-uniq     |   149 |          64 |          85 |         0.3 |         1.0 |   |
+ | MEG-centro   |  1279 |         971 |         308 |         4.6 |         3.4 |   |
+ | MEG-unique   |    52 |          27 |          25 |         0.1 |         0.3 |   |
+ | MEG-pri-uniq |    79 |          36 |          43 |         0.2 |         0.5 |   |
+
+** per-chrom counts
+cut -f 1  ../CHM13.clusters.centro.bed | sort  | uniq -c | tawko '{print $2, $1}' >centro.cnt
+cut -f 1  ../CHM13.clusters.centro.uniq.bed | sort  | uniq -c | tawko '{print $2, $1}' >centro.uniq.cnt
+cut -f 1  ../CHM13.meg.clusters.centro.bed | sort  | uniq -c | tawko '{print $2, $1}' >centro.meg.cnt
+cut -f 1  ../CHM13.meg.clusters.centro.uniq.bed  | sort  | uniq -c | tawko '{print $2, $1}' >centro.meg.uniq.cnt
 ** global blat compared in unique regions
 #+BEGIN_SRC
 cd global
@@ -333,11 +380,11 @@ raw SQL, you are joining the tables TransMapFilterEvaluation in $genome.db with 
 
 SELECT name FROM hg38.sqlite_master WHERE type='table';
 
+tmfe.AlignmentId IS NULL
+
+
 attach database "databases/GRCh38.db" as hg38;
 SELECT FROM TransMapFilterEvaluation tmfe, hg38.annotation ann
-
-
-tmfe.AlignmentId IS NULL
 
 
 
@@ -403,6 +450,12 @@ doesn't hit unplaced
    are re-added to the set despite not being globalNearBest.
 step 6 is supposed to sort of do what we want, but it only looks at the 2nd highest scoring
 and it might not work quite as advertised
+
+
+** why does BLAT of ZNF595  ENST00000509152.3 align uniquely to chr21:49,218-64,959 15,742 bp. 
+appears to be paralog, original copy on chr2
+
+** Leave ALTs out of Cactus for now
 
 * interesting stuff
 ** chr22:1,093-476,524
