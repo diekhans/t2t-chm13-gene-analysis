@@ -168,68 +168,63 @@ ln ../../../../build/t2tChm13_20200727/CAT/consensus_gene_set/CHM13.no-user_filt
 # CAT doesn't have extensive expansion, filter of  --maxSourceExpansion=1.2 dropped nothing
 genePredSourceFilter --minExons=2 cat.gp cat.meg.gp
 
-geneBoundsForCat cat.gp cat.gp_info cat.bounds.bed &
+geneBoundsForCat cat.gp cat.gp_info cat.bounds.bed
+geneBoundsForCat cat.meg.gp cat.gp_info cat.meg.bounds.bed
+
 overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz cat.gp cat-blat.overstats
 
+| cat.gp             | 227240 |
+| cat.bounds.bed     |  59822 |
+| cat.meg.gp         | 202241 |
+| cat.meg.bounds.bed |  37489 |
 
-*** old:
+# intersection with segdups
+overlapSelect -selectCoordCols=0,1,2 -inCoordCols=0,1,2 -overlapThreshold=0.80  ../../../../build/t2tChm13_20200727/sedefSegDups/t2t-chm13.20200727.SDs.bed.gz cat.bounds.bed cat.bounds.segdup.bed
+overlapSelect -selectCoordCols=0,1,2 -inCoordCols=0,1,2 -overlapThreshold=0.80  ../../../../build/t2tChm13_20200727/sedefSegDups/t2t-chm13.20200727.SDs.bed.gz cat.meg.bounds.bed cat.meg.bounds.segdup.bed
 
-# try bounds based on name
-geneBoundsForCat --nameField=geneSym CHM13.no-user_filtered.gp CHM13.no-user_filtered.gp_info CHM13.genes-sym.bed &
-geneBoundsForCat --nameField=geneSym CHM13.meg.gp CHM13.no-user_filtered.gp_info CHM13.meg.genes-sym.bed &
+# other stats: transcript_class
+tawk 'NR>1{print $14}' cat.gp_info |sort | uniq -c |tawko '{print $2,$1}'
+| ortholog               | 223440 |
+| putative_novel         |    391 |
+| putative_novel_isoform |   3132 |
+| possible_paralog       |    199 |
+| poor_alignment         |     78 |
 
-| CHM13.no-user_filtered.gp | 227240 |
-| CHM13.clusters.bed        |  55819 |
-| CHM13.genes-sym.bed       |  59793 |
-| CHM13.meg.gp              | 202241 |
-| CHM13.meg.clusters.bed    |  34904 |
-| CHM13.meg.genes-sym.bed   |  37467 |
+# from genes in segdups
+selectById -tsv 1 <(cut -f 4 cat.bounds.segdup.bed) 1 cat.gp_info  | tawk 'NR>1{print $14}' |sort | uniq -c |tawko '{print $2,$1}'
 
-# ugg, PB is BAD; user-filtered not excluded, so above redone
-
-catClustersToGenes ../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db  ../catGeneBounds/CHM13.no-user_filtered.gp_info CHM13.clusters.centro.blatover.stats CHM13.clusters.centro.tsv CHM13.clusters.centro.genes.tsv 
-
+| ortholog               | 11014 |
+| putative_novel         |    51 |
+| putative_novel_isoform |   222 |
+| possible_paralog       |   186 |
+| poor_alignment         |    20 |
 
 ** genes in centromere regions (FOR TALK)
 
 *** unique regions
-# OR together unique regions
+ln -f ../../../../build/t2tChm13_20200727/uniqRegions/combined/cactusLastz*.bed .
 
-featureBits -countGaps -or -bed=combined.uniq.bed -chromSize=../../../../build/t2tChm13_20200727/uniqRegions/lastz/t2tChm13_20200727.sizes3 nodb ../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz ../../../../build/t2tChm13_20200727/uniqRegions/cactus/cactus-unique.bed 
-217689342 bases of 3056841030 (7.121%) in intersection
-
-# OR together primary unique regions
-featureBits -countGaps -or -bed=combined.pri-uniq.bed -chromSize=../../../../build/t2tChm13_20200727/uniqRegions/lastz/t2tChm13_20200727.sizes3 nodb ../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz ../../../../build/t2tChm13_20200727/uniqRegions/cactus/cactus-unique-primary.bed 
-230031160 bases of 3056841030 (7.525%) in intersection
 
 *** genes in regions
 
 # centromere genes
-overlapSelect -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.clusters.bed  CHM13.clusters.centro.bed 
-overlapSelect -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.meg.clusters.bed  CHM13.meg.clusters.centro.bed 
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.genes-sym.bed  CHM13.genes-sym.centro.bed 
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/CHM13.meg.genes-sym.bed  CHM13.meg.genes-sym.centro.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/cat.bounds.bed  cat.bounds.centro.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/cat.meg.bounds.bed  cat.meg.bounds.centro.bed 
 
 # centromere genes in unique regions
-overlapSelect -overlapThreshold=0.8 combined.uniq.bed  CHM13.clusters.centro.bed   CHM13.clusters.centro.uniq.bed 
-overlapSelect -overlapThreshold=0.8 combined.uniq.bed  CHM13.meg.clusters.centro.bed   CHM13.meg.clusters.centro.uniq.bed 
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.uniq.bed  CHM13.genes-sym.centro.bed   CHM13.genes-sym.centro.uniq.bed 
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.uniq.bed  CHM13.meg.genes-sym.centro.bed   CHM13.meg.genes-sym.centro.uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzUnaligned.bed  cat.bounds.centro.bed   cat.bounds.centro-uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzUnaligned.bed  cat.meg.bounds.centro.bed   cat.meg.bounds.centro-uniq.bed 
 
 # centromere genes in primary-unique regions
-overlapSelect -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.clusters.centro.bed   CHM13.clusters.centro.pri-uniq.bed 
-overlapSelect -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.meg.clusters.centro.bed   CHM13.meg.clusters.centro.pri-uniq.bed 
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.genes-sym.centro.bed   CHM13.genes-sym.centro.pri-uniq.bed 
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 combined.pri-uniq.bed  CHM13.meg.genes-sym.centro.bed   CHM13.meg.genes-sym.centro.pri-uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzPrimaryUnaligned.bed  cat.bounds.centro.bed   cat.bounds.centro.pri-uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzPrimaryUnaligned.bed  cat.meg.bounds.centro.bed   cat.meg.bounds.centro.pri-uniq.bed 
 
- |              | cluster |  sym |
- | centro       |    2393 | 2597 |
- | unique       |     109 |  112 |
- | pri-uniq     |     149 |  156 |
- | MEG-centro   |    1279 | 1402 |
- | MEG-unique   |      52 |   53 |
- | MEG-pri-uniq |      79 |   84 |
-
+| centro              | 2597 |
+| centro-uniq         |    5 |
+| centro.pri-uniq     |   31 |
+| meg.centro          | 1402 |
+| meg.centro-uniq     |    5 |
+| meg.centro.pri-uniq |   21 |
 
 
 
@@ -456,6 +451,8 @@ and it might not work quite as advertised
 appears to be paralog, original copy on chr2
 
 ** Leave ALTs out of Cactus for now
+*** GPATCH4-frameshift - would be fixed by TMR
+
 
 * interesting stuff
 ** chr22:1,093-476,524
