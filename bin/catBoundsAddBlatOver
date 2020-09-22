@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 
-import sys
-import os.path as ops
 import argparse
 import re
-sys.path.append(ops.expanduser("~/kent/src/hg/makeDb/outside/gencode/lib"))
-from gencode import biotypes
 from pycbio.sys import fileOps
 from pycbio.sys.objDict import ObjDict
 from pycbio.db import sqliteOps
 from pycbio.tsv import TsvTable
 from pycbio.hgdata.overlapSelectStats import OverlapSelectStatsTbl
-from pycbio.sys.symEnum import SymEnum, auto
 from geneFamilyLib import GeneBoundsBedReader
+from bioTypeCat import BioCategory
 
 def parseArgs():
     usage = """
@@ -34,37 +30,6 @@ def parseArgs():
                         help="")
     args = parser.parse_args()
     return args
-
-class BioCategory(SymEnum):
-    # in order of preference
-    protein_coding = auto()
-    lncRNA = auto()
-    pseudoGene = auto()
-    immuneRNA = auto()
-    otherRNA = auto()
-
-    @classmethod
-    def fromBioType(cls, bioType):
-        if isinstance(bioType, str):
-            bioType = biotypes.BioType(bioType)
-        if (bioType in biotypes.bioTypesTR) or (bioType in biotypes.bioTypesIG):
-            return cls.immuneRNA
-        elif bioType in biotypes.bioTypesCoding:
-            return cls.protein_coding
-        elif bioType in (biotypes.BioType.lncRNA, biotypes.BioType.macro_lncRNA, biotypes.BioType.bidirectional_promoter_lncRNA):
-            return cls.lncRNA
-        elif bioType in biotypes.bioTypesPseudo:
-            return cls.pseudoGene
-        else:
-            return cls.otherRNA
-
-    @classmethod
-    def fromCatType(cls, catBioType):
-        if catBioType == "unknown_likely_coding":
-            return cls.protein_coding
-        else:
-            return cls.fromBioType(catBioType)
-
 
 def row_factory(cursor, row):
     columns = [t[0] for t in cursor.getdescription()]

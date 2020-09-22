@@ -120,24 +120,6 @@ dup2_10k.bed	13465
 dup2-8_10k.bed	4148
 dup4-8_10k.bed	1512
 
-** centromeres
-- NOT used 
-- any gene in centromeres that are not aligned in primary assembly
-# 100% in centromere regions, 80% overlap others
-#+BEGIN_SRC
-cd centromeres
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 ../data/cenRegions.bed ../selects/gencode.10k.bed 10k/centoGenes.bed
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOver.bed.gz 10k/centoGenes.bed 10k/centoGenes.new.bed
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 ../../../../../build/t2tChm13_20200727/uniqRegions/lastz/lastzUnalignedOverPrimary.bed.gz 10k/centoGenes.bed 10k/centoGenes.new-pri.bed
-#+END_SRC
-
-10k/centoGenes	2302
-10k/centoGenes.new	300
-10k/centoGenes.new-pri	484
-
-../bin/mkCentroTracks 
-
-WEIGHT BY NUMBER OF MAPPED TRANSCRIPTS
 
 ** centromere browser
     ~/public_html/t2t/genes-20200727/centromere/ctracks.bed
@@ -199,11 +181,15 @@ selectById -tsv 1 <(cut -f 4 cat.bounds.segdup.bed) 1 cat.gp_info  | tawk 'NR>1{
 | possible_paralog       |   186 |
 | poor_alignment         |    20 |
 
-** genes in centromere regions (FOR TALK)
+# hgnc/go
+tawk '$8!="" && $8!="N/A"{print $8}' cat.bounds.bed | sort -u >cat.hgnc
 
+
+
+** genes in centromere regions (FOR TALK)
+cd centormere
 *** unique regions
 ln -f ../../../../build/t2tChm13_20200727/uniqRegions/combined/cactusLastz*.bed .
-
 
 *** genes in regions
 
@@ -212,8 +198,8 @@ overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenReg
 overlapSelect -inCoordCols=0,1,2 -overlapThreshold=1.0 t2t-chm13.20200727.cenRegions.bed.gz ../catGeneBounds/cat.meg.bounds.bed  cat.meg.bounds.centro.bed 
 
 # centromere genes in unique regions
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzUnaligned.bed  cat.bounds.centro.bed   cat.bounds.centro-uniq.bed 
-overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzUnaligned.bed  cat.meg.bounds.centro.bed   cat.meg.bounds.centro-uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzUnaligned.bed cat.bounds.centro.bed   cat.bounds.centro.uniq.bed 
+overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzUnaligned.bed cat.meg.bounds.centro.bed   cat.meg.bounds.centro.uniq.bed 
 
 # centromere genes in primary-unique regions
 overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzPrimaryUnaligned.bed  cat.bounds.centro.bed   cat.bounds.centro.pri-uniq.bed 
@@ -226,36 +212,49 @@ overlapSelect -inCoordCols=0,1,2 -overlapThreshold=0.8 cactusLastzPrimaryUnalign
 | meg.centro-uniq     |    5 |
 | meg.centro.pri-uniq |   21 |
 
+cut -f 10 cat.bounds.centro.bed | bioTypeToCat | sort | uniq -c | tawko '{print $2,$1}'
+lncRNA	514
+otherRNA	251
+protein_coding	537
+pseudoGene	1295
 
+cut -f 10 cat.meg.bounds.centro.bed | bioTypeToCat | sort | uniq -c | tawko '{print $2,$1}'
+lncRNA	425
+protein_coding	480
+pseudoGene	497
+
+cut -f 10 cat.bounds.centro.uniq.bed | bioTypeToCat | sort | uniq -c | tawko '{print $2,$1}'
+protein_coding	5
+
+cut -f 10 cat.bounds.centro.pri-uniq.bed | bioTypeToCat | sort | uniq -c | tawko '{print $2,$1}'
+protein_coding	20
+pseudoGene	11
 
 *** browsers
-  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Genes in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.clusters.centro.bed  ~/public_html/t2t/centroGenes/centroAll &
-  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Multi-exon in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.meg.clusters.centro.bed  ~/public_html/t2t/centroGenes/centroMeg &
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Genes in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 cat.bounds.centro.bed  ~/public_html/t2t/centroGenes/centroAll &
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Multi-exon in Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 cat.meg.bounds.centro.bed  ~/public_html/t2t/centroGenes/centroMeg &
 
-  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Genes in Unique Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.clusters.centro.uniq.bed  ~/public_html/t2t/centroGenes/centroAllUniq &
-  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Multi-exon Genes in Unique Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 CHM13.meg.clusters.centro.uniq.bed  ~/public_html/t2t/centroGenes/centroMegUniq &
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Genes in Unique Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 cat.bounds.centro.uniq.bed  ~/public_html/t2t/centroGenes/centroAllUniq &
+  bedToHtmlDir -public-browser -loc-label -loc-label-name -sort-by-loc -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -title "Multi-exon Genes in Unique Pericentromeric regions t2tChm13_20200727"  t2tChm13_20200727 cat.meg.bounds.centro.uniq.bed  ~/public_html/t2t/centroGenes/centroMegUniq &
 
 https://hgwdev.gi.ucsc.edu/~markd/t2t/centroGenes/
 
 *** function and type annotation
-# need to overlap with gencide blat clusters to handle novel
-selectById -tsv 4 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.clusters.tsv >CHM13.clusters.centro.tsv
-selectById 1 CHM13.clusters.centro.bed 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.clusters.centro.gp
-overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz CHM13.clusters.centro.gp CHM13.clusters.centro.blatover.stats
+tawk '$8!="" && $8!="N/A"{print $8}' cat.bounds.centro.bed | sort -u >cat.bounds.centro.hgnc
+tawk '$8!="" && $8!="N/A"{print $8}' cat.meg.bounds.centro.bed | sort -u >cat.meg.bounds.centro.hgnc
+| cat.bounds.centro.hgnc     | 1437 |
+| cat.meg.bounds.centro.hgnc |  773 |
 
-catClustersToGenes ../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db  ../catGeneBounds/CHM13.no-user_filtered.gp_info CHM13.clusters.centro.blatover.stats CHM13.clusters.centro.tsv CHM13.clusters.centro.genes.tsv 
-catClustersAddGo CHM13.clusters.centro.genes.tsv CHM13.clusters.centro.genes.go.tsv >&log&
+hgncToGo cat.bounds.centro.hgnc cat.bounds.centro.go
+hgncToGo cat.meg.bounds.centro.hgnc cat.meg.bounds.centro.go
 
-# must do meg separate, as they were clustered independent
-selectById -tsv 4 CHM13.meg.clusters.centro.bed 1 ../catGeneBounds/CHM13.meg.clusters.tsv >CHM13.meg.clusters.centro.tsv
-selectById 1 CHM13.meg.clusters.centro.bed 1 ../catGeneBounds/CHM13.no-user_filtered.gp  >CHM13.meg.clusters.centro.gp
-overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz CHM13.meg.clusters.centro.gp CHM13.meg.clusters.centro.blatover.stats
+# NEVER FINISHED this, very iffy results
 
-catClustersToGenes ../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db  ../catGeneBounds/CHM13.no-user_filtered.gp_info CHM13.meg.clusters.centro.blatover.stats CHM13.meg.clusters.centro.tsv CHM13.meg.clusters.centro.genes.tsv 
-catClustersAddGo CHM13.meg.clusters.centro.genes.tsv CHM13.meg.clusters.centro.genes.go.tsv >&log&
-
-tawk 'NR>1 && $8!=""{print $8}' CHM13.meg.clusters.centro.genes.go.tsv |tr ',' '\n' |sort -u >CHM13.meg.clusters.centro.hgncids
-tawk 'NR>1 && $9!=""{print $9}' CHM13.meg.clusters.centro.genes.go.tsv |tr ',' '\n' |sort -u >CHM13.meg.clusters.centro.goid
+*** proteins
+tawk '$10=="protein_coding"' ../cat.bounds.centro.bed >cat.bounds.centro.protein.bed
+selectById 4 cat.bounds.centro.protein.bed 12 ../../catGeneBounds/cat.gp >cat.protein.gp
+selectById -tsv 4 cat.bounds.centro.protein.bed 1 ../../catGeneBounds/cat.gp_info >cat.protein.gp_info
+getRnaPred -peptides -genePredExt -genomeSeqs=../../../../../build/t2tChm13_20200727/genome/t2tChm13_20200727.2bit no cat.protein.gp all cat.protein.fa
 
 *** more stats
 cp CHM13.clusters.centro.genes.go.tsv genes/centro.genes.go.tsv
@@ -485,3 +484,9 @@ We simulated perfect short reads from chm13, aligned them to GRCh38, called vari
 * NEXT RUN:
 -- make sure we have common definitions of what we are using
 compare_multiple_runs_v6.py vs others
+* FIX:
+** didn't seem to get the real DUX4
+
+** LINC01666 on chr1:127717928-127720188, in chr22 in grch38
+** do syteny check
+

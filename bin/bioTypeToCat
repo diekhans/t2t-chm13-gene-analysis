@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import argparse
+from pycbio.sys import fileOps
+from bioTypeCat import BioCategory
+
+def parseArgs():
+    usage = """
+    Convert biotypes, including CAT-specified, to more general categories
+"""
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('inTypes', nargs='?', default="/dev/stdin",
+                        help="")
+    parser.add_argument('outCats', nargs='?', default="/dev/stdout",
+                        help="")
+    args = parser.parse_args()
+    return args
+
+def main(args):
+    with fileOps.opengz(args.outCats, "w") as outFh:
+        for line in fileOps.iterLines(args.inTypes):
+            print(BioCategory.fromCatType(line.strip()), file=outFh)
+
+main(parseArgs())

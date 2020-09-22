@@ -15,12 +15,12 @@ debug = False
 
 def parseArgs():
     usage = """
-    Take output of catClustersToGenes and add GO ids.
+    look up GO terms for HGNC ids
     """
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('inClusterInfoTsv',
+    parser.add_argument('inHgnc',
                         help="")
-    parser.add_argument('outClusterInfoTsv',
+    parser.add_argument('outGoTsv',
                         help="")
     args = parser.parse_args()
     return args
@@ -43,7 +43,7 @@ def parseMonarchAssocs(assocs):
             goIds.add(objId)
     return goIds
 
-@retry(exceptions=(requests.exceptions.HTTPError,), tries=10, delay=10, backoff=2)
+@retry(exceptions=(requests.exceptions.HTTPError,), tries=25, delay=1, max_delay=10, backoff=1)
 def queryMonarch(hgncId):
     resp = requests.get(f"https://api.monarchinitiative.org/api/bioentity/gene/{hgncId}/function")
     resp.raise_for_status()
@@ -57,24 +57,21 @@ def lookupGoIdsForGene(hgncId):
     goIds = parseMonarchAssocs(assocs)
     return frozenset(goIds)
 
-def lookupGoIds(hgncIds):
-    goIds = set()
-    for hgncId in hgncIds:
-        goIds |= lookupGoIdsForGene(hgncId)
-    return goIds
-
-def addGoIds(cluster, outClusterFh):
-    fileOps.prRow(outClusterFh, cluster.getRow() + [strArrayJoin(sorted(lookupGoIds(cluster.hgncIds)))])
-
-def catClustersAddGo(inClusterRd, outClusterFh):
-    fileOps.prRow(outClusterFh, inClusterRd.columns + ["goId"])
-    for cluster in inClusterRd:
-        addGoIds(cluster, outClusterFh)
+def hgncToGo(inFh, outFh):
+    fileOps.prRowv(outFh, "hgncId", "goId")
+    done = set()
+    for hgncId in fileOps.iterLines(inFh):
+        if hgncId not in done:
+            for go in lookupGoIdsForGene(hgncId):
+                fileOps.prRowv(outFh, hgncId, go)
+            outFh.flush()
+            done.add(hgncId)
 
 def main(args):
     logging.basicConfig()
-    inClusterRd = TsvReader(args.inClusterInfoTsv, typeMap={"hgncIds": (strArraySplit, strArrayJoin)})
-    with open(args.outClusterInfoTsv, "w") as outClusterFh:
-        catClustersAddGo(inClusterRd, outClusterFh)
+
+    with fileOps.opengz(args.inHgnc) as inFh:
+        with fileOps.opengz(args.outGoTsv, "w") as outFh:
+            hgncToGo(inFh, outFh)
 
 main(parseArgs())
