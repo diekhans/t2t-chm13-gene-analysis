@@ -322,68 +322,38 @@ chr15:2,317,241-2,319,011
 - hg38
   ENST00000619252.4 (CU633967.1) chr21:5553637-5590200
 
-* missingGenes
-** data
-generate gencode data (via bigPsl, because the tool isn't general enough)
-#+BEGIN_SRC
-blddir=../../../../build/t2tChm13_20200727/
-hgsql hg38 -Ne 'select * from wgEncodeGencodeCompV33;select * from wgEncodeGencodePseudoGeneV33;' | cut -f 2- >data/gencode.hg38.gp
-genePredToFakePsl no data/gencode.hg38.gp -chromSize=/hive/data/genomes/hg38/chrom.sizes data/gencode.hg38.psl data/gencode.hg38.cds
-genePredToBed data/gencode.hg38.gp data/gencode.hg38.bed
-hgsql hg38 -e 'select ga.transcriptId id, ga.geneName as geneSym, ga.geneId, gs.geneId as hgncId, ga.geneType from wgEncodeGencodeAttrsV33 ga left join wgEncodeGencodeGeneSymbolV33 gs on gs.transcriptId = ga.transcriptId' >data/gencode.hg38.meta.tsv
-pslToBigPsl -cds=data/gencode.hg38.cds data/gencode.hg38.psl stdout | sort -k1,1 -k2,2n > tmp/g.bigin1
-bedToBigBed -type=bed12+17 -tab -as=${blddir=}/../../../T2T-CHM13-hub/etc/bigBlatPsl.as tmp/g.bigin2 /hive/data/genomes/hg38/chrom.sizes data/gencode.hg38.bigPsl
-bigBlatPslAddColumns data/gencode.hg38.meta.tsv tmp/g.bigin1 tmp/g.bigin2gzip data/gencode.hg38.meg-lnc-prot.genes.bed
-/geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --minExons=2 --sourceAnnot=data/gencode.hg38.bed data/gencode.hg38.bigPsl data/gencode.hg38.meg-lnc-prot.genes.bed
-#+END_SRC
-
-get data for consensus
-need to convert bigGenePred to PSL indexed by ENST
-    name= $4
-    sourceGene = $21
-    sourceTranscript = $22, ENST or N/A
-    geneId = $27
-    geneName = $19
-    37 columns
-
-#+BEGIN_SRC 
-bigBedToBed ${blddir}/CAT/assemblyHub/CHM13/consensus.bb stdout | tawk '$22!="N/A"{$4=$22}{print}' >tmp/bigGp
-bedToBigBed -type=bed12+25 -tab -as=consensus.as tmp/bigGp ${blddir}/genome/t2tChm13_20200727.sizes tmp/cconsensus.bigGp
-bigGenePredToGenePred tmp/cconsensus.bigGp tmp/consensus.gp
-genePredToFakePsl -chromSize=${blddir}/genome/t2tChm13_20200727.sizes -qSizes=/hive/data/genomes/hg38/chrom.sizes no tmp/consensus.gp tmp/consensus.psl tmp/consensus.cds
-pslToBigPsl -cds=tmp/consensus.cds tmp/consensus.psl stdout | sort -k1,1 -k2,2n > tmp/cat.bigPslIn
-bigBlatPslAddColumns data/gencode.hg38.meta.tsv tmp/cat.bigPslIn  tmp/cat.bigPslIn2
-bedToBigBed -type=bed12+17 -tab -as=${blddir}/../../T2T-CHM13-hub/etc/bigBlatPsl.as tmp/cat.bigPslIn2 ${blddir}/genome/t2tChm13_20200727.sizes data/consensus.chm13.bigPsl
-geneBoundsFromBigBlatPsl --nameField=geneSym  --geneType=lncRNA --geneType=protein_coding --maxSourceExpansion=1.5 --minExons=2 --sourceAnnot=data/gencode.hg38.bed data/consensus.chm13.bigPsl data/consensus.chm13.meg-lnc-prot.genes.bed
-#+END_SEC
-
-
 * CAT
-** getting missing genes
-ln -s ../../../../../build/t2tChm13_20200727/CAT/databases .
+* catMissing - getting missing genes
+sqlite3 ../../../../build/t2tChm13_20200727/CAT/databases/CHM13.db
+attach database "../../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db" as hg38;
+.header on
+# transcripts no found
+.output missing-trans.tsv
+SELECT TranscriptId, GeneId FROM hg38.annotation WHERE TranscriptId NOT IN (SELECT TranscriptId FROM TransMapFilterEvaluation);
+.output
 
-import pandas as pd
-import tools.sqlInterface
-ref_df = tools.sqlInterface.load_annotation(args.ref_db_path)
-tm_filter_eval = tools.sqlInterface.load_filter_evaluation(args.db_path)
-merged = ref_df.merge(tm_filter_eval, on=["TranscriptId", "GeneId"], how="left")
-missing = merged[merged.AlignmentId.isnull()]
-missing_lnc_prot = missing[missing.GeneBiotype.isin(["protein_coding", "lncRNA"])]
+# genes not found
+CREATE TEMP table found_genes AS SELECT GeneId FROM hg38.annotation WHERE TranscriptId IN (SELECT TranscriptId FROM TransMapFilterEvaluation);
 
-raw SQL, you are joining the tables TransMapFilterEvaluation in $genome.db with annotation in $refdb
+.output missing-genes.tsv
+SELECT distinct GeneId FROM hg38.annotation WHERE GeneId NOT IN (SELECT GeneId FROM TransMapFilterEvaluation);
 
-SELECT name FROM hg38.sqlite_master WHERE type='table';
-
-tmfe.AlignmentId IS NULL
-
-
-attach database "databases/GRCh38.db" as hg38;
-SELECT FROM TransMapFilterEvaluation tmfe, hg38.annotation ann
+  2787 missing-genes.tsv
+  3446 missing-trans.tsv
 
 
 
+geneBoundsFromBigBlatPsl --minExons=3 --nameField=geneId ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.bigBlatPsl gencode.blat-3ex.bed
 
+selectById 1 missing-genes.tsv 4 gencode.blat-3ex.bed >gencode.blat-3ex.missing.bed
+gencode.blat-3ex.missing.bed 514, 514 unique
 
+# build browserdir
+buildBigBed --as=../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as bed6+4 t2tChm13_20200727 gencode.blat-3ex.missing.bigBed gencode.blat-3ex.missing.bed 
+ln -s $(pwd)/gencode.blat-3ex.missing.bigBed ~/public_html/t2t/genes-20200727/missing/
+echo 'track name="gencode.blat-3ex.missing" description="gencode.blat-3ex.missing" type=bigBed color=193,72,52 visibility=pack bigDataUrl=https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/missing/gencode.blat-3ex.missing.bigBed'>~/public_html/t2t/genes-20200727/missing/ctracks.bed
+
+bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/genes-20200727/missing/ctracks.bed -title "gencode.blat-3ex.missing" t2tChm13_20200727 gencode.blat-3ex.missing.bed ~/public_html/t2t/genes-20200727/missing/
 
 * proteinCodingUnplaced
 Ann's cases of coding intersecting unplaced aligned to T2T
@@ -484,9 +454,16 @@ We simulated perfect short reads from chm13, aligned them to GRCh38, called vari
 * NEXT RUN:
 -- make sure we have common definitions of what we are using
 compare_multiple_runs_v6.py vs others
-* FIX:
+* NEXT RUN
 ** didn't seem to get the real DUX4
 
 ** LINC01666 on chr1:127717928-127720188, in chr22 in grch38
 ** do syteny check
+
+** unique regions too conservative
+can density graph display better
+maybe just display known regions and have data for uniq
+** would hal chains be useful?
+** look at methalation
+** reciprocal best genome alignments
 

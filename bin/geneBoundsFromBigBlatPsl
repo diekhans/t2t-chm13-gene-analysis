@@ -36,8 +36,6 @@ def parseArgs():
         args.geneType = frozenset(args.geneType)
     if (args.maxSourceExpansion is not None) and (args.sourceAnnot is None):
         parser.error('--maxSourceExpansion requires --sourceAnnot')
-    if (args.minExons is not None) and (args.sourceAnnot is None):
-        parser.error('--minExons requires --sourceAnnot')
     return args
 
 class BoundsOpts(namedtuple("BoundsOpts",
@@ -74,6 +72,9 @@ def useAnnot(entry, row, opts):
         if (opts.maxSourceExpansion is not None) and not checkSourceExpansion(entry, row, sourceRec, opts.maxSourceExpansion):
             return False
         if (opts.minExons is not None) and (sourceRec.blockCount < opts.minExons):
+            return False
+    else:
+        if (opts.minExons is not None) and (int(row[exonCountColumnIdx]) < opts.minExons):
             return False
     return True
 
