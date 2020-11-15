@@ -1,0 +1,139 @@
+* setup
+
+export PATH=~/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/bin/:${PATH}
+
+* quick generate some statistics on CAT in a different way than the standard script
+cd CAT/quick
+** generate data
+# mapping include Y, we forgot we have a female.  So they were included in the mappings.  So we 
+# ignore all of Y, since we have a female (this also gets PAR_Y)
+bin/getGencodeMetadata
+ln ../CAT/consensus_gene_set/CHM13.gp_info  data/
+
+# this does the work.  Looking at gene symbols vs gencode gene ids greatly decreases the
+# number lost.
+./bin/catMappingStats data results/report.tsv results/missing.tsv
+
+** verify
+
+tawk 'NR>1{print $1}'  data/gencodeAnnotV35.pri.tsv | sort -u > check/hg38.gene.ids
+tawk 'NR>1{print $3}'  data/gencodeAnnotV35.pri.tsv | sort -u > check/hg38.gene.syms
+
+sqlite3 -readonly ../CAT/databases/GRCh38.db 'select GeneId from annotation;' | sort -u > check/grch38.gene.ids 
+sqlite3 -readonly ../CAT/databases/GRCh38.db 'select GeneName from annotation;' | sort -u > check/grch38.gene.syms
+
+sqlite3 -readonly ../CAT/databases/GRCh38.db 'select GeneId from annotation where GeneBiotype = "protein_coding";' | sort -u > check/grch38.gene.prot.ids 
+sqlite3 -readonly ../CAT/databases/GRCh38.db 'select GeneName from annotation where GeneBiotype = "protein_coding";' | sort -u > check/grch38.gene.prot.syms
+
+sqlite3 -readonly ../CAT/databases/GRCh38.db 'select GeneId from annotation where GeneBiotype = "lncRNA";' | sort -u > check/grch38.gene.lncRNA.ids 
+sqlite3 -readonly ../CAT/databases/GRCh38.db 'select GeneName from annotation where GeneBiotype = "lncRNA";' | sort -u > check/grch38.gene.lncRNA.syms
+
+# must use source transcipt to detected assignment from 
+tawk 'NR>1 && $5!="N/A"{print $5}' data/CHM13.gp_info | sort -u >check/chm13.gene.ids
+tawk 'NR>1 && $5!="N/A"{print $30}' data/CHM13.gp_info | sort -u >check/chm13.gene.syms
+
+tawk 'NR>1 && $5!="N/A"&&$8=="protein_coding"{print $5}' data/CHM13.gp_info | sort -u >check/chm13.gene.prot.ids
+tawk 'NR>1 && $5!="N/A"&&$8=="protein_coding"{print $30}' data/CHM13.gp_info | sort -u >check/chm13.gene.prot.syms
+
+tawk 'NR>1 && $5!="N/A"&&$8=="lncRNA"{print $5}' data/CHM13.gp_info | sort -u >check/chm13.gene.lncRNA.ids
+tawk 'NR>1 && $5!="N/A"&&$8=="lncRNA"{print $30}' data/CHM13.gp_info | sort -u >check/chm13.gene.lncRNA.syms
+
+
+
+id-diff check/grch38.gene.ids check/chm13.gene.ids >grch38-chm13.ids.diff
+id-diff check/grch38.gene.syms check/chm13.gene.syms >grch38-chm13.syms.diff
+
+id-diff check/grch38.gene.prot.ids check/chm13.gene.prot.ids >grch38-chm13.prot.ids.diff
+id-diff check/grch38.gene.prot.syms check/chm13.gene.prot.syms >grch38-chm13.prot.syms.diff
+
+id-diff check/grch38.gene.lncRNA.ids check/chm13.gene.lncRNA.ids >grch38-chm13.lncRNA.ids.diff
+id-diff check/grch38.gene.lncRNA.syms check/chm13.gene.lncRNA.syms >grch38-chm13.lncRNA.syms.diff
+
+
+|                          | diff | prog |
+| grch38-chm13.ids         | 1134 | 1131 |
+| grch38-chm13.prot.ids    |  161 |  160 |
+| grch38-chm13.lncRNA.ids  |  174 |  173 |
+| grch38-chm13.syms        | 9044 | 1093 |
+| grch38-chm13.prot.syms   | 7017 |  158 |
+| grch38-chm13.lncRNA.syms | 1039 |  172 |
+
+
+
+** build browser from gencodeBlat, only lncRNA or protein coding, since that was what was blatted
+tawk 'NR==1 || ($1=="trans" && ($2=="protein_coding" || $2=="lncRNA"))' results/missing.tsv >results/missing.trans.tsv
+tawk 'NR==1 || ($1=="gene" && ($2=="protein_coding" || $2=="lncRNA"))' results/missing.tsv >results/missing.gene.tsv
+zcat ../../../../../build/t2t-chm13-v1.0/gencodeBlat/aligns/gencode.psl.gz |selectById 4 results/missing.gene.tsv 10 /dev/stdin > blat/missing-genes.blat.psl
+
+(echo 'track name="missing-genes-blat" description="CAT missing genes found by blat" color=193,72,52 visibility=pack' ; cat blat/missing-genes.blat.psl) >  ~/public_html/t2t/missing-genes/missing-genes-blat.psl
+pslToBed blat/missing-genes.blat.psl ~/public_html/t2t/missing-genes/missing-genes-blat.bed
+
+tawk '{print $2, $2, $1, $3}' results/missing.gene.tsv > ~/public_html/t2t/missing-genes/labels.tsv
+bedToHtmlDir -hub https://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/missing-genes/missing-genes-blat.psl -title "CAT missing genes found by BLAT"  -label-tsv  ~/public_html/t2t/missing-genes/labels.tsv t2t-chm13-v1.0 ~/public_html/t2t/missing-genes/missing-genes-blat.bed ~/public_html/t2t/missing-genes/
+
+https://hgwdev.gi.ucsc.edu/~markd/t2t/missing-genes/
+
+** what wasn't found with blat?
+selectById -tsv -not 10 blat/missing-genes.blat.psl 4 results/missing.gene.tsv >blat/missing-genes.noblat.tsv
+
+# in raw
+zcat ../../../../../build/t2t-chm13-v1.0/gencodeBlat/aligns/gencode.raw.psl.gz | selectById 4 blat/missing-genes.noblat.tsv 10  >blat/missing-genes.noblat.raw.psl 
+
+# and still not found
+blat/missing-genes.blat.psl	1455
+blat/missing-genes.noblat-in-raw.tsv	1039
+blat/missing-genes.noblat.raw.psl	18841
+blat/missing-genes.noblat.tsv	416
+
+selectById -tsv -not 10 blat/missing-genes.noblat.raw.psl 4 results/missing.gene.tsv >blat/missing-genes.noblat-in-raw.tsv
+
+# get grch38 tracks
+
+mlr --tsv filter '$source_gene!="N/A"' data/CHM13.gp_info |mlr --tsv --headerless-csv-output cut -f 'source_gene_common_name' | sort -u >o.g
+mlr --tsv --headerless-csv-output cut -f 'geneName' data/gencodeAnnotV35.pri.tsv | sort -u >i.o
+
+# ha
+
+
+* Missing genes
+** thinking:
+*** produce list of mRNAs & lncRNAs genes that are not found with CAT or BLAT
+- use gene BEDs
+*** find syntenic context of source gene by finding adjacent genes.
+order list of adjacent genes and distance
+
+** get data
+cd t2t-chm13-v1/CAT/missing
+getCatMissing  ../CAT data/cat-missing-genes.tsv
+# 335 missing
+
+
+* quick interesting cases
+** chr1:10,964-12,615 possible alignment problem
+** chr4:9,158,920-9,201,957
+ no cactus, have lastz
+
+
+** chr4:9,225,548-9,230,320
+ no cactus, have lastz
+
+**  chr4:9,364,760-9,366,353
+paralog disagrement
+
+** chr7:78,658-130,497
+cactus and lastz don't match CHM13
+** chr16:29,052,702-29,053,340 639
+insertion in exon
+* todo
+** Marina: oh also, I have another annotation set without the consensus filtering here http://courtyard.gi.ucsc.edu/~mhauknes/t2t_v2/out-chm13-t2t-orig/
+** lot for not aligned by BLAT!
+Marina  11:12 PM
+** synteny 
+this file has the scores in the bed replaced with synteny scores for each gene http://courtyard.gi.ucsc.edu/~mhauknes/t2t_v2/analysis/synteny.sorted.scores.bed
+* ISSUES/TO-DO:
+** included chrY in the alignment
+resulting in chrY genes being mappped
+
+** CAT is associating exRef with GENCODE gene ids, but  not the gene symbol
+
+** Christopher Vollmers Mandalorion models

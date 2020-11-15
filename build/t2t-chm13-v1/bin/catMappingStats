@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+import argparse
+import os.path as osp
+from pycbio.tsv import TsvTable
+from pycbio.sys import fileOps
+
+def parseArgs():
+    desc = """Mapping stats"""
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('inDir',
+                        help="""directory with: cat-mapped.tsv	CHM13.gp_info  gencodeAnnotV35.pri.tsv""")
+    parser.add_argument('reportTsv',
+                        help="""report file""")
+    parser.add_argument('missingTsv',
+                        help="""missing file""")
+    return parser.parse_args()
+
+def catMetaCol(v):
+    if v in ("True", "False"):
+        return bool(v)
+    elif v == "N/A":
+        return None
+    else:
+        return v
+
+def fmtRate(c, t):
+    r = 0.0 if t == 0 else (c / t)
+    return "%0.2f" % r
+
+def prCounts(reptFh, cat, desc, srcIds, mappedIds):
+    fileOps.prRowv(reptFh, cat, desc, len(srcIds), len(mappedIds),
+                   len(srcIds) - len(mappedIds),
+                   fmtRate(len(mappedIds), len(srcIds)))
+
+def prMissing(missingFh, cat, desc, srcTranses, catMeta, transId):
+    # some test cases don't have all catMeta
+    srcTrans = srcTranses.idx.transcriptId[transId]
+    fileOps.prRowv(missingFh, cat, desc, srcTrans.geneId, transId,  srcTrans.geneName)
+
+def reportByGene(srcTranses, catMeta, reptFh, missingFh, typeSuffix, desc, srcFiltFunc):
+    srcIds = frozenset([m.geneId for m in filter(srcFiltFunc, srcTranses)])
+    mappedIds = frozenset([m.source_gene for m in catMeta if m.source_gene in srcIds])
+    prCounts(reptFh, "gene" + typeSuffix, desc, srcIds, mappedIds)
+    for geneId in srcIds - mappedIds:
+        for srcTrans in srcTranses.idx.geneId[geneId]:
+            prMissing(missingFh, "gene" + typeSuffix, desc, srcTranses, catMeta, srcTrans.transcriptId)
+
+def reportByGsym(srcTranses, catMeta, reptFh, missingFh, typeSuffix, desc, srcFiltFunc):
+    srcIds = frozenset([m.geneName for m in filter(srcFiltFunc, srcTranses)])
+    mappedIds = frozenset([m.source_gene_common_name for m in catMeta if m.source_gene_common_name in srcIds])
+    prCounts(reptFh, "gsym" + typeSuffix, desc, srcIds, mappedIds)
+    for geneId in srcIds - mappedIds:
+        for srcTrans in srcTranses.idx.geneId[geneId]:
+            prMissing(missingFh, "gene" + typeSuffix, desc, srcTranses, catMeta, srcTrans.transcriptId)
+
+def reportByTrans(srcTranses, catMeta, reptFh, missingFh, typeSuffix, desc, srcFiltFunc):
+    srcIds = frozenset([m.transcriptId for m in filter(srcFiltFunc, srcTranses)])
+    mappedIds = frozenset([m.source_transcript for m in catMeta if m.source_transcript in srcIds])
+    prCounts(reptFh, "trans" + typeSuffix, desc, srcIds, mappedIds)
+    for transId in srcIds - mappedIds:
+        prMissing(missingFh, "trans" + typeSuffix, desc, srcTranses, catMeta, transId)
+
+def mkReportSet(srcTranses, catMeta, reptFh, missingFh, reptFunc, inclY):
+    def inclYFilt(s):
+        return (s.chrom != "chrY") or inclY
+    typeSuffix = "Y" if inclY else ""
+    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "all", lambda s: inclYFilt(s))
+    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "protein_coding", lambda s: inclYFilt(s) and (s.geneType == "protein_coding"))
+    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "lncRNA", lambda s: inclYFilt(s) and (s.geneType == "lncRNA"))
+
+def mkReport(srcTranses, catMeta, reptFh, missingFh):
+    fileOps.prRowv(reptFh, "cat", "type", "srcCnt", "mapCnt", "missing", "rate")
+    fileOps.prRowv(missingFh, "cat", "type", "geneId", "transcriptId", "geneName")
+    for inclY in (False, True):
+        mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByGene, inclY)
+        mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByGsym, inclY)
+        mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByTrans, inclY)
+
+def fixMissingCatSym(catMeta, srcTranses):
+    "FIX CAT is associating exRef with GENCODE gene ids, but  not the gene symbol"
+    for cm in catMeta:
+        if (cm.source_gene is not None) and (cm.source_transcript is None) :
+            assert cm.source_gene_common_name.startswith("MSTRG.")
+            if cm.source_gene in srcTranses.idx.geneId:
+                cm.source_gene_common_name = srcTranses.idx.geneId[cm.source_gene][0].geneName
+            else:
+                cm.source_gene_common_name = None
+
+def catMappingStats(opts):
+    # gene_id	transcript_id	source_transcript	source_transcript_name	source_gene	score	transcript_modes	gene_biotype	transcript_biotype	alignment_id	frameshift	exon_annotation_support	intron_annotation_support	transcript_class	valid_start	valid_stop	adj_start	adj_stop	proper_orf	level	transcript_support_level	tag	havana_gene	havana_transcript	exon_rna_support	intron_rna_support	paralogy	unfiltered_paralogy	gene_alternate_contigs	source_gene_common_name	novel_5p_cap	novel_poly_a	protein_id	hgnc_id	ccdsid	collapsed_gene_ids	collapsed_gene_names	alternative_source_transcripts	ont	possible_split_gene_locations
+    catMeta = TsvTable(osp.join(opts.inDir, "CHM13.gp_info"),
+                       defaultColType=catMetaCol,
+                       uniqKeyCols=("transcript_id",),
+                       multiKeyCols=("gene_id", "source_gene", "source_transcript",))
+
+
+    # geneId	geneType	geneName	transcriptId	transcriptType transcriptName
+    srcTranses = TsvTable(osp.join(opts.inDir, "gencodeAnnotV35.pri.tsv"),
+                          uniqKeyCols=("transcriptId",),
+                          multiKeyCols=("geneId",))
+    fixMissingCatSym(catMeta, srcTranses)
+    with open(opts.reportTsv, "w") as reptFh:
+        with open(opts.missingTsv, "w") as missingFh:
+            mkReport(srcTranses, catMeta, reptFh, missingFh)
+
+catMappingStats(parseArgs())

@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+
+import os.path as osp
+import argparse
+from pycbio.sys import fileOps
+from pycbio.sys import loggingOps
+from pycbio.tsv import TsvReader
+from pycbio.db import sqliteOps
+
+debug = False
+
+def parseArgs():
+    usage = """
+    Get CAT missing genes; mrna and lncRNA only, with missing meaning all
+    mrna and lncrnas in gene are missing, others are not included
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    loggingOps.addCmdOptions(parser)
+    parser.add_argument('catDir',
+                        help="")
+    parser.add_argument('missingGenesTsv',
+                        help="")
+    args = parser.parse_args()
+    loggingOps.setupFromCmd(args)
+    return args
+
+def loadAnnotationTsv(conn, tsv):
+    with sqliteOps.SqliteCursor(conn) as cur:
+        cur.execute("""CREATE TEMP TABLE targetAnnot
+           (SourceGeneId TEXT,
+            GeneBiotype TEXT,
+            SourceTranscriptId TEXT,
+            TranscriptBiotype TEST  )""")
+        for r in TsvReader(tsv):
+            cur.execute("INSERT INTO targetAnnot VALUES (?, ?, ?, ?)",
+                        (r.source_gene, r.gene_biotype, r.source_transcript, r.transcript_biotype))
+        cur.execute("CREATE INDEX targetAnnot_SourceGeneId ON targetAnnot (SourceGeneId)")
+        cur.execute("CREATE INDEX targetAnnot_GeneBiotype ON targetAnnot (GeneBiotype)")
+
+
+def getGenesNotFund(conn, tsv):
+    sql = """SELECT DISTINCT GeneId, GeneBiotype FROM annotation
+    WHERE GeneId NOT IN (SELECT sourceGeneId FROM targetAnnot)
+    AND (GeneBiotype in ("protein_coding", "lncRNA"))
+    """
+    with fileOps.opengz(tsv, "w") as fh:
+        fileOps.prRowv(fh, "geneId", "geneBiotype")
+        for row in sqliteOps.query(conn, sql):
+            fileOps.prRow(fh, row)
+
+
+def main(args):
+    catDbDir = osp.join(args.catDir, "databases")
+    conn = sqliteOps.connect(osp.join(catDbDir, "GRCh38.db"))
+    loadAnnotationTsv(conn, osp.join(args.catDir, "consensus_gene_set/CHM13.gp_info"))
+    getGenesNotFund(conn, args.missingGenesTsv)
+
+
+main(parseArgs())

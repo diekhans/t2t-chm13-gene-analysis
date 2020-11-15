@@ -43,7 +43,7 @@ class BoundsOpts(namedtuple("BoundsOpts",
                              "maxSourceExpansion", "minExons",))):
     pass
 
-# offset by -3 due in bigBed
+# offset by -3 due to being in bigBed
 nameColumnIdx = 0
 strandColumnIdx = 2
 exonCountColumnIdx = 6
