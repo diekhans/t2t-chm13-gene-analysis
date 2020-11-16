@@ -108,11 +108,15 @@ getCatMissing  ../CAT data/cat-missing-genes.tsv
 # 335 missing
 
 geneBoundsForCat --geneType=protein_coding --geneType=lncRNA ../CAT/consensus_gene_set/CHM13.gp ../CAT/consensus_gene_set/CHM13.gp_info data/cat-genes.bed
+geneBoundsLoadDb data/cat-genes.bed data/cat-genes.db
+
 geneBoundsFromBigBlatPsl --geneType=protein_coding --geneType=lncRNA ../../../../../build/t2t-chm13-v1.0/gencodeBlat/gencodeBlat.bigBlatPsl data/gencodeBlat-genes.bed
+geneBoundsLoadDb data/gencodeBlat-genes.bed data/gencodeBlat-genes.db
 
 # source genes
 /hive/users/markd/gencode/projs/icedb/gencode-icedb-tsl/bin/ucscGencodeDbLoad --hgdb=hg38 --version=V35 data/gencodeV35.db
 geneBoundsForSource --geneType=protein_coding --geneType=lncRNA data/gencodeV35.db data/gencode-src.bed
+geneBoundsLoadDb data/gencode-src.bed data/gencode-src.db
 
 * quick interesting cases
 ** chr1:10,964-12,615 possible alignment problem

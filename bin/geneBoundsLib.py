@@ -1,7 +1,9 @@
 from pycbio.sys.symEnum import SymEnum
 from pycbio.hgdata.bed import Bed
+from pycbio.db import sqliteOps
 from collections import defaultdict, deque
 from pycbio.hgdata.bed import BedReader
+from pycbio.hgdata.rangeFinder import Binner
 
 def whackVersion(accid):
     return accid.split('.')[0]
@@ -11,6 +13,9 @@ def splitStrList(v):
 
 def joinStrList(l):
     return ",".join(sorted(set(l)))
+
+def noneIfNullLike(v):
+    return None if v in ("", "NULL", "N/A") else v
 
 class GeneBoundsBed(Bed):
     """adds properties that are saved in extraCols record
@@ -72,6 +77,53 @@ class GeneBoundsBed(Bed):
 
 def GeneBoundsBedReader(geneBoundsBed):
     return BedReader(geneBoundsBed, bedClass=GeneBoundsBed, numStdCols=6)
+
+GENEBOUNDS_TABLE = "genebounds"
+
+def geneBoundsCreateTable(conn):
+    """create GeneBoundsBed table"""
+    sql = """
+    DROP TABLE IF EXISTS {table};
+    CREATE TABLE {table} (
+        bin INT NOT NULL,
+        chrom TEXT NOT NULL,
+        chromStart INT NOT NULL,
+        chromEnd INT NOT NULL,
+        name TEXT NOT NULL,
+        score INT NOT NULL,
+        strand TEXT NOT NULL,
+        geneSym TEXT,
+        hgncId TEXT,
+        geneIds TEXT,
+        geneType TEXT);""".format(table=GENEBOUNDS_TABLE)
+    sqliteOps.run(conn, sql)
+
+def geneBoundsLoadTable(conn, recs):
+    def mkRecord(rec):
+        row = [Binner.calcBin(rec.chromStart, rec.chromEnd)] + rec.toRow()
+        for i in range(len(row) - 4, len(row)):
+            row[i] = noneIfNullLike(row[i])
+        return row
+
+    colNames = [r[1] for r in sqliteOps.query(conn, "PRAGMA table_info({table})".format(table=GENEBOUNDS_TABLE))]
+    sql = """INSERT INTO {table} ({columns}) VALUES ({values});""".format(table=GENEBOUNDS_TABLE,
+                                                                          columns=",".join(colNames),
+                                                                          values=",".join(len(colNames) * ['?']))
+    # FIXME: causes error: sqliteOps.setFastLoadPragmas(conn)
+    with sqliteOps.SqliteCursor(conn) as cur:
+        for rec in recs:
+            cur.execute(sql, mkRecord(rec))
+
+def geneBoundsCreateIndexes(conn):
+    sqls = [
+        """CREATE INDEX {table}_chromBin ON {table} (chrom, bin)""",
+        """CREATE INDEX {table}_name ON {table} (name)""",
+    ]
+
+    with sqliteOps.SqliteCursor(conn) as cur:
+        for sql in sqls:
+            cur.execute(sql.format(table=GENEBOUNDS_TABLE))
+
 
 # code to merge into gene bounds based on overlap
 def overlaps(b1, b2):

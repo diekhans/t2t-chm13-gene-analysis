@@ -15,170 +15,23 @@ def parseArgs():
     Take source gene bounds and list of missing genes and output context,
     which is a contiguous set of missing genes, as well as upstream and downstream
     gene context.
-"""
+    """
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('srcGeneBounds',
+    parser.add_argument('srcGeneBoundsBed',
                         help="")
     parser.add_argument('missingGenesTsv',
                         help="mssing TSV")
-    parser.add_argument('missingGeneContext.json',
+    parser.add_argument('missingGeneContextJson',
                         help="")
-    args = parser.parse_args()
-    return args
+    opts = parser.parse_args()
+    return opts
 
+def loadSrcGenes(srcGeneBoundsBed):
+    pass
 
-class SrcGenes:
-    def __init__(self, srcGenesBed):
-        self.byGeneId = {}
-        self.byRange = RangeFinder()
-
-    def _handleDup(self, bed):
-        if (self.byGeneId[bed.name] == "chrY") and (bed.chrom == "chrX"):
-            self.byGeneId[bed.name]
-        elif self.byGeneId[bed.name] == "chrY":
-
-
-    def _loadGene(self, bed):
-        if bed.name in self.byGeneId:
-
-
-def loadSrcGenes(srcGenesBed):
-    for
-
-
-def catSourceInfo(catSourceConn, transId):
-    # TranscriptId	GeneId	TranscriptName	GeneName	GeneBiotype	TranscriptBiotype	ExtraTags
-    # ENST00000361381.2	ENSG00000198886.2	MT-ND4-201	MT-ND4	protein_coding	protein_coding	level=3;protein_id=ENSP00000354961.2;transcript_support_level=NA;hgnc_id=HGNC:7459;tag=basic,appris_principal_1
-
-    row = list(sqliteOps.query(catSourceConn,
-                               "SELECT * FROM annotation WHERE TranscriptId = ?", args=(transId,), rowFactory=row_factory))
-    if len(row) != 1:
-        raise Exception(f"{len(row)} records found for {transId}, expected one")
-    return row[0]
-
-def loadCatMetadata(catGpInfo):
-    # gene_id	transcript_id	source_transcript	source_transcript_name	source_gene	score	transcript_modes	gene_biotype	transcript_biotype
-    #    alignment_id	frameshift	exon_annotation_support	intron_annotation_support	transcript_class	valid_start	valid_stop	adj_start
-    #    adj_stop	proper_orf	level	transcript_support_level	tag	havana_gene	havana_transcript	paralogy	unfiltered_paralogy
-    #    gene_alternate_contigs	source_gene_common_name	pacbio_isoform_supported	novel_5p_cap	novel_poly_a	intron_rna_support	exon_rna_support
-    #    alternative_source_transcripts	protein_id	hgnc_id	ccdsid	collapsed_gene_ids	collapsed_gene_names	ont	possible_split_gene_locations
-    return TsvTable(catGpInfo, uniqKeyCols=("transcript_id",), multiKeyCols=("gene_id",),
-                    defaultColType=lambda v: None if v == "N/A" else v)
-
-
-def getCatMetas(geneId, catMetaTbl):
-    return catMetaTbl.idx.gene_id[geneId]
-
-def getBlatOver(geneId, blatOverStatsTbl):
-    # better first
-    blatOver = blatOverStatsTbl.idx.inId.get(geneId, [])
-    blatOver.sort(key=lambda s: -s.similarity)
-    return blatOver
-
-def getSourceGenMeta(catSourceConn, genTransIds):
-    "order of input is maintained for the first occurrence of an id"
-    # above duplicate queries
-    genMeta = {}
-    for gtid in genTransIds:
-        if gtid not in genMeta:
-            genMeta[gtid] = catSourceInfo(catSourceConn, gtid)
-    return list(genMeta.values())
-
-def getSourceMetaForCatMeta(catSourceConn, catMetas):
-    return getSourceGenMeta(catSourceConn,
-                            [c.source_transcript for c in catMetas
-                             if c.source_transcript is not None])
-
-def getSourceMetaForBlatOver(catSourceConn, blatOver):
-    "will be in order of best overlap"
-    return getSourceGenMeta(catSourceConn,
-                            [bo.selectId for bo in blatOver])
-
-def getSourceMeta(geneId, catSourceConn, catMetas, blatOverStatsTbl):
-    genMetas = getSourceMetaForCatMeta(catSourceConn, catMetas)
-    if len(genMetas) == 0:
-        genMetas = getSourceMetaForBlatOver(catSourceConn,
-                                            getBlatOver(geneId, blatOverStatsTbl))
-    return genMetas
-
-def pickByPreferedBioCat(bioCatMap):
-    for bioCat in BioCategory:
-        if bioCat in bioCatMap:
-            return bioCat, bioCatMap[bioCat]
-    return None, None
-
-def pickGenMetaGeneClass(genMetas):
-    "tries to find (bioCategory and associated meta), favoring protein coding"
-    # look for first of each type
-    catFirstMeta = {}
-    for gm in genMetas:
-        bioCat = BioCategory.fromBioType(gm.TranscriptBiotype)
-        if bioCat not in catFirstMeta:
-            catFirstMeta[bioCat] = gm
-
-    return pickByPreferedBioCat(catFirstMeta)
-
-def bioCategoryfromCat(catMetas):
-    catFirstMeta = {}
-    for cm in catMetas:
-        bioCat = BioCategory.fromCatType(cm.transcript_biotype)
-        if bioCat not in catFirstMeta:
-            catFirstMeta[bioCat] = cm
-
-    return pickByPreferedBioCat(catFirstMeta)[0]
-
-def genMetaHgncId(genMeta):
-    m = re.match("^.*hgnc_id=(HGNC:[0-9]+).*$", genMeta.ExtraTags)
-    if m is not None:
-        return m.group(1)
-    else:
-        return None
-
-def genMetasHgncId(genMetas):
-    for genMeta in genMetas:
-        hgnc = genMetaHgncId(genMeta)
-        if hgnc is not None:
-            return hgnc
-    return None
-
-def getClusterType(catMetas, genMetas, hgncIds):
-    if sum([1 for cm in catMetas if cm.source_transcript is not None]) > 0:
-        return "known"  # CAT mapped to gencode
-    elif len(genMetas) > 0:
-        return "paralog"
-    else:
-        return "unknown"
-
-def processGene(boundBed, catSourceConn, catMetaTbl, blatOverStatsTbl, outBedFh):
-    catMetas = getCatMetas(boundBed.name, catMetaTbl)
-    genMetas = getSourceMeta(boundBed.name, catSourceConn, catMetas, blatOverStatsTbl)
-    bioCat, genMeta = pickGenMetaGeneClass(genMetas)
-    if bioCat is None:
-        bioCat = bioCategoryfromCat(catMetaTbl)
-    hgncId = genMetasHgncId(genMetas)
-
-    if (not boundBed.hgncId) and (hgncId is not None):
-        boundBed.setHgncId(hgncId)
-    boundBed.setGeneType(bioCat)
-    if (not boundBed.geneIds):
-        boundBed.addGeneIds([cm.gene_id for cm in catMetas])
-    return boundBed
-
-def shouldUpdate(boundBed):
-    return boundBed.geneSym == ""
-
-def catBoundsAddBlatOver(catSourceConn, catMetaTbl, blatOverStatsTbl, boundsReader, outBedFh):
-    for boundBed in boundsReader:
-        if shouldUpdate(boundBed):
-            boundBed = processGene(boundBed, catSourceConn, catMetaTbl, blatOverStatsTbl, outBedFh)
-        boundBed.write(outBedFh)
-
-def main(args):
-    catSourceConn = sqliteOps.connect(args.catSourceDb)
-    catMetaTbl = loadCatMetadata(args.catGenePredInfo)
-    blatOverStatsTbl = OverlapSelectStatsTbl(args.blatOverStats)
-    boundsReader = GeneBoundsBedReader(args.geneBoundsBed)
-    with fileOps.opengz(args.outBoundBed, "w") as outBedFh:
-        catBoundsAddBlatOver(catSourceConn, catMetaTbl, blatOverStatsTbl, boundsReader, outBedFh)
+def main(opts):
+    srcGene
+    with fileOps.opengz(opts.missingGeneContextJson, "w") as outFh:
+        pass
 
 main(parseArgs())
