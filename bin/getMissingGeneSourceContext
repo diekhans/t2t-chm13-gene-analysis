@@ -17,20 +17,27 @@ def parseArgs():
     gene context.
     """
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('srcGeneBoundsBed',
+    parser.add_argument('srcGeneBoundsDb',
                         help="")
     parser.add_argument('missingGenesTsv',
-                        help="mssing TSV")
+                        help="missing TSV")
     parser.add_argument('missingGeneContextJson',
                         help="")
     opts = parser.parse_args()
     return opts
 
-def loadSrcGenes(srcGeneBoundsBed):
-    pass
+def buildMissingContexts(conn, missingId):
+
+
+
+def buildMissingContexts(conn, missingIds):
+    doneIds = set()
+    for
 
 def main(opts):
-    srcGene
+    conn = sqliteOps.connect(opts.srcGeneBoundsDb)
+    missingIds = frozenset([r.geneId for r in TsvReader(opts.missingGenesTsv)])
+
     with fileOps.opengz(opts.missingGeneContextJson, "w") as outFh:
         pass
 
