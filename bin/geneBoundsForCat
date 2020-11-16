@@ -3,76 +3,64 @@
 import argparse
 from collections import defaultdict, namedtuple
 from pycbio.sys import fileOps
-from pycbio.sys.symEnum import SymEnum
 from pycbio.hgdata.genePred import GenePredReader
 from pycbio.tsv import TsvTable
-from geneFamilyLib import GeneBoundsBed, buildGeneBounds
-
-class NameColumn(SymEnum):
-    geneId = 1
-    geneSym = 2
-
-def parseArgs():
-    usage = """Get bounds of genes for CAT gp + gp_info"""
-    parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('--nameField', choices=(NameColumn.geneId, NameColumn.geneSym),
-                        default=NameColumn.geneId, type=NameColumn,
-                        help="which column to use for in name and for grouping into genes")
-    parser.add_argument('--hgncOnly', action="store_true")
-    parser.add_argument('--geneType', action='append',
-                        help='type of gene, maybe repeated')
-    parser.add_argument('catGenePred',
-                        help="gp from cat")
-    parser.add_argument('catGenePredInfo',
-                        help="associateInfo")
-    parser.add_argument('geneBoundsBed',
-                        help="BED for each gene bounds, score field has number to distinguish between multiple mappings of the same gene.")
-    args = parser.parse_args()
-    if args.geneType is not None:
-        args.geneType = frozenset(args.geneType)
-    return args
+from geneBoundsLib import geneBoundsAddCmdOpts, geneBoundsProcessCmdOpts, NameColumn, GeneBoundsBed, buildGeneBounds
 
 class BoundsOpts(namedtuple("BoundsOpts",
                             ("nameField", "hgncOnly", "geneTypes",))):
     pass
 
+def parseArgs():
+    usage = """Get bounds of genes for CAT gp + gp_info"""
+    parser = argparse.ArgumentParser(description=usage)
+    geneBoundsAddCmdOpts(parser)
+    parser.add_argument('catGenePred',
+                        help="gp from cat")
+    parser.add_argument('catGenePredInfo',
+                        help="associated metadata")
+    parser.add_argument('geneBoundsBed',
+                        help="BED for each gene bounds, score field has number to distinguish between multiple mappings of the same gene.")
+    opts = parser.parse_args()
+    geneBoundsProcessCmdOpts(opts)
+    return opts
 
 def isHgnc(v):
     return v not in ("", "NULL")
 
-def useAnnot(gp, catMeta, opts):
-    if not (((not opts.hgncOnly) or isHgnc(catMeta.hgncId))
-            and ((opts.geneTypes is None) or (catMeta.gene_biotype in opts.geneTypes))):
+def useAnnot(gp, catMeta, gbOpts):
+    if not (((not gbOpts.hgncOnly) or isHgnc(catMeta.hgncId))
+            and ((gbOpts.geneTypes is None) or (catMeta.gene_biotype in gbOpts.geneTypes))):
         return False
     return True
 
 def loadGenesMeta(catGpInfo):
     return TsvTable(catGpInfo, uniqKeyCols=("transcript_id",))
 
-def loadTrans(catGp, catMetaTbl, opts):
+def loadTrans(catGp, catMetaTbl, gbOpts):
     "filter bases on parameters"
     geneTransBeds = defaultdict(list)
 
-    if opts.nameField == NameColumn.geneId:
+    if gbOpts.nameField == NameColumn.geneId:
         nameFld = "gene_id"
-    elif opts.nameField == NameColumn.geneSym:
+    elif gbOpts.nameField == NameColumn.geneSym:
         nameFld = "source_gene_common_name"
 
     for gp in GenePredReader(catGp):
         catMeta = catMetaTbl.idx.transcript_id[gp.name]
-        if useAnnot(gp, catMeta, opts):
+        if useAnnot(gp, catMeta, gbOpts):
             b = GeneBoundsBed(gp.chrom, gp.txStart, gp.txEnd, getattr(catMeta, nameFld), 0, gp.strand,
                               extraCols=(catMeta.source_gene_common_name, catMeta.hgnc_id, catMeta.gene_id, catMeta.gene_biotype))
             geneTransBeds[getattr(catMeta, nameFld)].append(b)
     return geneTransBeds
 
-def main(args):
-    opts = BoundsOpts(nameField=args.nameField,
-                      hgncOnly=args.hgncOnly,
-                      geneTypes=args.geneType)
-    catMetaTbl = loadGenesMeta(args.catGenePredInfo)
-    geneTransBeds = loadTrans(args.catGenePred, catMetaTbl, opts)
-    with fileOps.opengz(args.geneBoundsBed, "w") as bedFh:
+def main(opts):
+    gbOpts = BoundsOpts(nameField=opts.nameField,
+                        hgncOnly=opts.hgncOnly,
+                        geneTypes=opts.geneType)
+    catMetaTbl = loadGenesMeta(opts.catGenePredInfo)
+    geneTransBeds = loadTrans(opts.catGenePred, catMetaTbl, gbOpts)
+    with fileOps.opengz(opts.geneBoundsBed, "w") as bedFh:
         buildGeneBounds(geneTransBeds, bedFh)
 
 main(parseArgs())

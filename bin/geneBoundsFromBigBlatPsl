@@ -3,24 +3,14 @@
 import argparse
 from collections import defaultdict, namedtuple
 from pycbio.sys import fileOps
-from pycbio.sys.symEnum import SymEnum
 import pyBigWig
 from pycbio.hgdata.bed import BedReader
-from geneFamilyLib import GeneBoundsBed, buildGeneBounds
-
-class NameColumn(SymEnum):
-    geneId = 1
-    geneSym = 2
+from geneBoundsLib import geneBoundsAddCmdOpts, geneBoundsProcessCmdOpts, NameColumn, GeneBoundsBed, buildGeneBounds
 
 def parseArgs():
     usage = """Get bounds of genes for bigBlatPsl format alignments which have some extra columns."""
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('--hgncOnly', action="store_true")
-    parser.add_argument('--nameField', choices=(NameColumn.geneId, NameColumn.geneSym),
-                        default=NameColumn.geneId, type=NameColumn,
-                        help="which column to use for in name and for grouping into genes")
-    parser.add_argument('--geneType', action='append',
-                        help='type of gene, maybe repeated')
+    geneBoundsAddCmdOpts(parser)
     parser.add_argument('--sourceAnnot',
                         help='''BED of source genes for expansion checking and exon counts''')
     parser.add_argument('--maxSourceExpansion', type=float,
@@ -31,12 +21,11 @@ def parseArgs():
                         help="must follow bigBlatPsl.as")
     parser.add_argument('geneBoundsBed',
                         help="BED for each gene bounds, score field has number to distinguish between multiple mappings of the same gene.")
-    args = parser.parse_args()
-    if args.geneType is not None:
-        args.geneType = frozenset(args.geneType)
-    if (args.maxSourceExpansion is not None) and (args.sourceAnnot is None):
+    opts = parser.parse_args()
+    geneBoundsProcessCmdOpts(opts)
+    if (opts.maxSourceExpansion is not None) and (opts.sourceAnnot is None):
         parser.error('--maxSourceExpansion requires --sourceAnnot')
-    return args
+    return opts
 
 class BoundsOpts(namedtuple("BoundsOpts",
                             ("nameField", "hgncOnly", "geneTypes", "sourceAnnots",
@@ -63,31 +52,31 @@ def checkSourceExpansion(entry, row, sourceRec, maxSourceExpansion):
     destSize = entry[1] - entry[0]
     return ((destSize - srcSize) / srcSize) <= maxSourceExpansion
 
-def useAnnot(entry, row, opts):
-    if not (((not opts.hgncOnly) or isHgnc(row[hgncIdColumnIdx]))
-            and ((opts.geneTypes is None) or (row[geneTypeColumnIdx] in opts.geneTypes))):
+def useAnnot(entry, row, gbOpts):
+    if not (((not gbOpts.hgncOnly) or isHgnc(row[hgncIdColumnIdx]))
+            and ((gbOpts.geneTypes is None) or (row[geneTypeColumnIdx] in gbOpts.geneTypes))):
         return False
-    if opts.sourceAnnots is not None:
-        sourceRec = opts.sourceAnnots[row[nameColumnIdx]]
-        if (opts.maxSourceExpansion is not None) and not checkSourceExpansion(entry, row, sourceRec, opts.maxSourceExpansion):
+    if gbOpts.sourceAnnots is not None:
+        sourceRec = gbOpts.sourceAnnots[row[nameColumnIdx]]
+        if (gbOpts.maxSourceExpansion is not None) and not checkSourceExpansion(entry, row, sourceRec, gbOpts.maxSourceExpansion):
             return False
-        if (opts.minExons is not None) and (sourceRec.blockCount < opts.minExons):
+        if (gbOpts.minExons is not None) and (sourceRec.blockCount < gbOpts.minExons):
             return False
     else:
-        if (opts.minExons is not None) and (int(row[exonCountColumnIdx]) < opts.minExons):
+        if (gbOpts.minExons is not None) and (int(row[exonCountColumnIdx]) < gbOpts.minExons):
             return False
     return True
 
-def loadChromTrans(bbpFh, chrom, chromSize, opts, geneTransBeds):
+def loadChromTrans(bbpFh, chrom, chromSize, gbOpts, geneTransBeds):
     "filter bases on parameters"
 
-    if opts.nameField == NameColumn.geneId:
+    if gbOpts.nameField == NameColumn.geneId:
         nameIdx = geneIdColumnIdx
-    elif opts.nameField == NameColumn.geneSym:
+    elif gbOpts.nameField == NameColumn.geneSym:
         nameIdx = geneSymColumnIdx
     for entry in bbpFh.entries(chrom, 0, bbpFh.chroms(chrom)):
         row = entry[2].split('\t')
-        if useAnnot(entry, row, opts):
+        if useAnnot(entry, row, gbOpts):
             b = GeneBoundsBed(chrom, entry[0], entry[1], row[nameIdx], 0, row[strandColumnIdx],
                               extraCols=(row[geneSymColumnIdx], row[hgncIdColumnIdx], row[geneIdColumnIdx], row[geneTypeColumnIdx],))
             geneTransBeds[row[nameIdx]].append(b)
@@ -100,16 +89,16 @@ def loadTrans(bigBlatPsl, opts):
     bbpFh.close()
     return geneTransBeds
 
-def main(args):
-    sourceAnnots = loadSourceAnnotBed(args.sourceAnnot) if args.sourceAnnot is not None else None
-    opts = BoundsOpts(nameField=args.nameField,
-                      hgncOnly=args.hgncOnly,
-                      geneTypes=args.geneType,
-                      sourceAnnots=sourceAnnots,
-                      maxSourceExpansion=args.maxSourceExpansion,
-                      minExons=args.minExons)
-    geneTransBeds = loadTrans(args.bigBlatPsl, opts)
-    with fileOps.opengz(args.geneBoundsBed, "w") as bedFh:
+def main(opts):
+    sourceAnnots = loadSourceAnnotBed(opts.sourceAnnot) if opts.sourceAnnot is not None else None
+    gbOpts = BoundsOpts(nameField=opts.nameField,
+                        hgncOnly=opts.hgncOnly,
+                        geneTypes=opts.geneType,
+                        sourceAnnots=sourceAnnots,
+                        maxSourceExpansion=opts.maxSourceExpansion,
+                        minExons=opts.minExons)
+    geneTransBeds = loadTrans(opts.bigBlatPsl, gbOpts)
+    with fileOps.opengz(opts.geneBoundsBed, "w") as bedFh:
         buildGeneBounds(geneTransBeds, bedFh)
 
 main(parseArgs())

@@ -1,3 +1,4 @@
+from pycbio.sys.symEnum import SymEnum
 from pycbio.hgdata.bed import Bed
 from collections import defaultdict, deque
 from pycbio.hgdata.bed import BedReader
@@ -17,7 +18,6 @@ class GeneBoundsBed(Bed):
     hgncId - symbol id
     geneIds - database gene ids, there maybe multiple mapping to the same symbol with readthroughs.
     geneType - type of gene
-
     """
 
     def __init__(self, chrom, chromStart, chromEnd, name=None, score=None, strand=None,
@@ -73,7 +73,7 @@ class GeneBoundsBed(Bed):
 def GeneBoundsBedReader(geneBoundsBed):
     return BedReader(geneBoundsBed, bedClass=GeneBoundsBed, numStdCols=6)
 
-# code to merge into gene bounds
+# code to merge into gene bounds based on overlap
 def overlaps(b1, b2):
     return (b1.chrom == b2.chrom) and (b1.strand == b2.strand) and (b1.start < b2.end) and (b1.end > b2.start)
 
@@ -122,8 +122,27 @@ def setLociNumbers(genesRanges):
         geneIdLociCounts[gr.name] += 1
 
 def buildGeneBounds(geneTransBeds, bedFh):
+    """cluster based on name and overlap, overlapped needed to handle duplication
+    geneRanges is a dict by name
+    """
     genesRanges = clusterGenes(geneTransBeds)
     genesRanges.sort(key=lambda b: (b.chrom, b.start, -b.end))
     setLociNumbers(genesRanges)
     for geneRange in genesRanges:
         geneRange.write(bedFh)
+
+class NameColumn(SymEnum):
+    geneId = 1
+    geneSym = 2
+
+def geneBoundsAddCmdOpts(parser):
+    parser.add_argument('--nameField', choices=(NameColumn.geneId, NameColumn.geneSym),
+                        default=NameColumn.geneId, type=NameColumn,
+                        help="which column to use for in name and for grouping into genes")
+    parser.add_argument('--hgncOnly', action="store_true")
+    parser.add_argument('--geneType', action='append',
+                        help='type of gene, maybe repeated')
+
+def geneBoundsProcessCmdOpts(opts):
+    if opts.geneType is not None:
+        opts.geneType = frozenset(opts.geneType)

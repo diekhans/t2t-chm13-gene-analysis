@@ -2,38 +2,49 @@
 
 import argparse
 import re
+import json
 from pycbio.sys import fileOps
 from pycbio.sys.objDict import ObjDict
-from pycbio.db import sqliteOps
+from pycbio.hgdata.rangeFinder import RangeFinder
 from pycbio.tsv import TsvTable
-from pycbio.hgdata.overlapSelectStats import OverlapSelectStatsTbl
 from geneBoundsBed import GeneBoundsBedReader
 from bioTypeCat import BioCategory
 
 def parseArgs():
     usage = """
-    take geneBoundsForCat output, along with overlapSelect output of GENCODE blat to
-    assign paraloguous genes symbols to novel genes.
-
-     overlapSelect -statsOutput -overlapSimilarity=0.80 ../../../../build/t2tChm13_20200727/gencodeBlat/gencode.psl.gz cat.gp cat-blat.overstats
+    Take source gene bounds and list of missing genes and output context,
+    which is a contiguous set of missing genes, as well as upstream and downstream
+    gene context.
 """
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('catSourceDb',
+    parser.add_argument('srcGeneBounds',
                         help="")
-    parser.add_argument('catGenePredInfo',
-                        help="metadata TSV")
-    parser.add_argument('blatOverStats',
-                        help="")
-    parser.add_argument('geneBoundsBed',
-                        help="GeneBoundsBed format")
-    parser.add_argument('outBoundBed',
+    parser.add_argument('missingGenesTsv',
+                        help="mssing TSV")
+    parser.add_argument('missingGeneContext.json',
                         help="")
     args = parser.parse_args()
     return args
 
-def row_factory(cursor, row):
-    columns = [t[0] for t in cursor.getdescription()]
-    return ObjDict(zip(columns, row))
+
+class SrcGenes:
+    def __init__(self, srcGenesBed):
+        self.byGeneId = {}
+        self.byRange = RangeFinder()
+
+    def _handleDup(self, bed):
+        if (self.byGeneId[bed.name] == "chrY") and (bed.chrom == "chrX"):
+            self.byGeneId[bed.name]
+        elif self.byGeneId[bed.name] == "chrY":
+
+
+    def _loadGene(self, bed):
+        if bed.name in self.byGeneId:
+
+
+def loadSrcGenes(srcGenesBed):
+    for
+
 
 def catSourceInfo(catSourceConn, transId):
     # TranscriptId	GeneId	TranscriptName	GeneName	GeneBiotype	TranscriptBiotype	ExtraTags

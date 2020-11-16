@@ -2,7 +2,7 @@ import sys
 import os.path as ops
 from pycbio.sys.symEnum import SymEnum, auto
 sys.path.append(ops.expanduser("~/kent/src/hg/makeDb/outside/gencode/lib"))
-from gencode import biotypes
+from gencode import biotypes  # noqa: E402
 
 class BioCategory(SymEnum):
     # in order of preference

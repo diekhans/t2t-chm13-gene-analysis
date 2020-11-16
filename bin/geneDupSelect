@@ -4,7 +4,7 @@ import argparse
 import statistics
 from collections import defaultdict
 from pycbio.sys import fileOps
-from geneFamilyLib import GeneBoundsBedReader
+from geneBoundsBed import GeneBoundsBedReader
 
 def parseArgs():
     usage = """select geneBoundsFromBigBlatPsl """
