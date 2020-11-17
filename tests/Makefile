@@ -1,16 +1,11 @@
 
 
 test: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest \
-	genePredFrameShiftsTests catBoundsAddBlatOverTest
-#catClustersAddGoTest
+	genePredFrameShiftsTests catBoundsAddBlatOverTest missingGenesTests
 
 
 # test out not deterministic:  geneFamilyTest
 # not useful: geneFamilyExpansionTest
-
-geneFamilyTest: mkdirs
-	../bin/geneFamilyBuildInfo --testMode input/ensembl_multigenefamilies.subset.tab output/$@.json
-	diff expected/$@.json output/$@.json
 
 geneBoundsTest: mkdirs output/gencode.bigBlatPsl
 	../bin/geneBoundsFromBigBlatPsl --nameField=geneId --hgncOnly output/gencode.bigBlatPsl output/$@.bed
@@ -45,9 +40,19 @@ catBoundsAddBlatOverTest: mkdirs
 	../bin/catBoundsAddBlatOver ${catSourceDb} input/catBoundsAddBlatOver.gp_info input/catBoundsAddBlatOver.blat.overstats input/catBoundsAddBlatOver.bounds.bed output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-catClustersAddGoTest: mkdirs
-	../bin/catClustersAddGo expected/catBoundsAddBlatOverTest.tsv output/$@.tsv
-	diff expected/$@.tsv output/$@.tsv
+
+missingGenesTests: missingGeneSourceContextTest
+
+buildBigBed = ../../../T2T-CHM13-hub/bin/buildBigBed
+gencodeSrcBigBed = output/gencode-src.bigBed
+
+missingGeneSourceContextTest: ${gencodeSrcBigBed}
+	../bin/getMissingGeneSourceContext ${gencodeSrcBigBed} input/gencode-src-missing.bed output/$@.json
+	diff expected/$@.json output/$@.json
+
+
+${gencodeSrcBigBed}: input/gencode-src.bed mkdirs
+	${buildBigBed} --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../etc/geneBoundsBed.as  bed6+4 hg38 $@ input/gencode-src.bed
 
 clean:
 	rm -rf output

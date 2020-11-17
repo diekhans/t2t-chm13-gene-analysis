@@ -1,5 +1,5 @@
-table bigBlatPsl
-"bigPsl derived pairwise alignment with additional information"
+table geneBounds
+"GeneBounds with metadata (bed6+4"
     (
     string chrom;       "Reference sequence chromosome or scaffold"
     uint   chromStart;  "Start position in chromosome"

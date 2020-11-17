@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
-import re
 import json
+import pyBigWig
+from collections import namedtuple
 from pycbio.sys import fileOps
-from pycbio.sys.objDict import ObjDict
-from pycbio.hgdata.rangeFinder import RangeFinder
-from pycbio.tsv import TsvTable
-from geneBoundsBed import GeneBoundsBedReader
-from bioTypeCat import BioCategory
+from pycbio.sys.objDict import  ObjDict
+from geneBoundsLib import geneBoundsBigBedRead, GeneBoundsBedReader
 
 def parseArgs():
     usage = """
@@ -17,28 +15,170 @@ def parseArgs():
     gene context.
     """
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('srcGeneBoundsDb',
+    parser.add_argument('--minContextSize', type=int, default=5,
+                        help="upstream and downstream contextSize, in megabases")
+    parser.add_argument('--minContextGenes', type=int, default=10,
+                        help="upstream and downstream number of genes")
+    parser.add_argument('srcGeneBoundsBigBed',
                         help="")
-    parser.add_argument('missingGenesTsv',
-                        help="missing TSV")
+    parser.add_argument('missingGenesBed',
+                        help="BED with source of missing genes")
     parser.add_argument('missingGeneContextJson',
                         help="")
     opts = parser.parse_args()
     return opts
 
-def buildMissingContexts(conn, missingId):
+MEGA_BASE = 1000000
 
+FIND_CONTIG_CHUNK_SIZE = 5 * MEGA_BASE
 
+class GeneLoc(ObjDict):
+    __slots__ = ()
+    def __init__(self, chrom, chromStart, chromEnd, strand, name, missing):
+        self.chrom = chrom
+        self.chromStart = chromStart
+        self.chromEnd = chromEnd
+        self.strand = strand
+        self.name = name
+        self.missing = missing
 
-def buildMissingContexts(conn, missingIds):
+def bedToGeneLoc(bed, missing):
+    return GeneLoc(bed.chrom, bed.chromStart, bed.chromEnd, bed.strand, bed.name, missing)
+
+def sortGenesLocs(locs, *, reverse=False):
+    return sorted(locs, key=lambda l: (l.chrom, l.chromStart, l.chromEnd), reverse=reverse)
+
+class MissingGeneContext(ObjDict):
+    __slots__ = ()
+    def __init__(self, downstreamGenes, missingGenes, upstreamGenes):
+        def maxEnd(genes):
+            return max((g.chromEnd for g in genes))
+        if len(downstreamGenes) > 0:
+            self.chrom = downstreamGenes[0].chrom
+            self.chromStart = downstreamGenes[0].chromStart
+        else:
+            self.chrom = missingGenes[0].chrom
+            self.chromStart = missingGenes[0].chromStart
+        if len(upstreamGenes) > 0:
+            self.chromEnd = maxEnd(upstreamGenes)
+        else:
+            self.chromEnd = maxEnd(missingGenes)
+
+        self.downstreamGenes = downstreamGenes
+        self.missingGenes = missingGenes
+        self.upstreamGenes = upstreamGenes
+
+def loadMissingGenes(missingGenesBed):
+    missingGenes = {}
+    for bed in GeneBoundsBedReader(missingGenesBed):
+        if bed.name in missingGenesBed:
+            raise Exception("duplicate entries for {} in {}".format(bed.name, missingGenesBed))
+        missingGenes[bed.name] = bed
+    return missingGenes
+
+def loadGeneRange(bigBedFh, chrom, start, end, reverse=False):
+    return sortGenesLocs(geneBoundsBigBedRead(bigBedFh, chrom, start, end), reverse=reverse)
+
+def collectAdjacentMissing(missingGenes, doneIds, hits, adjMissing):
+    for hit in hits:
+        if hit.name not in missingGenes:
+            return True
+        elif hit.name not in doneIds:
+            adjMissing.append(bedToGeneLoc(hit, True))
+            doneIds.add(hit.name)
+    return False
+
+def findPreviousContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds):
+    # walk back until we find a non-missing gene, saving the missing ones
+    # note, we might get a missing gene multiple times, so flag now in doneIds
+    # must also allow for overlapping/contained genes
+    adjMissing = []
+    foundNotMissing = False
+    end = missingGene.chromEnd
+    while not foundNotMissing:
+        start = max(0, end - FIND_CONTIG_CHUNK_SIZE)
+        hits = loadGeneRange(bigBedFh, missingGene.chrom, start, end, reverse=True)
+        foundNotMissing = collectAdjacentMissing(missingGenes, doneIds, hits, adjMissing)
+        if start == 0:
+            break
+        end = start
+    return adjMissing
+
+def findNextContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds):
+    # walk forawrd until we find a non-missing gene, saving the missing ones
+    # note, we might get a missing gene multiple times, so flag now in doneIds
+    chromSize = bigBedFh.chroms(missingGene.chrom)
+    adjMissing = []
+    foundNotMissing = False
+    start = missingGene.chromStart
+    while not foundNotMissing:
+        end = min(chromSize, start + FIND_CONTIG_CHUNK_SIZE)
+        hits = loadGeneRange(bigBedFh, missingGene.chrom, start, end, reverse=False)
+        foundNotMissing = collectAdjacentMissing(missingGenes, doneIds, hits, adjMissing)
+        if start == chromSize:
+            break
+        start = end
+    return adjMissing
+
+def findContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds):
+    doneIds.add(missingGene.name)
+    return sortGenesLocs(findPreviousContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds)
+                         + [bedToGeneLoc(missingGene, True)]
+                         + findNextContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds))
+
+def collectAdjacentAnchors(missingGenes, hits, adjAnchors):
+    for hit in hits:
+        if hit.name not in missingGenes:
+            adjAnchors[hit.name] = (bedToGeneLoc(hit, False))
+
+def findPrevAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, missingGene):
+    adjAnchors = {}  # we might get duplicates on range overlap
+    end = missingGene.chromEnd
+    while len(adjAnchors) < minContextGenes:
+        start = max(0, end - minContextSize)
+        hits = loadGeneRange(bigBedFh, missingGene.chrom, start, end, reverse=True)
+        collectAdjacentAnchors(missingGenes, hits, adjAnchors)
+        if start == 0:
+            break
+        end = start
+    return sortGenesLocs(adjAnchors.values())
+
+def findNextAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, missingGene):
+    adjAnchors = {}  # we might get duplicates on range overlap
+    chromSize = bigBedFh.chroms(missingGene.chrom)
+    start = missingGene.chromStart
+    while len(adjAnchors) < minContextGenes:
+        end = min(chromSize, start + minContextSize)
+        hits = loadGeneRange(bigBedFh, missingGene.chrom, start, end, reverse=False)
+        collectAdjacentAnchors(missingGenes, hits, adjAnchors)
+        if start == chromSize:
+            break
+        start = end
+
+    return sortGenesLocs(adjAnchors.values())
+
+def buildMissingContext(bigBedFh, missingGenes, minContextSize, minContextGenes, missingGene, doneIds):
+    contigMissing = findContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds)
+    return MissingGeneContext(findPrevAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, contigMissing[0]),
+                              contigMissing,
+                              findNextAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, contigMissing[-1]))
+
+def buildMissingContexts(bigBedFh, missingGenes, minContextSize, minContextGenes):
     doneIds = set()
-    for
+    missingContexts = []
+    for missingId in missingGenes.keys():
+        if missingId not in doneIds:
+            missingContexts.append(buildMissingContext(bigBedFh, missingGenes, minContextSize, minContextGenes,
+                                                       missingGenes[missingId], doneIds))
+    return missingContexts
 
 def main(opts):
-    conn = sqliteOps.connect(opts.srcGeneBoundsDb)
-    missingIds = frozenset([r.geneId for r in TsvReader(opts.missingGenesTsv)])
+    bigBedFh = pyBigWig.open(opts.srcGeneBoundsBigBed)
+    missingGenes = loadMissingGenes(opts.missingGenesBed)
+    missingContexts = buildMissingContexts(bigBedFh, missingGenes, MEGA_BASE * opts.minContextSize, opts.minContextGenes)
 
+    missingContexts.sort(key=lambda c: (c.chrom, c.chromStart))
     with fileOps.opengz(opts.missingGeneContextJson, "w") as outFh:
-        pass
+        json.dump(missingContexts, outFh, indent=4)
 
 main(parseArgs())

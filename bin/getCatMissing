@@ -16,7 +16,9 @@ def parseArgs():
     """
     parser = argparse.ArgumentParser(description=usage)
     loggingOps.addCmdOptions(parser)
-    parser.add_argument('catDir',
+    parser.add_argument('gencodeDb',
+                        help="")
+    parser.add_argument('catGpInfoVar',
                         help="")
     parser.add_argument('missingGenesTsv',
                         help="")
@@ -39,9 +41,13 @@ def loadAnnotationTsv(conn, tsv):
 
 
 def getGenesNotFund(conn, tsv):
-    sql = """SELECT DISTINCT GeneId, GeneBiotype FROM annotation
-    WHERE GeneId NOT IN (SELECT sourceGeneId FROM targetAnnot)
-    AND (GeneBiotype in ("protein_coding", "lncRNA"))
+    sql = """SELECT DISTINCT geneid, geneType
+    FROM gencode_ann, gencode_attrs
+    WHERE (name == transcriptId)
+        AND (chrom != "chrY")
+        AND (geneType in ("protein_coding", "lncRNA"))
+        AND (transcriptType in ("protein_coding", "lncRNA"))
+        AND (geneId NOT IN (SELECT sourceGeneId FROM targetAnnot))
     """
     with fileOps.opengz(tsv, "w") as fh:
         fileOps.prRowv(fh, "geneId", "geneBiotype")
@@ -50,9 +56,8 @@ def getGenesNotFund(conn, tsv):
 
 
 def main(args):
-    catDbDir = osp.join(args.catDir, "databases")
-    conn = sqliteOps.connect(osp.join(catDbDir, "GRCh38.db"))
-    loadAnnotationTsv(conn, osp.join(args.catDir, "consensus_gene_set/CHM13.gp_info"))
+    conn = sqliteOps.connect(args.gencodeDb)
+    loadAnnotationTsv(conn, args.catGpInfoVar)
     getGenesNotFund(conn, args.missingGenesTsv)
 
 

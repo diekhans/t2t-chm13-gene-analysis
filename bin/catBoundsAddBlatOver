@@ -7,7 +7,7 @@ from pycbio.sys.objDict import ObjDict
 from pycbio.db import sqliteOps
 from pycbio.tsv import TsvTable
 from pycbio.hgdata.overlapSelectStats import OverlapSelectStatsTbl
-from geneBoundsBed import GeneBoundsBedReader
+from geneBoundsLib import GeneBoundsBedReader
 from bioTypeCat import BioCategory
 
 def parseArgs():

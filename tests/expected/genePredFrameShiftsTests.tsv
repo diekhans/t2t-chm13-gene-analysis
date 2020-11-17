@@ -1,6 +1,6 @@
 cat	count	rate
-transcripts	4	1.00
-transFrameShift	1	0.25
-genes	3	1.00
-geneFrameShift	1	0.33
-geneAllFrameShift	0	0.00
+transcripts	4	1.0000
+transFrameShift	1	0.2500
+genes	3	1.0000
+geneFrameShift	1	0.3333
+geneAllFrameShift	0	0.0000

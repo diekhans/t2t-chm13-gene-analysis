@@ -4,5 +4,5 @@ pyprogs = $(shell file -F $$'\t' bin/* tests/bin tests/*/bin/* tests/*/*/bin/* |
 all::
 
 lint:
-	${PYTHON} -m flake8 ${pyprogs} bin/geneBoundsLib.py
+	${PYTHON} -m flake8 ${pyprogs}
 

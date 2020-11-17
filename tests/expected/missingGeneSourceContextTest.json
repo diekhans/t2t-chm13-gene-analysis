@@ -1,0 +1,506 @@
+[
+    {
+        "chrom": "chr7",
+        "chromStart": 12703,
+        "chromEnd": 73436120,
+        "downstreamGenes": [],
+        "missingGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 12703,
+                "chromEnd": 27234,
+                "strand": "+",
+                "name": "ENSG00000283061.1",
+                "missing": true
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 19017,
+                "chromEnd": 35489,
+                "strand": "-",
+                "name": "ENSG00000282572.2",
+                "missing": true
+            }
+        ],
+        "upstreamGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 70971,
+                "chromEnd": 95683,
+                "strand": "-",
+                "name": "ENSG00000232325.4",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77037,
+                "chromEnd": 81178,
+                "strand": "+",
+                "name": "ENSG00000242611.2",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 71779490,
+                "chromEnd": 72447151,
+                "strand": "-",
+                "name": "ENSG00000183166.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72558743,
+                "chromEnd": 72828200,
+                "strand": "-",
+                "name": "ENSG00000277149.5",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72879364,
+                "chromEnd": 72951440,
+                "strand": "+",
+                "name": "ENSG00000196313.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72924417,
+                "chromEnd": 72925125,
+                "strand": "-",
+                "name": "ENSG00000272843.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72954796,
+                "chromEnd": 72957106,
+                "strand": "+",
+                "name": "ENSG00000285886.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72959484,
+                "chromEnd": 72969466,
+                "strand": "-",
+                "name": "ENSG00000155428.12",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73020337,
+                "chromEnd": 73029766,
+                "strand": "-",
+                "name": "ENSG00000273520.5",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73302515,
+                "chromEnd": 73308826,
+                "strand": "-",
+                "name": "ENSG00000130305.17",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73312535,
+                "chromEnd": 73328082,
+                "strand": "-",
+                "name": "ENSG00000146755.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73328160,
+                "chromEnd": 73358637,
+                "strand": "+",
+                "name": "ENSG00000077800.13",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73433777,
+                "chromEnd": 73436120,
+                "strand": "+",
+                "name": "ENSG00000188763.5",
+                "missing": false
+            }
+        ]
+    },
+    {
+        "chrom": "chr7",
+        "chromStart": 70971,
+        "chromEnd": 77295204,
+        "downstreamGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 70971,
+                "chromEnd": 95683,
+                "strand": "-",
+                "name": "ENSG00000232325.4",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77037,
+                "chromEnd": 81178,
+                "strand": "+",
+                "name": "ENSG00000242611.2",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 71779490,
+                "chromEnd": 72447151,
+                "strand": "-",
+                "name": "ENSG00000183166.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72558743,
+                "chromEnd": 72828200,
+                "strand": "-",
+                "name": "ENSG00000277149.5",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72879364,
+                "chromEnd": 72951440,
+                "strand": "+",
+                "name": "ENSG00000196313.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72924417,
+                "chromEnd": 72925125,
+                "strand": "-",
+                "name": "ENSG00000272843.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72954796,
+                "chromEnd": 72957106,
+                "strand": "+",
+                "name": "ENSG00000285886.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72959484,
+                "chromEnd": 72969466,
+                "strand": "-",
+                "name": "ENSG00000155428.12",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73020337,
+                "chromEnd": 73029766,
+                "strand": "-",
+                "name": "ENSG00000273520.5",
+                "missing": false
+            }
+        ],
+        "missingGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 73039695,
+                "chromEnd": 73069506,
+                "strand": "+",
+                "name": "ENSG00000285702.1",
+                "missing": true
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73048480,
+                "chromEnd": 73057911,
+                "strand": "-",
+                "name": "ENSG00000286228.1",
+                "missing": true
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73076590,
+                "chromEnd": 73086038,
+                "strand": "-",
+                "name": "ENSG00000262461.6",
+                "missing": true
+            }
+        ],
+        "upstreamGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 73302515,
+                "chromEnd": 73308826,
+                "strand": "-",
+                "name": "ENSG00000130305.17",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73312535,
+                "chromEnd": 73328082,
+                "strand": "-",
+                "name": "ENSG00000146755.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73328160,
+                "chromEnd": 73358637,
+                "strand": "+",
+                "name": "ENSG00000077800.13",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73433777,
+                "chromEnd": 73436120,
+                "strand": "+",
+                "name": "ENSG00000188763.5",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 76902479,
+                "chromEnd": 76919191,
+                "strand": "+",
+                "name": "ENSG00000231183.4",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 76959834,
+                "chromEnd": 77043775,
+                "strand": "+",
+                "name": "ENSG00000265479.7",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 76972678,
+                "chromEnd": 76976961,
+                "strand": "-",
+                "name": "ENSG00000225703.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77043720,
+                "chromEnd": 77198626,
+                "strand": "+",
+                "name": "ENSG00000259628.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77122433,
+                "chromEnd": 77295204,
+                "strand": "+",
+                "name": "ENSG00000135205.15",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77193368,
+                "chromEnd": 77199848,
+                "strand": "-",
+                "name": "ENSG00000127951.7",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77246339,
+                "chromEnd": 77258123,
+                "strand": "-",
+                "name": "ENSG00000250990.1",
+                "missing": false
+            }
+        ]
+    },
+    {
+        "chrom": "chr7",
+        "chromStart": 71779490,
+        "chromEnd": 77295204,
+        "downstreamGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 71779490,
+                "chromEnd": 72447151,
+                "strand": "-",
+                "name": "ENSG00000183166.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72558743,
+                "chromEnd": 72828200,
+                "strand": "-",
+                "name": "ENSG00000277149.5",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72879364,
+                "chromEnd": 72951440,
+                "strand": "+",
+                "name": "ENSG00000196313.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72924417,
+                "chromEnd": 72925125,
+                "strand": "-",
+                "name": "ENSG00000272843.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72954796,
+                "chromEnd": 72957106,
+                "strand": "+",
+                "name": "ENSG00000285886.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 72959484,
+                "chromEnd": 72969466,
+                "strand": "-",
+                "name": "ENSG00000155428.12",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73020337,
+                "chromEnd": 73029766,
+                "strand": "-",
+                "name": "ENSG00000273520.5",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73302515,
+                "chromEnd": 73308826,
+                "strand": "-",
+                "name": "ENSG00000130305.17",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73312535,
+                "chromEnd": 73328082,
+                "strand": "-",
+                "name": "ENSG00000146755.11",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73328160,
+                "chromEnd": 73358637,
+                "strand": "+",
+                "name": "ENSG00000077800.13",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 73433777,
+                "chromEnd": 73436120,
+                "strand": "+",
+                "name": "ENSG00000188763.5",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 76902479,
+                "chromEnd": 76919191,
+                "strand": "+",
+                "name": "ENSG00000231183.4",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 76959834,
+                "chromEnd": 77043775,
+                "strand": "+",
+                "name": "ENSG00000265479.7",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 76972678,
+                "chromEnd": 76976961,
+                "strand": "-",
+                "name": "ENSG00000225703.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77043720,
+                "chromEnd": 77198626,
+                "strand": "+",
+                "name": "ENSG00000259628.1",
+                "missing": false
+            }
+        ],
+        "missingGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 77022924,
+                "chromEnd": 77062552,
+                "strand": "-",
+                "name": "ENSG00000186645.9",
+                "missing": true
+            }
+        ],
+        "upstreamGenes": [
+            {
+                "chrom": "chr7",
+                "chromStart": 76959834,
+                "chromEnd": 77043775,
+                "strand": "+",
+                "name": "ENSG00000265479.7",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77043720,
+                "chromEnd": 77198626,
+                "strand": "+",
+                "name": "ENSG00000259628.1",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77122433,
+                "chromEnd": 77295204,
+                "strand": "+",
+                "name": "ENSG00000135205.15",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77193368,
+                "chromEnd": 77199848,
+                "strand": "-",
+                "name": "ENSG00000127951.7",
+                "missing": false
+            },
+            {
+                "chrom": "chr7",
+                "chromStart": 77246339,
+                "chromEnd": 77258123,
+                "strand": "-",
+                "name": "ENSG00000250990.1",
+                "missing": false
+            }
+        ]
+    }
+]

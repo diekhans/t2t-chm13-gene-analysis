@@ -1,6 +1,6 @@
 * setup
 
-export PATH=~/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/bin/:${PATH}
+export PATH=~/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/bin/:~/compbio/nanopore/projs/t2t-chm13/T2T-CHM13-hub/bin/:${PATH}
 
 * quick generate some statistics on CAT in a different way than the standard script
 cd CAT/quick
@@ -104,19 +104,27 @@ order list of adjacent genes and distance
 
 ** get data
 cd t2t-chm13-v1/CAT/missing
-getCatMissing  ../CAT data/cat-missing-genes.tsv
-# 335 missing
-
-geneBoundsForCat --geneType=protein_coding --geneType=lncRNA ../CAT/consensus_gene_set/CHM13.gp ../CAT/consensus_gene_set/CHM13.gp_info data/cat-genes.bed
-geneBoundsLoadDb data/cat-genes.bed data/cat-genes.db
-
-geneBoundsFromBigBlatPsl --geneType=protein_coding --geneType=lncRNA ../../../../../build/t2t-chm13-v1.0/gencodeBlat/gencodeBlat.bigBlatPsl data/gencodeBlat-genes.bed
-geneBoundsLoadDb data/gencodeBlat-genes.bed data/gencodeBlat-genes.db
-
 # source genes
 /hive/users/markd/gencode/projs/icedb/gencode-icedb-tsl/bin/ucscGencodeDbLoad --hgdb=hg38 --version=V35 data/gencodeV35.db
 geneBoundsForSource --geneType=protein_coding --geneType=lncRNA data/gencodeV35.db data/gencode-src.bed
-geneBoundsLoadDb data/gencode-src.bed data/gencode-src.db
+buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed6+4 hg38 data/gencode-src.bigBed  data/gencode-src.bed
+
+getCatMissing data/gencodeV35.db ../CAT/consensus_gene_set/CHM13.gp_info data/cat-missing-genes.tsv
+# 260 missing
+bigBedNamedItems -nameFile data/gencode-src.bigBed data/cat-missing-genes.tsv data/gencode-src-missing.bed
+
+geneBoundsForCat --geneType=protein_coding --geneType=lncRNA ../CAT/consensus_gene_set/CHM13.gp ../CAT/consensus_gene_set/CHM13.gp_info data/cat-genes.bed
+buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genome/t2t-chm13-v1.0.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed6+4 t2t-chm13-v1.0  data/cat-genes.bigBed data/cat-genes.bed 
+
+geneBoundsFromBigBlatPsl --geneType=protein_coding --geneType=lncRNA ../../../../../build/t2t-chm13-v1.0/gencodeBlat/gencodeBlat.bigBlatPsl data/gencodeBlat-genes.bed
+buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genome/t2t-chm13-v1.0.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed6+4 t2t-chm13-v1.0  data/gencodeBlat-genes.bigBed data/gencodeBlat-genes.bed 
+
+
+** analysis
+getMissingGeneSourceContext data/gencode-src.bigBed data/gencode-src-missing.bed results/src-missing-context.json
+
+
+
 
 * quick interesting cases
 ** chr1:10,964-12,615 possible alignment problem
