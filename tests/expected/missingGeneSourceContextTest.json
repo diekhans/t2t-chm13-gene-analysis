@@ -3,6 +3,7 @@
         "chrom": "chr7",
         "chromStart": 12703,
         "chromEnd": 73436120,
+        "contextId": "cntx0",
         "downstreamGenes": [],
         "missingGenes": [
             {
@@ -133,6 +134,7 @@
         "chrom": "chr7",
         "chromStart": 70971,
         "chromEnd": 77295204,
+        "contextId": "cntx1",
         "downstreamGenes": [
             {
                 "chrom": "chr7",
@@ -328,6 +330,7 @@
         "chrom": "chr7",
         "chromStart": 71779490,
         "chromEnd": 77295204,
+        "contextId": "cntx2",
         "downstreamGenes": [
             {
                 "chrom": "chr7",

@@ -64,6 +64,7 @@ class MissingGeneContext(ObjDict):
         else:
             self.chromEnd = maxEnd(missingGenes)
 
+        self.contextId = None
         self.downstreamGenes = downstreamGenes
         self.missingGenes = missingGenes
         self.upstreamGenes = upstreamGenes
@@ -172,12 +173,17 @@ def buildMissingContexts(bigBedFh, missingGenes, minContextSize, minContextGenes
                                                        missingGenes[missingId], doneIds))
     return missingContexts
 
+def finishMissingGeneContexts(missingContexts):
+    missingContexts.sort(key=lambda c: (c.chrom, c.chromStart))
+    for i in range(len(missingContexts)):
+        missingContexts[i].contextId = "cntx{}".format(i)
+
 def main(opts):
     bigBedFh = pyBigWig.open(opts.srcGeneBoundsBigBed)
     missingGenes = loadMissingGenes(opts.missingGenesBed)
     missingContexts = buildMissingContexts(bigBedFh, missingGenes, MEGA_BASE * opts.minContextSize, opts.minContextGenes)
 
-    missingContexts.sort(key=lambda c: (c.chrom, c.chromStart))
+    finishMissingGeneContexts(missingContexts)
     with fileOps.opengz(opts.missingGeneContextJson, "w") as outFh:
         json.dump(missingContexts, outFh, indent=4)
 
