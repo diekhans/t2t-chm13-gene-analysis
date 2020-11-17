@@ -33,6 +33,7 @@ def buildQuery(gbOpts):
     SELECT ann.*, attrs.*, sym.geneId as hgncId, sym.symbol as geneSym
     FROM gencode_ann ann, gencode_attrs attrs
     LEFT JOIN gencode_to_gene_symbol sym on sym.transcriptId = attrs.transcriptId
+
     WHERE (attrs.transcriptId = ann.name)
        AND ((chrom != "chrY") OR (attrs.transcriptId NOT IN (SELECT transcriptId FROM par)))
        {geneTypeClause} {hgncClause}
