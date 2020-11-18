@@ -52,7 +52,8 @@ geneBoundsGencodeTest: ${gencodeDb} mkdirs
 	../bin/geneBoundsForSource --limit=250 --geneType=protein_coding --geneType=lncRNA ${gencodeDb} output/$@.bed
 	${hg38BigBedCheck}
 
-missingGenesTests: missingGeneSourceContextTest missingGeneSourceContextTracksTest
+missingGenesTests: missingGeneSourceContextTest missingGeneSourceContextTracksTest \
+	missingGeneSourceContextOnlyTrackTest
 
 gencodeSrcBigBed = output/gencode-src.bigBed
 
@@ -62,6 +63,11 @@ missingGeneSourceContextTest: ${gencodeSrcBigBed}
 
 missingGeneSourceContextTracksTest: mkdirs
 	../bin/missingGeneSourceContextTracks input/missingGeneSourceContext.json output/$@.bed
+	diff expected/$@.bed output/$@.bed
+	${hg38BigBedCheck}
+
+missingGeneSourceContextOnlyTrackTest: mkdirs
+	../bin/missingGeneSourceContextTracks --recType=CONTEXT input/missingGeneSourceContext.json output/$@.bed
 	diff expected/$@.bed output/$@.bed
 	${hg38BigBedCheck}
 

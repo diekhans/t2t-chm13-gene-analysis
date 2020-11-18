@@ -119,15 +119,18 @@ buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genom
 geneBoundsFromBigBlatPsl --geneType=protein_coding --geneType=lncRNA ../../../../../build/t2t-chm13-v1.0/gencodeBlat/gencodeBlat.bigBlatPsl data/gencodeBlat-genes.bed
 buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genome/t2t-chm13-v1.0.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 t2t-chm13-v1.0  data/gencodeBlat-genes.bigBed data/gencodeBlat-genes.bed 
 
-selectById -not 4 data/gencodeBlat-genes.bed 4 data/gencode-src.bed | tawk 'BEGIN{print "geneId","geneBiotype"} {print $4 $13}' > data/gencodeBlat-missing-genes.tsv
+selectById -not 4 data/gencodeBlat-genes.bed 4 data/gencode-src.bed | tawk 'BEGIN{print "geneId","geneBiotype"} {print $4, $13}' > data/gencodeBlat-missing-genes.tsv
 144 missing
 bigBedNamedItems -nameFile data/gencode-src.bigBed data/gencodeBlat-missing-genes.tsv data/gencodeBlat-missing-src.bed
+
 ** analysis
 getMissingGeneSourceContext data/gencode-src.bigBed data/cat-missing-src.bed results/cat-missing-src-contexts.json
 missingGeneSourceContextTracks results/cat-missing-src-contexts.json results/cat-missing-src-contexts.bed
+buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 results/cat-missing-src-contexts.bigBed results/cat-missing-src-contexts.beda
 
 getMissingGeneSourceContext data/gencode-src.bigBed data/gencodeBlat-missing-src.bed results/gencodeBlat-missing-src-contexts.json
 missingGeneSourceContextTracks results/gencodeBlat-missing-src-contexts.json results/gencodeBlat-missing-src-contexts.bed
+buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 results/gencodeBlat-missing-src-contexts.bigBed results/gencodeBlat-missing-src-contexts.bed
 
 
 

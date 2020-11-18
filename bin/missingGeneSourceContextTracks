@@ -5,18 +5,31 @@ import json
 from pycbio.sys import fileOps
 from pycbio.sys.objDict import ObjDict
 from pycbio.sys.svgcolors import SvgColors
+from pycbio.sys.symEnum import SymEnum, auto
 from geneBoundsLib import GeneBoundsBed
+
+class RecType(SymEnum):
+    CONTEXT = auto()
+    PRESENT = auto()
+    MISSING_GENES = auto()
+    MISSING_RANGES = auto()
 
 def parseArgs():
     usage = """
     generate bed file from missing context data
     """
     parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--recType', action='append', dest="recTypes", type=RecType, choices=RecType,
+                        help="only these types of BEDS, default is all, maybe repeated")
     parser.add_argument('missingGeneContextJson',
                         help="")
     parser.add_argument('missingGenesBed',
                         help="BED with source of missing genes")
     opts = parser.parse_args()
+    if opts.recTypes is None:
+        opts.recTypes = frozenset(RecType)
+    else:
+        opts.recTypes = frozenset(opts.recTypes)
     return opts
 
 CONTEXT_COLOR = SvgColors.lightgoldenrodyellow.toRgb8Str()
@@ -34,22 +47,26 @@ def makeRangeBed(chrom, start, end, name, color, bedFh):
 
 def makeArrayBeds(geneBeds, color, bedFh):
     for gb in geneBeds:
-        b=GeneBoundsBed.create(**gb)
+        b = GeneBoundsBed.create(**gb)
         b.itemRgb = color
         b.write(bedFh)
 
-def makeContextBed(ctx, bedFh):
-    makeRangeBed(ctx.chrom, ctx.chromStart, ctx.chromEnd, ctx.contextId, CONTEXT_COLOR, bedFh)
-    makeRangeBed(ctx.chrom, ctx.missingGenes[0].chromStart, getMaxEnd(ctx.missingGenes), ctx.contextId, MISSING_RANGE_COLOR, bedFh)
-    makeArrayBeds(ctx.downstreamGenes, PRESENT_COLOR, bedFh)
-    makeArrayBeds(ctx.missingGenes, MISSING_GENES_COLOR, bedFh)
-    makeArrayBeds(ctx.upstreamGenes, PRESENT_COLOR, bedFh)
+def makeContextBed(ctx, recTypes, bedFh):
+    if RecType.CONTEXT in recTypes:
+        makeRangeBed(ctx.chrom, ctx.chromStart, ctx.chromEnd, ctx.contextId, CONTEXT_COLOR, bedFh)
+    if RecType.MISSING_RANGES in recTypes:
+        makeRangeBed(ctx.chrom, ctx.missingGenes[0].chromStart, getMaxEnd(ctx.missingGenes), ctx.contextId, MISSING_RANGE_COLOR, bedFh)
+    if RecType.PRESENT in recTypes:
+        makeArrayBeds(ctx.downstreamGenes, PRESENT_COLOR, bedFh)
+        makeArrayBeds(ctx.upstreamGenes, PRESENT_COLOR, bedFh)
+    if RecType.MISSING_GENES in recTypes:
+        makeArrayBeds(ctx.missingGenes, MISSING_GENES_COLOR, bedFh)
 
 def main(opts):
     with fileOps.opengz(opts.missingGeneContextJson) as inFh:
         missingContexts = json.load(inFh, object_pairs_hook=ObjDict)
     with fileOps.opengz(opts.missingGenesBed, 'w') as bedFh:
         for ctx in missingContexts:
-            makeContextBed(ctx, bedFh)
+            makeContextBed(ctx, opts.recTypes, bedFh)
 
 main(parseArgs())
