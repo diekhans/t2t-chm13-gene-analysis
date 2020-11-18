@@ -3,10 +3,9 @@
 import argparse
 import json
 import pyBigWig
-from collections import namedtuple
 from pycbio.sys import fileOps
-from pycbio.sys.objDict import  ObjDict
-from geneBoundsLib import geneBoundsBigBedRead, GeneBoundsBedReader
+from pycbio.sys.objDict import ObjDict
+from geneBoundsLib import geneBoundsBigBedRead, GeneBoundsBedReader, GeneBoundsBedJsonEncoder
 
 def parseArgs():
     usage = """
@@ -32,24 +31,12 @@ MEGA_BASE = 1000000
 
 FIND_CONTIG_CHUNK_SIZE = 5 * MEGA_BASE
 
-class GeneLoc(ObjDict):
-    __slots__ = ()
-    def __init__(self, chrom, chromStart, chromEnd, strand, name, missing):
-        self.chrom = chrom
-        self.chromStart = chromStart
-        self.chromEnd = chromEnd
-        self.strand = strand
-        self.name = name
-        self.missing = missing
-
-def bedToGeneLoc(bed, missing):
-    return GeneLoc(bed.chrom, bed.chromStart, bed.chromEnd, bed.strand, bed.name, missing)
-
-def sortGenesLocs(locs, *, reverse=False):
+def sortBeds(locs, *, reverse=False):
     return sorted(locs, key=lambda l: (l.chrom, l.chromStart, l.chromEnd), reverse=reverse)
 
 class MissingGeneContext(ObjDict):
     __slots__ = ()
+
     def __init__(self, downstreamGenes, missingGenes, upstreamGenes):
         def maxEnd(genes):
             return max((g.chromEnd for g in genes))
@@ -78,14 +65,14 @@ def loadMissingGenes(missingGenesBed):
     return missingGenes
 
 def loadGeneRange(bigBedFh, chrom, start, end, reverse=False):
-    return sortGenesLocs(geneBoundsBigBedRead(bigBedFh, chrom, start, end), reverse=reverse)
+    return sortBeds(geneBoundsBigBedRead(bigBedFh, chrom, start, end), reverse=reverse)
 
 def collectAdjacentMissing(missingGenes, doneIds, hits, adjMissing):
     for hit in hits:
         if hit.name not in missingGenes:
             return True
         elif hit.name not in doneIds:
-            adjMissing.append(bedToGeneLoc(hit, True))
+            adjMissing.append(hit)
             doneIds.add(hit.name)
     return False
 
@@ -123,14 +110,14 @@ def findNextContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds):
 
 def findContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds):
     doneIds.add(missingGene.name)
-    return sortGenesLocs(findPreviousContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds)
-                         + [bedToGeneLoc(missingGene, True)]
-                         + findNextContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds))
+    return sortBeds(findPreviousContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds)
+                    + [missingGene]
+                    + findNextContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds))
 
 def collectAdjacentAnchors(missingGenes, hits, adjAnchors):
     for hit in hits:
         if hit.name not in missingGenes:
-            adjAnchors[hit.name] = (bedToGeneLoc(hit, False))
+            adjAnchors[hit.name] = hit
 
 def findPrevAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, missingGene):
     adjAnchors = {}  # we might get duplicates on range overlap
@@ -142,7 +129,7 @@ def findPrevAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, mis
         if start == 0:
             break
         end = start
-    return sortGenesLocs(adjAnchors.values())
+    return sortBeds(adjAnchors.values())
 
 def findNextAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, missingGene):
     adjAnchors = {}  # we might get duplicates on range overlap
@@ -156,7 +143,7 @@ def findNextAnchors(bigBedFh, missingGenes, minContextSize, minContextGenes, mis
             break
         start = end
 
-    return sortGenesLocs(adjAnchors.values())
+    return sortBeds(adjAnchors.values())
 
 def buildMissingContext(bigBedFh, missingGenes, minContextSize, minContextGenes, missingGene, doneIds):
     contigMissing = findContinuousMissing(bigBedFh, missingGenes, missingGene, doneIds)
@@ -185,6 +172,6 @@ def main(opts):
 
     finishMissingGeneContexts(missingContexts)
     with fileOps.opengz(opts.missingGeneContextJson, "w") as outFh:
-        json.dump(missingContexts, outFh, indent=4)
+        json.dump(missingContexts, outFh, indent=4, cls=GeneBoundsBedJsonEncoder)
 
 main(parseArgs())

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os.path as osp
 import argparse
 from pycbio.sys import fileOps
 from pycbio.sys import loggingOps

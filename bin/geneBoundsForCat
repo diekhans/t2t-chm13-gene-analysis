@@ -26,7 +26,11 @@ def parseArgs():
     return opts
 
 def isHgnc(v):
-    return v not in ("", "NULL")
+    return v not in ("", "NULL", None)
+
+def noneIfNullLike(v):
+    return None if v in ("", "NULL", "N/A") else v
+
 
 def useAnnot(gp, catMeta, gbOpts):
     if not (((not gbOpts.hgncOnly) or isHgnc(catMeta.hgncId))
@@ -36,6 +40,16 @@ def useAnnot(gp, catMeta, gbOpts):
 
 def loadGenesMeta(catGpInfo):
     return TsvTable(catGpInfo, uniqKeyCols=("transcript_id",))
+
+def createBed(gp, catMeta, name):
+    geneId = noneIfNullLike(catMeta.gene_id)
+    geneIds = [geneId] if geneId is not None else []
+    b = GeneBoundsBed.create(gp.chrom, gp.txStart, gp.txEnd, name, strand=gp.strand,
+                             thickStart=gp.cdsStart, thickEnd=gp.cdsEnd, geneSym=catMeta.source_gene_common_name,
+                             hgncId=noneIfNullLike(catMeta.hgnc_id),
+                             geneIds=geneIds,
+                             geneType=noneIfNullLike(catMeta.gene_biotype))
+    return b
 
 def loadTrans(catGp, catMetaTbl, gbOpts):
     "filter bases on parameters"
@@ -49,9 +63,8 @@ def loadTrans(catGp, catMetaTbl, gbOpts):
     for gp in GenePredReader(catGp):
         catMeta = catMetaTbl.idx.transcript_id[gp.name]
         if useAnnot(gp, catMeta, gbOpts):
-            b = GeneBoundsBed(gp.chrom, gp.txStart, gp.txEnd, getattr(catMeta, nameFld), 0, gp.strand,
-                              extraCols=(catMeta.source_gene_common_name, catMeta.hgnc_id, catMeta.gene_id, catMeta.gene_biotype))
-            geneTransBeds[getattr(catMeta, nameFld)].append(b)
+            name = getattr(catMeta, nameFld)
+            geneTransBeds[name].append(createBed(gp, catMeta, name))
     return geneTransBeds
 
 def main(opts):

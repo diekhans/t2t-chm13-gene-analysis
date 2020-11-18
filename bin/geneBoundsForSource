@@ -15,17 +15,20 @@ def parseArgs():
     usage = """Get bounds of genes for CAT gp + gp_info"""
     parser = argparse.ArgumentParser(description=usage)
     geneBoundsAddCmdOpts(parser)
+    parser.add_argument('--limit', type=int,
+                        help="limit for testing")
     parser.add_argument('gencodeDb',
                         help="sqlite DB")
     parser.add_argument('geneBoundsBed',
-                        help="BED for each gene bounds, score field has number to distinguish between multiple mappings of the same gene.")
+                        help="BED for each gene bounds")
     opts = parser.parse_args()
     geneBoundsProcessCmdOpts(opts)
     return opts
 
-def buildQuery(gbOpts):
+def buildQuery(gbOpts, limit):
     geneTypeClause = "AND (transcriptType IN {geneTypes})".format(geneTypes=sqliteOps.makeInSeqArg(gbOpts.geneTypes)) if gbOpts.geneTypes is not None else ""
     hgncClause = "AND (symbol IS NOT NULL)" if gbOpts.hgncOnly else ""
+    limitClause = "LIMIT {}".format(limit) if limit is not None else ""
     # ignore chrY PAR
     sql = """
     CREATE TEMP TABLE par as SELECT transcriptId FROM gencode_tag WHERE tag = "PAR";
@@ -36,17 +39,18 @@ def buildQuery(gbOpts):
 
     WHERE (attrs.transcriptId = ann.name)
        AND ((chrom != "chrY") OR (attrs.transcriptId NOT IN (SELECT transcriptId FROM par)))
-       {geneTypeClause} {hgncClause}
-    """.format(geneTypeClause=geneTypeClause, hgncClause=hgncClause)
+       {geneTypeClause} {hgncClause} {limitClause}
+    """.format(geneTypeClause=geneTypeClause, hgncClause=hgncClause, limitClause=limitClause)
     return sql
 
 
 def processTrans(rec, nameFld, geneTransBeds):
-    b = GeneBoundsBed(rec.chrom, rec.txStart, rec.txEnd, getattr(rec, nameFld), 0, rec.strand,
-                      extraCols=(rec.geneName, rec.hgncId, rec.geneId, rec.geneType))
-    geneTransBeds[getattr(rec, nameFld)].append(b)
+    name = getattr(rec, nameFld)
+    b = GeneBoundsBed.create(rec.chrom, rec.txStart, rec.txEnd, name, strand=rec.strand,
+                             geneSym=rec.geneName, hgncId=rec.hgncId, geneIds=rec.geneId, geneType=rec.geneType)
+    geneTransBeds[name].append(b)
 
-def loadTrans(gencodeDb, gbOpts):
+def loadTrans(gencodeDb, gbOpts, limit):
     "filter bases on parameters"
     if gbOpts.nameField == NameColumn.geneId:
         nameFld = "geneId"
@@ -55,7 +59,7 @@ def loadTrans(gencodeDb, gbOpts):
 
     geneTransBeds = defaultdict(list)
     conn = sqliteOps.connect(gencodeDb, rowFactory=sqliteOps.objDictRowFactory)
-    for rec in sqliteOps.query(conn, buildQuery(gbOpts)):
+    for rec in sqliteOps.query(conn, buildQuery(gbOpts, limit)):
         processTrans(rec, nameFld, geneTransBeds)
     return geneTransBeds
 
@@ -63,7 +67,7 @@ def main(opts):
     gbOpts = BoundsOpts(nameField=opts.nameField,
                         hgncOnly=opts.hgncOnly,
                         geneTypes=opts.geneType)
-    geneTransBeds = loadTrans(opts.gencodeDb, gbOpts)
+    geneTransBeds = loadTrans(opts.gencodeDb, gbOpts, opts.limit)
     with fileOps.opengz(opts.geneBoundsBed, "w") as bedFh:
         buildGeneBounds(geneTransBeds, bedFh)
 

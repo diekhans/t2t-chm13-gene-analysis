@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+from pycbio.sys import fileOps
+from pycbio.sys.svgcolors import SvgColors
+from geneBoundsLib import GeneBoundsBed
+
+def parseArgs():
+    usage = """
+    generate bed file from missing context data
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('missingGeneContextJson',
+                        help="")
+    parser.add_argument('missingGenesBed',
+                        help="BED with source of missing genes")
+    opts = parser.parse_args()
+    return opts
+
+CONTEXT_COLOR = SvgColors.lightgoldenrodyellow.toRgb8Str()
+PRESENT_COLOR = SvgColors.darkblue.toRgb8Str()
+MISING_COLOR = SvgColors.darkred.toRgb8Str()
+
+def makeArrayBeds(geneLocs, color, bedFh):
+    for gl in geneLocs:
+        b = GeneBoundsBed.create(**gl)
+        b.itemRgb = color
+        b.write(bedFh)
+
+
+def makeContextBed(context, bedFh):
+    pass
+
+
+def main(opts):
+    with fileOps.opengz(opts.missingGeneContextJson) as inFh:
+        missingContexts = json.load(inFh)
+    with fileOps.opengz(opts.missingGenesBed) as bedFh:
+        for context in missingContexts:
+            makeContextBed(context, bedFh)
+
+main(parseArgs())

@@ -1,11 +1,11 @@
 
+.SECONDARY:
 
-test: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest \
+test: geneBoundsBlatTests geneBoundsGencodeTests \
 	genePredFrameShiftsTests catBoundsAddBlatOverTest missingGenesTests
 
 
-# test out not deterministic:  geneFamilyTest
-# not useful: geneFamilyExpansionTest
+geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest
 
 geneBoundsTest: mkdirs output/gencode.bigBlatPsl
 	../bin/geneBoundsFromBigBlatPsl --nameField=geneId --hgncOnly output/gencode.bigBlatPsl output/$@.bed
@@ -27,9 +27,6 @@ output/gencode.bigBlatPsl: input/gencode.bigBlatPslIn input/t2tChm13_20200727.si
 	@mkdir -p $(dir $@)
 	bedToBigBed -tab -type=bed12+17 input/gencode.bigBlatPslIn input/t2tChm13_20200727.sizes $@
 
-geneFamilyExpansionTest: mkdirs
-	../bin/geneFamilyExpansion --minExpansionCnt=-100 expected/geneFamilyTest.json expected/geneBoundsTest.bed output/$@.bed
-
 genePredFrameShiftsTests: mkdirs
 	../bin/genePredFrameShifts --catMetaTsv=input/fakeCat.gp_info input/fakeCat.gp output/$@.tsv output/$@.gp
 	diff expected/$@.tsv output/$@.tsv
@@ -39,6 +36,13 @@ catSourceDb =  ../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db
 catBoundsAddBlatOverTest: mkdirs
 	../bin/catBoundsAddBlatOver ${catSourceDb} input/catBoundsAddBlatOver.gp_info input/catBoundsAddBlatOver.blat.overstats input/catBoundsAddBlatOver.bounds.bed output/$@.bed
 	diff expected/$@.bed output/$@.bed
+
+
+geneBoundsGencodeTests: geneBoundsGencodeTest
+
+gencodeDb = ../../build/t2t-chm13-v1/CAT/missing/data/gencodeV35.db
+geneBoundsGencodeTest: ${gencodeDb} mkdirs
+	../bin/geneBoundsForSource --limit=250 --geneType=protein_coding --geneType=lncRNA ${gencodeDb} output/$@.bed
 
 
 missingGenesTests: missingGeneSourceContextTest
@@ -52,7 +56,7 @@ missingGeneSourceContextTest: ${gencodeSrcBigBed}
 
 
 ${gencodeSrcBigBed}: input/gencode-src.bed mkdirs
-	${buildBigBed} --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../etc/geneBoundsBed.as  bed6+4 hg38 $@ input/gencode-src.bed
+	${buildBigBed} --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../etc/geneBoundsBed.as  bed9+4 hg38 $@ input/gencode-src.bed
 
 clean:
 	rm -rf output

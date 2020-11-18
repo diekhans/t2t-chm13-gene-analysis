@@ -121,7 +121,7 @@ buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genom
 
 
 ** analysis
-getMissingGeneSourceContext data/gencode-src.bigBed data/gencode-src-missing.bed results/src-missing-context.json
+getMissingGeneSourceContext data/gencode-src.bigBed data/gencode-src-missing.bed results/cat-src-missing.json
 
 
 

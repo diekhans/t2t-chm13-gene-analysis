@@ -1,8 +1,10 @@
+import json
 from collections import defaultdict, deque
 from pycbio.sys.symEnum import SymEnum
 from pycbio.hgdata.bed import Bed
 from pycbio.hgdata.bed import BedReader
 from pycbio.sys import typeOps
+
 
 def whackVersion(accid):
     return accid.split('.')[0]
@@ -13,85 +15,98 @@ def splitStrList(v):
 def joinStrList(l):
     return ",".join(sorted(set(l)))
 
-def noneIfNullLike(v):
-    return None if v in ("", "NULL", "N/A") else v
+def noneIfEmpty(v):
+    return None if v == "" else v
+
+def emptyIfNone(v):
+    return "" if v is None else str(v)
 
 class GeneBoundsBed(Bed):
-    """adds properties that are saved in extraCols record
+    """adds properties that are saved in extraCols record  (bed9+4)
     geneSym - symbol (HGNC)
     hgncId - symbol id
     geneIds - database gene ids, there maybe multiple mapping to the same symbol with readthroughs.
     geneType - type of gene
     """
+    __slots__ = ("geneSym", "hgncId", "geneIds", "geneType")
 
-    def __init__(self, chrom, chromStart, chromEnd, name=None, score=None, strand=None,
-                 thickStart=None, thickEnd=None, itemRgb=None, blocks=None, extraCols=None):
-        super().__init__(chrom, chromStart, chromEnd, name=name, score=score, strand=strand,
-                         thickStart=thickStart, thickEnd=thickEnd, itemRgb=itemRgb, blocks=blocks, extraCols=extraCols)
-        if self.extraCols is None:
-            self.extraCols = 4 * [""]
-        else:
-            self.extraCols = ["" if v == "N/A" else v for v in self.extraCols]
-        if isinstance(self.extraCols, tuple):
-            self.extraCols = list(self.extraCols)
+    def __init__(self, numStdCols, chrom, chromStart, chromEnd, name=None, score=None, strand=None,
+                 thickStart=None, thickEnd=None, itemRgb=None,
+                 geneSym=None, hgncId=None, geneIds=None, geneType=None,
+                 blocks=None, extraCols=None):
+        assert numStdCols == 9, "numStdCols expected 9, got {}".format(numStdCols)
+        super().__init__(numStdCols, chrom, chromStart, chromEnd, name=name, score=score, strand=strand,
+                         thickStart=thickStart, thickEnd=thickEnd, itemRgb=itemRgb,
+                         blocks=blocks, extraCols=extraCols)
+        if self.itemRgb is None:
+            self.itemRgb = ""
+        self.geneSym = noneIfEmpty(geneSym)
+        self.hgncId = noneIfEmpty(hgncId)
+        self.geneIds = []
+        if isinstance(geneIds, str):
+            self.geneIds.append(geneIds)
+        elif geneIds not in (None, ""):
+            self.geneIds.extend(geneIds)
+        self.geneType = noneIfEmpty(geneType)
 
-    @property
-    def geneSym(self):
-        return self.extraCols[0]
-
-    def setGeneSym(self, v):
-        self.extraCols[0] = v
-
-    @property
-    def hgncId(self):
-        return self.extraCols[1]
-
-    def setHgncId(self, v):
-        self.extraCols[1] = v
-
-    @property
-    def geneIds(self):
-        return splitStrList(self.extraCols[2])
-
-    def setGeneIds(self, geneIds):
-        self.extraCols[2] = joinStrList(geneIds)
-
-    def addGeneIds(self, newIds):
-        self.setGeneIds(set(self.geneIds) | set(newIds))
-
-    def addGeneId(self, newId):
-        self.addGeneIds((newId, ))
+    @classmethod
+    def create(cls, chrom, chromStart, chromEnd, name, *, score=0, strand=None,
+               thickStart=None, thickEnd=None, itemRgb="0,0,0",
+               geneSym=None, hgncId=None, geneIds=None, geneType=None):
+        return cls(9, chrom, chromStart, chromEnd, name, score, strand,
+                   thickStart, thickEnd, itemRgb, geneSym, hgncId, geneIds, geneType)
 
     @property
-    def geneType(self):
-        return self.extraCols[3]
+    def numColumns(self):
+        return self.numStdCols + 4
 
-    def setGeneType(self, v):
-        self.extraCols[3] = v
+    def toRow(self):
+        return super().toRow() + \
+            [emptyIfNone(self.geneSym), emptyIfNone(self.hgncId),
+             joinStrList(self.geneIds), emptyIfNone(self.geneType)]
 
     @classmethod
     def parse(cls, row, numStdCols=None):
-        assert numStdCols == 6
-        return super().parse(row, numStdCols=6)
+        assert numStdCols == 9
+        b = super().parse(row[0:9], numStdCols=9)
+        b.geneSym = noneIfEmpty(row[9])
+        b.hgncId = noneIfEmpty(row[10])
+        b.geneIds = splitStrList(row[11])
+        b.geneType = noneIfEmpty(row[12])
+        return b
 
 def GeneBoundsBedReader(geneBoundsBed):
-    return BedReader(geneBoundsBed, bedClass=GeneBoundsBed, numStdCols=6)
+    return BedReader(geneBoundsBed, bedClass=GeneBoundsBed, numStdCols=9)
 
 def geneBoundsBigBedRead(bigBedFh, chrom, start, end):
     if start >= end:
         return iter(())
     for entry in typeOps.mkiter(bigBedFh.entries(chrom, start, end)):
         data = entry[2].split('\t')
-        yield GeneBoundsBed(chrom, entry[0], entry[1], name=data[0],
-                            score=data[1], strand=data[2], extraCols=data[3:])
+        yield GeneBoundsBed.create(chrom, entry[0], entry[1], data[0], score=data[1], strand=data[2],
+                                   thickStart=data[3], thickEnd=data[4], itemRgb=data[5],
+                                   geneSym=data[6], hgncId=data[7], geneIds=data[8], geneType=data[9])
+
+class GeneBoundsBedJsonEncoder(json.JSONEncoder):
+    jsonCols = ("chrom", "chromStart", "chromEnd", "name",
+                "strand", "thickStart", "thickEnd", "itemRgb",
+                "geneSym", "hgncId", "geneIds", "geneType")
+
+    def default(self, obj):
+        if isinstance(obj, GeneBoundsBed):
+            return {k: getattr(obj, k) for k in self.jsonCols}
+        return json.JSONEncoder.default(self, obj)
+
 
 # code to merge into gene bounds based on overlap
 def overlaps(b1, b2):
     return (b1.chrom == b2.chrom) and (b1.strand == b2.strand) and (b1.start < b2.end) and (b1.end > b2.start)
 
 def merge(b1, b2):
-    b = GeneBoundsBed(b1.chrom, min(b1.start, b2.start), max(b1.end, b2.end), b1.name, 0, b1.strand, extraCols=b1.extraCols)
-    b.addGeneIds(b2.geneIds)
+    geneIds = set(typeOps.mkiter(b1.geneIds)) | set(typeOps.mkiter(b2.geneIds))
+    b = GeneBoundsBed.create(b1.chrom, min(b1.start, b2.start), max(b1.end, b2.end), b1.name, strand=b1.strand,
+                             geneSym=b1.geneSym, hgncId=b1.hgncId,
+                             geneIds=list(geneIds), geneType=b1.geneType)
     return b
 
 def mergeOrAdd(outRanges, inBed):

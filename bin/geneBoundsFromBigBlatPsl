@@ -77,8 +77,9 @@ def loadChromTrans(bbpFh, chrom, chromSize, gbOpts, geneTransBeds):
     for entry in bbpFh.entries(chrom, 0, bbpFh.chroms(chrom)):
         row = entry[2].split('\t')
         if useAnnot(entry, row, gbOpts):
-            b = GeneBoundsBed(chrom, entry[0], entry[1], row[nameIdx], 0, row[strandColumnIdx],
-                              extraCols=(row[geneSymColumnIdx], row[hgncIdColumnIdx], row[geneIdColumnIdx], row[geneTypeColumnIdx],))
+            b = GeneBoundsBed.create(chrom, entry[0], entry[1], row[nameIdx], strand=row[strandColumnIdx],
+                                     geneSym=row[geneSymColumnIdx], hgncId=row[hgncIdColumnIdx],
+                                     geneIds=row[geneIdColumnIdx], geneType=row[geneTypeColumnIdx])
             geneTransBeds[row[nameIdx]].append(b)
 
 def loadTrans(bigBlatPsl, opts):
