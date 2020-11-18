@@ -1,3 +1,12 @@
+hg38TwoBit = /hive/data/genomes/hg38/hg38.2bit
+gencodeDb = ../../build/t2t-chm13-v1/CAT/missing/data/gencodeV35.db
+buildBigBed = ../../../T2T-CHM13-hub/bin/buildBigBed
+
+
+define hg38BigBedCheck
+${buildBigBed} --extraIndex=name --twoBit=${hg38TwoBit} --as=../etc/geneBoundsBed.as bed9+4 hg38 output/$@.bigBed output/$@.bed
+endef
+
 
 .SECONDARY:
 
@@ -37,26 +46,27 @@ catBoundsAddBlatOverTest: mkdirs
 	../bin/catBoundsAddBlatOver ${catSourceDb} input/catBoundsAddBlatOver.gp_info input/catBoundsAddBlatOver.blat.overstats input/catBoundsAddBlatOver.bounds.bed output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-
 geneBoundsGencodeTests: geneBoundsGencodeTest
 
-gencodeDb = ../../build/t2t-chm13-v1/CAT/missing/data/gencodeV35.db
 geneBoundsGencodeTest: ${gencodeDb} mkdirs
 	../bin/geneBoundsForSource --limit=250 --geneType=protein_coding --geneType=lncRNA ${gencodeDb} output/$@.bed
+	${hg38BigBedCheck}
 
+missingGenesTests: missingGeneSourceContextTest missingGeneSourceContextTracksTest
 
-missingGenesTests: missingGeneSourceContextTest
-
-buildBigBed = ../../../T2T-CHM13-hub/bin/buildBigBed
 gencodeSrcBigBed = output/gencode-src.bigBed
 
 missingGeneSourceContextTest: ${gencodeSrcBigBed}
 	../bin/getMissingGeneSourceContext ${gencodeSrcBigBed} input/gencode-src-missing.bed output/$@.json
 	diff expected/$@.json output/$@.json
 
+missingGeneSourceContextTracksTest: mkdirs
+	../bin/missingGeneSourceContextTracks input/missingGeneSourceContext.json output/$@.bed
+	diff expected/$@.bed output/$@.bed
+	${hg38BigBedCheck}
 
 ${gencodeSrcBigBed}: input/gencode-src.bed mkdirs
-	${buildBigBed} --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../etc/geneBoundsBed.as  bed9+4 hg38 $@ input/gencode-src.bed
+	${buildBigBed} --extraIndex=name --twoBit=${hg38TwoBit} --as=../etc/geneBoundsBed.as bed9+4 hg38 $@ input/gencode-src.bed
 
 clean:
 	rm -rf output

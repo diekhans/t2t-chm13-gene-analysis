@@ -3,6 +3,7 @@
 import argparse
 import json
 from pycbio.sys import fileOps
+from pycbio.sys.objDict import ObjDict
 from pycbio.sys.svgcolors import SvgColors
 from geneBoundsLib import GeneBoundsBed
 
@@ -20,24 +21,35 @@ def parseArgs():
 
 CONTEXT_COLOR = SvgColors.lightgoldenrodyellow.toRgb8Str()
 PRESENT_COLOR = SvgColors.darkblue.toRgb8Str()
-MISING_COLOR = SvgColors.darkred.toRgb8Str()
+MISSING_GENES_COLOR = SvgColors.darkred.toRgb8Str()
+MISSING_RANGE_COLOR = SvgColors.crimson.toRgb8Str()
 
-def makeArrayBeds(geneLocs, color, bedFh):
-    for gl in geneLocs:
-        b = GeneBoundsBed.create(**gl)
+def getMaxEnd(geneBeds):
+    return max([b.chromEnd for b in geneBeds])
+
+def makeRangeBed(chrom, start, end, name, color, bedFh):
+    b = GeneBoundsBed.create(chrom, start, end, name, thickStart=start, thickEnd=end)
+    b.itemRgb = color
+    b.write(bedFh)
+
+def makeArrayBeds(geneBeds, color, bedFh):
+    for gb in geneBeds:
+        b=GeneBoundsBed.create(**gb)
         b.itemRgb = color
         b.write(bedFh)
 
-
-def makeContextBed(context, bedFh):
-    pass
-
+def makeContextBed(ctx, bedFh):
+    makeRangeBed(ctx.chrom, ctx.chromStart, ctx.chromEnd, ctx.contextId, CONTEXT_COLOR, bedFh)
+    makeRangeBed(ctx.chrom, ctx.missingGenes[0].chromStart, getMaxEnd(ctx.missingGenes), ctx.contextId, MISSING_RANGE_COLOR, bedFh)
+    makeArrayBeds(ctx.downstreamGenes, PRESENT_COLOR, bedFh)
+    makeArrayBeds(ctx.missingGenes, MISSING_GENES_COLOR, bedFh)
+    makeArrayBeds(ctx.upstreamGenes, PRESENT_COLOR, bedFh)
 
 def main(opts):
     with fileOps.opengz(opts.missingGeneContextJson) as inFh:
-        missingContexts = json.load(inFh)
-    with fileOps.opengz(opts.missingGenesBed) as bedFh:
-        for context in missingContexts:
-            makeContextBed(context, bedFh)
+        missingContexts = json.load(inFh, object_pairs_hook=ObjDict)
+    with fileOps.opengz(opts.missingGenesBed, 'w') as bedFh:
+        for ctx in missingContexts:
+            makeContextBed(ctx, bedFh)
 
 main(parseArgs())
