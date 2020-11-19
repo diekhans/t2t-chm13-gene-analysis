@@ -1,5 +1,12 @@
 
 * catBoundsAddBlatOver test cases
+build on t2tChm13_20200727
+
+catBoundsAddBlatOver.blat.overstats
+catBoundsAddBlatOver.bounds.bed
+catBoundsAddBlatOver.gp
+catBoundsAddBlatOver.gp_info
+
 ** ids
 CHM13_T0011570  lncRNA  blat/same
 CHM13_T0011571
@@ -28,3 +35,35 @@ CHM13_T0000948
 selectById -tsv 1 ~/tmp/ids 2 cat.gp_info >~/tmp/catBoundsAddBlatOver.gp_info
 cut -f 1 ~/tmp/catBoundsAddBlatOver.gp_info > ~/tmp/gids
 selectById -tsv 1 ~/tmp/ids 1 cat-blat.overstats >  ~/tmp/catBoundsAddBlatOver.blat.overstats
+
+* frame shifts
+build on t2tChm13_20200727 and edited
+
+fakeCat.gp
+fakeCat.gp_info
+
+* gencode set
+build on t2t-chm13-v1.0 gencode V35
+
+gencode-src-genes.bed - hg38 gene BEDS, includes context around missing
+gencode-src-trans.bed - transcripts for gencode-src-genes.bed
+gencode-blat.bigBlatPslIn - transcripts aligned to CHM13
+
+
+gencode-src-genes-missing.bed
+
+bigPslToPsl output/gencode-blat.bigBlatPsl stdout | pslPosTarget stdin stdout | pslToBed stdin output/gencode-blat.bed
+
+** obtaining:
+*** gencode-src-genes.bed
+getcode-src-genes.bed, so at head, plus missing, plus context with
+tawk '{s= ($2>10000)? $2-10000: 0; print $1, $s,$3+10000}' missing.gencode.bed 
+overlapSelect -inCoordCols=0,1,2 ranges.bed ../data/gencode-src.bed  >context.bed
+
+*** gencode-blat.bed:
+bigPslToPsl output/gencode-blat.bigBlatPsl stdout | pslPosTarget stdin stdout | pslToBed input/gencode-blat.bed
+** o
+* others
+t2tChm13_20200727.sizes
+
+

@@ -1,837 +1,581 @@
 [
     {
-        "chrom": "chr7",
-        "chromStart": 12703,
-        "chromEnd": 73308826,
+        "chrom": "chr1",
+        "chromStart": 89294,
+        "chromEnd": 213579267,
         "contextId": "cntx0",
         "downstreamGenes": [],
         "missingGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 12703,
-                "chromEnd": 27234,
-                "name": "ENSG00000283061.1",
-                "strand": "+",
-                "thickStart": 27234,
-                "thickEnd": 27234,
+                "chrom": "chr1",
+                "chromStart": 89294,
+                "chromEnd": 133723,
+                "name": "ENSG00000238009.6",
+                "strand": "-",
+                "thickStart": 133723,
+                "thickEnd": 133723,
                 "itemRgb": "0,0,0",
-                "geneSym": "AC215522.3",
+                "geneSym": "AL627309.1",
                 "hgncId": null,
                 "geneIds": [
-                    "ENSG00000283061.1"
+                    "ENSG00000238009.6"
                 ],
                 "geneType": "lncRNA"
             },
             {
-                "chrom": "chr7",
-                "chromStart": 19017,
-                "chromEnd": 35489,
-                "name": "ENSG00000282572.2",
+                "chrom": "chr1",
+                "chromStart": 139789,
+                "chromEnd": 140339,
+                "name": "ENSG00000239906.1",
                 "strand": "-",
-                "thickStart": "35489",
-                "thickEnd": "35489",
+                "thickStart": "140339",
+                "thickEnd": "140339",
                 "itemRgb": "0,0,0",
-                "geneSym": "AC215522.2",
+                "geneSym": "AL627309.2",
                 "hgncId": null,
                 "geneIds": [
-                    "ENSG00000282572.2"
+                    "ENSG00000239906.1"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 141473,
+                "chromEnd": 173862,
+                "name": "ENSG00000241860.7",
+                "strand": "-",
+                "thickStart": "173862",
+                "thickEnd": "173862",
+                "itemRgb": "0,0,0",
+                "geneSym": "AL627309.5",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000241860.7"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 587628,
+                "chromEnd": 594768,
+                "name": "ENSG00000235146.2",
+                "strand": "+",
+                "thickStart": "594768",
+                "thickEnd": "594768",
+                "itemRgb": "0,0,0",
+                "geneSym": "AC114498.1",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000235146.2"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 760910,
+                "chromEnd": 761989,
+                "name": "ENSG00000229905.1",
+                "strand": "+",
+                "thickStart": "761989",
+                "thickEnd": "761989",
+                "itemRgb": "0,0,0",
+                "geneSym": "AL669831.2",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000229905.1"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 778746,
+                "chromEnd": 810065,
+                "name": "ENSG00000237491.10",
+                "strand": "+",
+                "thickStart": "810065",
+                "thickEnd": "810065",
+                "itemRgb": "0,0,0",
+                "geneSym": "LINC01409",
+                "hgncId": "HGNC:50701",
+                "geneIds": [
+                    "ENSG00000237491.10"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 817370,
+                "chromEnd": 819837,
+                "name": "ENSG00000177757.2",
+                "strand": "+",
+                "thickStart": "819837",
+                "thickEnd": "819837",
+                "itemRgb": "0,0,0",
+                "geneSym": "FAM87B",
+                "hgncId": "HGNC:32236",
+                "geneIds": [
+                    "ENSG00000177757.2"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 825137,
+                "chromEnd": 859446,
+                "name": "ENSG00000228794.10",
+                "strand": "+",
+                "thickStart": "859446",
+                "thickEnd": "859446",
+                "itemRgb": "0,0,0",
+                "geneSym": "LINC01128",
+                "hgncId": "HGNC:49377",
+                "geneIds": [
+                    "ENSG00000228794.10"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 826205,
+                "chromEnd": 827522,
+                "name": "ENSG00000225880.5",
+                "strand": "-",
+                "thickStart": "827522",
+                "thickEnd": "827522",
+                "itemRgb": "0,0,0",
+                "geneSym": "LINC00115",
+                "hgncId": "HGNC:26211",
+                "geneIds": [
+                    "ENSG00000225880.5"
                 ],
                 "geneType": "lncRNA"
             }
         ],
         "upstreamGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 70971,
-                "chromEnd": 95683,
-                "name": "ENSG00000232325.4",
-                "strand": "-",
-                "thickStart": "95683",
-                "thickEnd": "95683",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC093627.1",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000232325.4"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77037,
-                "chromEnd": 81178,
-                "name": "ENSG00000242611.2",
+                "chrom": "chr1",
+                "chromStart": 54548227,
+                "chromEnd": 54639192,
+                "name": "ENSG00000162390.17",
                 "strand": "+",
-                "thickStart": "81178",
-                "thickEnd": "81178",
+                "thickStart": "54639192",
+                "thickEnd": "54639192",
                 "itemRgb": "0,0,0",
-                "geneSym": "AC093627.6",
+                "geneSym": "ACOT11",
+                "hgncId": "HGNC:18156",
+                "geneIds": [
+                    "ENSG00000162390.17"
+                ],
+                "geneType": "protein_coding"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 54609180,
+                "chromEnd": 54623556,
+                "name": "ENSG00000162391.12",
+                "strand": "-",
+                "thickStart": "54623556",
+                "thickEnd": "54623556",
+                "itemRgb": "0,0,0",
+                "geneSym": "FAM151A",
+                "hgncId": "HGNC:25032",
+                "geneIds": [
+                    "ENSG00000162391.12"
+                ],
+                "geneType": "protein_coding"
+            },
+            {
+                "chrom": "chr1",
+                "chromStart": 54621476,
+                "chromEnd": 54628438,
+                "name": "ENSG00000230728.1",
+                "strand": "-",
+                "thickStart": "54628438",
+                "thickEnd": "54628438",
+                "itemRgb": "0,0,0",
+                "geneSym": "AL590093.1",
                 "hgncId": null,
                 "geneIds": [
-                    "ENSG00000242611.2"
+                    "ENSG00000230728.1"
                 ],
                 "geneType": "lncRNA"
             },
             {
-                "chrom": "chr7",
-                "chromStart": 71779490,
-                "chromEnd": 72447151,
-                "name": "ENSG00000183166.11",
-                "strand": "-",
-                "thickStart": "72447151",
-                "thickEnd": "72447151",
-                "itemRgb": "0,0,0",
-                "geneSym": "CALN1",
-                "hgncId": "HGNC:13248",
-                "geneIds": [
-                    "ENSG00000183166.11"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72558743,
-                "chromEnd": 72828200,
-                "name": "ENSG00000277149.5",
-                "strand": "-",
-                "thickStart": "72828200",
-                "thickEnd": "72828200",
-                "itemRgb": "0,0,0",
-                "geneSym": "TYW1B",
-                "hgncId": "HGNC:33908",
-                "geneIds": [
-                    "ENSG00000277149.5"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72879364,
-                "chromEnd": 72951440,
-                "name": "ENSG00000196313.11",
+                "chrom": "chr1",
+                "chromStart": 196819756,
+                "chromEnd": 196832189,
+                "name": "ENSG00000244414.6",
                 "strand": "+",
-                "thickStart": "72951440",
-                "thickEnd": "72951440",
+                "thickStart": "196832189",
+                "thickEnd": "196832189",
                 "itemRgb": "0,0,0",
-                "geneSym": "POM121",
-                "hgncId": "HGNC:19702",
+                "geneSym": "CFHR1",
+                "hgncId": "HGNC:4888",
                 "geneIds": [
-                    "ENSG00000196313.11"
+                    "ENSG00000244414.6"
                 ],
                 "geneType": "protein_coding"
             },
             {
-                "chrom": "chr7",
-                "chromStart": 72924417,
-                "chromEnd": 72925125,
-                "name": "ENSG00000272843.1",
-                "strand": "-",
-                "thickStart": "72925125",
-                "thickEnd": "72925125",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC211476.2",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000272843.1"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72954796,
-                "chromEnd": 72957106,
-                "name": "ENSG00000285886.1",
+                "chrom": "chr1",
+                "chromStart": 213492287,
+                "chromEnd": 213579267,
+                "name": "ENSG00000225233.2",
                 "strand": "+",
-                "thickStart": "72957106",
-                "thickEnd": "72957106",
+                "thickStart": "213579267",
+                "thickEnd": "213579267",
                 "itemRgb": "0,0,0",
-                "geneSym": "AC211476.7",
+                "geneSym": "AL592402.1",
                 "hgncId": null,
                 "geneIds": [
-                    "ENSG00000285886.1"
+                    "ENSG00000225233.2"
                 ],
                 "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72959484,
-                "chromEnd": 72969466,
-                "name": "ENSG00000155428.12",
-                "strand": "-",
-                "thickStart": "72969466",
-                "thickEnd": "72969466",
-                "itemRgb": "0,0,0",
-                "geneSym": "TRIM74",
-                "hgncId": "HGNC:17453",
-                "geneIds": [
-                    "ENSG00000155428.12"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73020337,
-                "chromEnd": 73029766,
-                "name": "ENSG00000273520.5",
-                "strand": "-",
-                "thickStart": "73029766",
-                "thickEnd": "73029766",
-                "itemRgb": "0,0,0",
-                "geneSym": "SPDYE8",
-                "hgncId": "HGNC:33771",
-                "geneIds": [
-                    "ENSG00000273520.5"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73302515,
-                "chromEnd": 73308826,
-                "name": "ENSG00000130305.17",
-                "strand": "-",
-                "thickStart": "73308826",
-                "thickEnd": "73308826",
-                "itemRgb": "0,0,0",
-                "geneSym": "NSUN5",
-                "hgncId": "HGNC:16385",
-                "geneIds": [
-                    "ENSG00000130305.17"
-                ],
-                "geneType": "protein_coding"
             }
         ]
     },
     {
-        "chrom": "chr7",
-        "chromStart": 70971,
-        "chromEnd": 77295204,
+        "chrom": "chr11",
+        "chromStart": 127203,
+        "chromEnd": 139612,
         "contextId": "cntx1",
-        "downstreamGenes": [
-            {
-                "chrom": "chr7",
-                "chromStart": 70971,
-                "chromEnd": 95683,
-                "name": "ENSG00000232325.4",
-                "strand": "-",
-                "thickStart": "95683",
-                "thickEnd": "95683",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC093627.1",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000232325.4"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77037,
-                "chromEnd": 81178,
-                "name": "ENSG00000242611.2",
-                "strand": "+",
-                "thickStart": "81178",
-                "thickEnd": "81178",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC093627.6",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000242611.2"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 71779490,
-                "chromEnd": 72447151,
-                "name": "ENSG00000183166.11",
-                "strand": "-",
-                "thickStart": "72447151",
-                "thickEnd": "72447151",
-                "itemRgb": "0,0,0",
-                "geneSym": "CALN1",
-                "hgncId": "HGNC:13248",
-                "geneIds": [
-                    "ENSG00000183166.11"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72558743,
-                "chromEnd": 72828200,
-                "name": "ENSG00000277149.5",
-                "strand": "-",
-                "thickStart": "72828200",
-                "thickEnd": "72828200",
-                "itemRgb": "0,0,0",
-                "geneSym": "TYW1B",
-                "hgncId": "HGNC:33908",
-                "geneIds": [
-                    "ENSG00000277149.5"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72879364,
-                "chromEnd": 72951440,
-                "name": "ENSG00000196313.11",
-                "strand": "+",
-                "thickStart": "72951440",
-                "thickEnd": "72951440",
-                "itemRgb": "0,0,0",
-                "geneSym": "POM121",
-                "hgncId": "HGNC:19702",
-                "geneIds": [
-                    "ENSG00000196313.11"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72924417,
-                "chromEnd": 72925125,
-                "name": "ENSG00000272843.1",
-                "strand": "-",
-                "thickStart": "72925125",
-                "thickEnd": "72925125",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC211476.2",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000272843.1"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72954796,
-                "chromEnd": 72957106,
-                "name": "ENSG00000285886.1",
-                "strand": "+",
-                "thickStart": "72957106",
-                "thickEnd": "72957106",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC211476.7",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000285886.1"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 72959484,
-                "chromEnd": 72969466,
-                "name": "ENSG00000155428.12",
-                "strand": "-",
-                "thickStart": "72969466",
-                "thickEnd": "72969466",
-                "itemRgb": "0,0,0",
-                "geneSym": "TRIM74",
-                "hgncId": "HGNC:17453",
-                "geneIds": [
-                    "ENSG00000155428.12"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73020337,
-                "chromEnd": 73029766,
-                "name": "ENSG00000273520.5",
-                "strand": "-",
-                "thickStart": "73029766",
-                "thickEnd": "73029766",
-                "itemRgb": "0,0,0",
-                "geneSym": "SPDYE8",
-                "hgncId": "HGNC:33771",
-                "geneIds": [
-                    "ENSG00000273520.5"
-                ],
-                "geneType": "protein_coding"
-            }
-        ],
+        "downstreamGenes": [],
         "missingGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 73039695,
-                "chromEnd": 73069506,
-                "name": "ENSG00000285702.1",
-                "strand": "+",
-                "thickStart": 73069506,
-                "thickEnd": 73069506,
+                "chrom": "chr11",
+                "chromStart": 127203,
+                "chromEnd": 139612,
+                "name": "ENSG00000230724.9",
+                "strand": "-",
+                "thickStart": 139612,
+                "thickEnd": 139612,
                 "itemRgb": "0,0,0",
-                "geneSym": "AC211476.6",
-                "hgncId": null,
+                "geneSym": "LINC01001",
+                "hgncId": "HGNC:38540",
                 "geneIds": [
-                    "ENSG00000285702.1"
+                    "ENSG00000230724.9"
                 ],
                 "geneType": "lncRNA"
-            },
+            }
+        ],
+        "upstreamGenes": []
+    },
+    {
+        "chrom": "chr17",
+        "chromStart": 64098,
+        "chromEnd": 41276697,
+        "contextId": "cntx2",
+        "downstreamGenes": [],
+        "missingGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 73048480,
-                "chromEnd": 73057911,
-                "name": "ENSG00000286228.1",
+                "chrom": "chr17",
+                "chromStart": 64098,
+                "chromEnd": 76866,
+                "name": "ENSG00000280279.1",
                 "strand": "-",
-                "thickStart": "73057911",
-                "thickEnd": "73057911",
+                "thickStart": 76866,
+                "thickEnd": 76866,
                 "itemRgb": "0,0,0",
-                "geneSym": "SPDYE11",
-                "hgncId": "HGNC:51507",
+                "geneSym": "AC240565.2",
+                "hgncId": null,
                 "geneIds": [
-                    "ENSG00000286228.1"
+                    "ENSG00000280279.1"
                 ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73076590,
-                "chromEnd": 73086038,
-                "name": "ENSG00000262461.6",
-                "strand": "-",
-                "thickStart": "73086038",
-                "thickEnd": "73086038",
-                "itemRgb": "0,0,0",
-                "geneSym": "SPDYE9",
-                "hgncId": "HGNC:45034",
-                "geneIds": [
-                    "ENSG00000262461.6"
-                ],
-                "geneType": "protein_coding"
+                "geneType": "lncRNA"
             }
         ],
         "upstreamGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 73302515,
-                "chromEnd": 73308826,
-                "name": "ENSG00000130305.17",
-                "strand": "-",
-                "thickStart": "73308826",
-                "thickEnd": "73308826",
+                "chrom": "chr17",
+                "chromStart": 41255383,
+                "chromEnd": 41256364,
+                "name": "ENSG00000198083.9",
+                "strand": "+",
+                "thickStart": "41256364",
+                "thickEnd": "41256364",
                 "itemRgb": "0,0,0",
-                "geneSym": "NSUN5",
-                "hgncId": "HGNC:16385",
+                "geneSym": "KRTAP9-9",
+                "hgncId": "HGNC:16773",
                 "geneIds": [
-                    "ENSG00000130305.17"
+                    "ENSG00000198083.9"
                 ],
                 "geneType": "protein_coding"
             },
             {
-                "chrom": "chr7",
-                "chromStart": 73312535,
-                "chromEnd": 73328082,
-                "name": "ENSG00000146755.11",
-                "strand": "-",
-                "thickStart": "73328082",
-                "thickEnd": "73328082",
+                "chrom": "chr17",
+                "chromStart": 41265338,
+                "chromEnd": 41266641,
+                "name": "ENSG00000212659.1",
+                "strand": "+",
+                "thickStart": "41266641",
+                "thickEnd": "41266641",
                 "itemRgb": "0,0,0",
-                "geneSym": "TRIM50",
-                "hgncId": "HGNC:19017",
+                "geneSym": "KRTAP9-6",
+                "hgncId": "HGNC:18914",
                 "geneIds": [
-                    "ENSG00000146755.11"
+                    "ENSG00000212659.1"
                 ],
                 "geneType": "protein_coding"
             },
             {
-                "chrom": "chr7",
-                "chromStart": 73328160,
-                "chromEnd": 73358637,
-                "name": "ENSG00000077800.13",
+                "chrom": "chr17",
+                "chromStart": 41275658,
+                "chromEnd": 41276697,
+                "name": "ENSG00000180386.7",
                 "strand": "+",
-                "thickStart": "73358637",
-                "thickEnd": "73358637",
+                "thickStart": "41276697",
+                "thickEnd": "41276697",
                 "itemRgb": "0,0,0",
-                "geneSym": "FKBP6",
-                "hgncId": "HGNC:3722",
+                "geneSym": "KRTAP9-7",
+                "hgncId": "HGNC:18915",
                 "geneIds": [
-                    "ENSG00000077800.13"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73433777,
-                "chromEnd": 73436120,
-                "name": "ENSG00000188763.5",
-                "strand": "+",
-                "thickStart": "73436120",
-                "thickEnd": "73436120",
-                "itemRgb": "0,0,0",
-                "geneSym": "FZD9",
-                "hgncId": "HGNC:4047",
-                "geneIds": [
-                    "ENSG00000188763.5"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 76902479,
-                "chromEnd": 76919191,
-                "name": "ENSG00000231183.4",
-                "strand": "+",
-                "thickStart": "76919191",
-                "thickEnd": "76919191",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC007003.1",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000231183.4"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 76959834,
-                "chromEnd": 77043775,
-                "name": "ENSG00000265479.7",
-                "strand": "+",
-                "thickStart": "77043775",
-                "thickEnd": "77043775",
-                "itemRgb": "0,0,0",
-                "geneSym": "DTX2P1-UPK3BP1-PMS2P11",
-                "hgncId": "HGNC:42360",
-                "geneIds": [
-                    "ENSG00000265479.7"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 76972678,
-                "chromEnd": 76976961,
-                "name": "ENSG00000225703.1",
-                "strand": "-",
-                "thickStart": "76976961",
-                "thickEnd": "76976961",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC114737.2",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000225703.1"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77043720,
-                "chromEnd": 77198626,
-                "name": "ENSG00000259628.1",
-                "strand": "+",
-                "thickStart": "77198626",
-                "thickEnd": "77198626",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC007000.4",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000259628.1"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77122433,
-                "chromEnd": 77295204,
-                "name": "ENSG00000135205.15",
-                "strand": "+",
-                "thickStart": "77295204",
-                "thickEnd": "77295204",
-                "itemRgb": "0,0,0",
-                "geneSym": "CCDC146",
-                "hgncId": "HGNC:29296",
-                "geneIds": [
-                    "ENSG00000135205.15"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77193368,
-                "chromEnd": 77199848,
-                "name": "ENSG00000127951.7",
-                "strand": "-",
-                "thickStart": "77199848",
-                "thickEnd": "77199848",
-                "itemRgb": "0,0,0",
-                "geneSym": "FGL2",
-                "hgncId": "HGNC:3696",
-                "geneIds": [
-                    "ENSG00000127951.7"
+                    "ENSG00000180386.7"
                 ],
                 "geneType": "protein_coding"
             }
         ]
     },
     {
-        "chrom": "chr7",
-        "chromStart": 72959484,
-        "chromEnd": 77295204,
-        "contextId": "cntx2",
+        "chrom": "chr17",
+        "chromStart": 41255383,
+        "chromEnd": 83227721,
+        "contextId": "cntx3",
         "downstreamGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 72959484,
-                "chromEnd": 72969466,
-                "name": "ENSG00000155428.12",
-                "strand": "-",
-                "thickStart": "72969466",
-                "thickEnd": "72969466",
-                "itemRgb": "0,0,0",
-                "geneSym": "TRIM74",
-                "hgncId": "HGNC:17453",
-                "geneIds": [
-                    "ENSG00000155428.12"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73020337,
-                "chromEnd": 73029766,
-                "name": "ENSG00000273520.5",
-                "strand": "-",
-                "thickStart": "73029766",
-                "thickEnd": "73029766",
-                "itemRgb": "0,0,0",
-                "geneSym": "SPDYE8",
-                "hgncId": "HGNC:33771",
-                "geneIds": [
-                    "ENSG00000273520.5"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73302515,
-                "chromEnd": 73308826,
-                "name": "ENSG00000130305.17",
-                "strand": "-",
-                "thickStart": "73308826",
-                "thickEnd": "73308826",
-                "itemRgb": "0,0,0",
-                "geneSym": "NSUN5",
-                "hgncId": "HGNC:16385",
-                "geneIds": [
-                    "ENSG00000130305.17"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73312535,
-                "chromEnd": 73328082,
-                "name": "ENSG00000146755.11",
-                "strand": "-",
-                "thickStart": "73328082",
-                "thickEnd": "73328082",
-                "itemRgb": "0,0,0",
-                "geneSym": "TRIM50",
-                "hgncId": "HGNC:19017",
-                "geneIds": [
-                    "ENSG00000146755.11"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 73328160,
-                "chromEnd": 73358637,
-                "name": "ENSG00000077800.13",
+                "chrom": "chr17",
+                "chromStart": 41255383,
+                "chromEnd": 41256364,
+                "name": "ENSG00000198083.9",
                 "strand": "+",
-                "thickStart": "73358637",
-                "thickEnd": "73358637",
+                "thickStart": "41256364",
+                "thickEnd": "41256364",
                 "itemRgb": "0,0,0",
-                "geneSym": "FKBP6",
-                "hgncId": "HGNC:3722",
+                "geneSym": "KRTAP9-9",
+                "hgncId": "HGNC:16773",
                 "geneIds": [
-                    "ENSG00000077800.13"
+                    "ENSG00000198083.9"
                 ],
                 "geneType": "protein_coding"
             },
             {
-                "chrom": "chr7",
-                "chromStart": 73433777,
-                "chromEnd": 73436120,
-                "name": "ENSG00000188763.5",
+                "chrom": "chr17",
+                "chromStart": 41265338,
+                "chromEnd": 41266641,
+                "name": "ENSG00000212659.1",
                 "strand": "+",
-                "thickStart": "73436120",
-                "thickEnd": "73436120",
+                "thickStart": "41266641",
+                "thickEnd": "41266641",
                 "itemRgb": "0,0,0",
-                "geneSym": "FZD9",
-                "hgncId": "HGNC:4047",
+                "geneSym": "KRTAP9-6",
+                "hgncId": "HGNC:18914",
                 "geneIds": [
-                    "ENSG00000188763.5"
+                    "ENSG00000212659.1"
                 ],
                 "geneType": "protein_coding"
             },
             {
-                "chrom": "chr7",
-                "chromStart": 76902479,
-                "chromEnd": 76919191,
-                "name": "ENSG00000231183.4",
+                "chrom": "chr17",
+                "chromStart": 41275658,
+                "chromEnd": 41276697,
+                "name": "ENSG00000180386.7",
                 "strand": "+",
-                "thickStart": "76919191",
-                "thickEnd": "76919191",
+                "thickStart": "41276697",
+                "thickEnd": "41276697",
                 "itemRgb": "0,0,0",
-                "geneSym": "AC007003.1",
-                "hgncId": null,
+                "geneSym": "KRTAP9-7",
+                "hgncId": "HGNC:18915",
                 "geneIds": [
-                    "ENSG00000231183.4"
+                    "ENSG00000180386.7"
                 ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 76959834,
-                "chromEnd": 77043775,
-                "name": "ENSG00000265479.7",
-                "strand": "+",
-                "thickStart": "77043775",
-                "thickEnd": "77043775",
-                "itemRgb": "0,0,0",
-                "geneSym": "DTX2P1-UPK3BP1-PMS2P11",
-                "hgncId": "HGNC:42360",
-                "geneIds": [
-                    "ENSG00000265479.7"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 76972678,
-                "chromEnd": 76976961,
-                "name": "ENSG00000225703.1",
-                "strand": "-",
-                "thickStart": "76976961",
-                "thickEnd": "76976961",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC114737.2",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000225703.1"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77043720,
-                "chromEnd": 77198626,
-                "name": "ENSG00000259628.1",
-                "strand": "+",
-                "thickStart": "77198626",
-                "thickEnd": "77198626",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC007000.4",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000259628.1"
-                ],
-                "geneType": "lncRNA"
+                "geneType": "protein_coding"
             }
         ],
         "missingGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 77022924,
-                "chromEnd": 77062552,
-                "name": "ENSG00000186645.9",
-                "strand": "-",
-                "thickStart": 77062552,
-                "thickEnd": 77062552,
+                "chrom": "chr17",
+                "chromStart": 83135733,
+                "chromEnd": 83221442,
+                "name": "ENSG00000262898.3",
+                "strand": "+",
+                "thickStart": 83221442,
+                "thickEnd": 83221442,
                 "itemRgb": "0,0,0",
-                "geneSym": "SPDYE17",
-                "hgncId": "HGNC:51513",
+                "geneSym": "AC139099.2",
+                "hgncId": null,
                 "geneIds": [
-                    "ENSG00000186645.9"
+                    "ENSG00000262898.3"
                 ],
-                "geneType": "protein_coding"
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr17",
+                "chromStart": 83220526,
+                "chromEnd": 83227721,
+                "name": "ENSG00000262094.1",
+                "strand": "-",
+                "thickStart": "83227721",
+                "thickEnd": "83227721",
+                "itemRgb": "0,0,0",
+                "geneSym": "AC139099.1",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000262094.1"
+                ],
+                "geneType": "lncRNA"
+            }
+        ],
+        "upstreamGenes": []
+    },
+    {
+        "chrom": "chr5",
+        "chromStart": 181306501,
+        "chromEnd": 181324685,
+        "contextId": "cntx4",
+        "downstreamGenes": [],
+        "missingGenes": [
+            {
+                "chrom": "chr5",
+                "chromStart": 181306501,
+                "chromEnd": 181324685,
+                "name": "ENSG00000238035.8",
+                "strand": "+",
+                "thickStart": 181324685,
+                "thickEnd": 181324685,
+                "itemRgb": "0,0,0",
+                "geneSym": "AC138035.1",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000238035.8"
+                ],
+                "geneType": "lncRNA"
+            }
+        ],
+        "upstreamGenes": []
+    },
+    {
+        "chrom": "chr6",
+        "chromStart": 170612621,
+        "chromEnd": 170738536,
+        "contextId": "cntx5",
+        "downstreamGenes": [],
+        "missingGenes": [
+            {
+                "chrom": "chr6",
+                "chromStart": 170612621,
+                "chromEnd": 170638715,
+                "name": "ENSG00000287411.1",
+                "strand": "+",
+                "thickStart": 170638715,
+                "thickEnd": 170638715,
+                "itemRgb": "0,0,0",
+                "geneSym": "AL031259.1",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000287411.1"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr6",
+                "chromStart": 170615514,
+                "chromEnd": 170738536,
+                "name": "ENSG00000230423.3",
+                "strand": "+",
+                "thickStart": "170738536",
+                "thickEnd": "170738536",
+                "itemRgb": "0,0,0",
+                "geneSym": "AL672310.1",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000230423.3"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr6",
+                "chromStart": 170695312,
+                "chromEnd": 170696950,
+                "name": "ENSG00000234986.1",
+                "strand": "+",
+                "thickStart": "170696950",
+                "thickEnd": "170696950",
+                "itemRgb": "0,0,0",
+                "geneSym": "AL731661.1",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000234986.1"
+                ],
+                "geneType": "lncRNA"
+            },
+            {
+                "chrom": "chr6",
+                "chromStart": 170736172,
+                "chromEnd": 170737777,
+                "name": "ENSG00000225532.1",
+                "strand": "-",
+                "thickStart": "170737777",
+                "thickEnd": "170737777",
+                "itemRgb": "0,0,0",
+                "geneSym": "AL731684.1",
+                "hgncId": null,
+                "geneIds": [
+                    "ENSG00000225532.1"
+                ],
+                "geneType": "lncRNA"
             }
         ],
-        "upstreamGenes": [
+        "upstreamGenes": []
+    },
+    {
+        "chrom": "chr8",
+        "chromStart": 72600,
+        "chromEnd": 79775,
+        "contextId": "cntx6",
+        "downstreamGenes": [],
+        "missingGenes": [
             {
-                "chrom": "chr7",
-                "chromStart": 76959834,
-                "chromEnd": 77043775,
-                "name": "ENSG00000265479.7",
+                "chrom": "chr8",
+                "chromStart": 72600,
+                "chromEnd": 79775,
+                "name": "ENSG00000253896.3",
                 "strand": "+",
-                "thickStart": "77043775",
-                "thickEnd": "77043775",
+                "thickStart": 79775,
+                "thickEnd": 79775,
                 "itemRgb": "0,0,0",
-                "geneSym": "DTX2P1-UPK3BP1-PMS2P11",
-                "hgncId": "HGNC:42360",
-                "geneIds": [
-                    "ENSG00000265479.7"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77043720,
-                "chromEnd": 77198626,
-                "name": "ENSG00000259628.1",
-                "strand": "+",
-                "thickStart": "77198626",
-                "thickEnd": "77198626",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC007000.4",
+                "geneSym": "AC144568.2",
                 "hgncId": null,
                 "geneIds": [
-                    "ENSG00000259628.1"
-                ],
-                "geneType": "lncRNA"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77122433,
-                "chromEnd": 77295204,
-                "name": "ENSG00000135205.15",
-                "strand": "+",
-                "thickStart": "77295204",
-                "thickEnd": "77295204",
-                "itemRgb": "0,0,0",
-                "geneSym": "CCDC146",
-                "hgncId": "HGNC:29296",
-                "geneIds": [
-                    "ENSG00000135205.15"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77193368,
-                "chromEnd": 77199848,
-                "name": "ENSG00000127951.7",
-                "strand": "-",
-                "thickStart": "77199848",
-                "thickEnd": "77199848",
-                "itemRgb": "0,0,0",
-                "geneSym": "FGL2",
-                "hgncId": "HGNC:3696",
-                "geneIds": [
-                    "ENSG00000127951.7"
-                ],
-                "geneType": "protein_coding"
-            },
-            {
-                "chrom": "chr7",
-                "chromStart": 77246339,
-                "chromEnd": 77258123,
-                "name": "ENSG00000250990.1",
-                "strand": "-",
-                "thickStart": "77258123",
-                "thickEnd": "77258123",
-                "itemRgb": "0,0,0",
-                "geneSym": "AC098851.1",
-                "hgncId": null,
-                "geneIds": [
-                    "ENSG00000250990.1"
+                    "ENSG00000253896.3"
                 ],
                 "geneType": "lncRNA"
             }
-        ]
+        ],
+        "upstreamGenes": []
+    },
+    {
+        "chrom": "chrY",
+        "chromStart": 25378299,
+        "chromEnd": 25394719,
+        "contextId": "cntx7",
+        "downstreamGenes": [],
+        "missingGenes": [
+            {
+                "chrom": "chrY",
+                "chromStart": 25378299,
+                "chromEnd": 25394719,
+                "name": "ENSG00000228786.5",
+                "strand": "-",
+                "thickStart": 25394719,
+                "thickEnd": 25394719,
+                "itemRgb": "0,0,0",
+                "geneSym": "LINC00266-4P",
+                "hgncId": "HGNC:38800",
+                "geneIds": [
+                    "ENSG00000228786.5"
+                ],
+                "geneType": "lncRNA"
+            }
+        ],
+        "upstreamGenes": []
     }
 ]

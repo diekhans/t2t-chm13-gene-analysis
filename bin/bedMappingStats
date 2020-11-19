@@ -7,7 +7,7 @@ from pycbio.hgdata.bed import BedReader
 from geneBoundsLib import GeneBoundsBedReader
 
 def parseArgs():
-    usage = """statistics on gene bounds or transscripts """
+    usage = """statistics on gene bounds or transcripts"""
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('--geneSpan', action="store_true",
                         help="whole bed span ")
