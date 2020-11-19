@@ -1,0 +1,7 @@
+hub t2tChm13Gene
+shortLabel T2T CHM13 gene analysis
+longLabel T2T CHM13 gene analysis
+genomesFile genomes.txt
+email markd@ucsc.edu
+descriptionUrl description.html
+

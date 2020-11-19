@@ -1,0 +1,71 @@
+track catMissingContexts
+shortLabel missing CAT contexts
+longLabel Source of CAT genes missing in CHM13 
+group t2tGene
+priority 1x
+type bigBed 9 +
+visibility hide
+itemRgb on
+bigDataUrl cat-missing-src-contexts.bigBed
+html catMissingContexts.html
+
+track gencodeBlatMissingContexts
+shortLabel missing BLAT contexts
+longLabel Source of BLAT genes missing in CHM13 
+group t2tGene
+priority 2
+type bigBed 9 +
+visibility hide
+itemRgb on
+bigDataUrl gencodeBlat-missing-src-contexts.bigBed
+html gencodeBlatMissingContexts.html
+
+track cactusV1_hg38
+compositeTrack on
+shortLabel Cactus T2T/hg38
+longLabel Cactus T2T CHM13 + hg38 Tracks
+group compGeno
+subGroup1 view Track_Type Snake=Alignments
+subGroup2 orgs Organisms t2t-chm13-v1.0=t2t-chm13-v1.0 hg38=hg38
+dragAndDrop subTracks
+dimensions dimensionX=view dimensionY=orgs
+noInherit on
+priority 0
+centerLabelsDense on
+visibility hide
+type bigBed 3
+html cactusDescription.html
+
+    track cactusV1_hg38Alignments
+    shortLabel Alignments
+    view Alignments
+    visibility full
+    subTrack cactusV1_hg38
+    html cactusDescription.html
+
+        track snakeCHM13
+        longLabel CHM13
+        shortLabel CHM13
+        otherSpecies t2t-chm13-v1.0
+        visibility full
+        parent cactusV1_hg38Alignments off
+        priority 3
+        bigDataUrl ../cactus/t2t-chm13-v1.0.aln10.hg38.hal
+        type halSnake
+        group compGeno
+        subGroups view=Snake orgs=t2t-chm13-v1.0
+        html cactusDescription.html
+
+        track snakehg38
+        longLabel hg38
+        shortLabel hg38
+        otherSpecies hg38
+        visibility hide
+        parent cactusV1_hg38Alignments off
+        priority 3
+        bigDataUrl ../cactus/t2t-chm13-v1.0.aln10.hg38.hal
+        type halSnake
+        group compGeno
+        subGroups view=Snake orgs=hg38
+        html cactusDescription.html
+

@@ -1,0 +1,33 @@
+genome t2t-chm13-v1.0
+trackDb t2t-chm13-v1.0/trackDb.txt
+groups groups.txt
+description T2T CHM13 (v1.0)
+organism CHM13 Homo sapiens
+defaultPos chr3:90,755,737-90,789,938
+scientificName Homo sapiens
+htmlPath 0/description.html
+priority 0.01
+
+# # same as hg38
+# genome GRCh38
+# trackDb hg38/trackDb.txt
+# organism GRCh38
+# description GRCh38 (CAT annotation sources)
+# scientificName GRCh38
+# defaultPos chr1:1-200000
+# scientificName Homo sapiens cactus
+# groups groups.txt
+# htmlPath description.html
+# priority 0.002
+
+genome hg38
+trackDb hg38/trackDb.txt
+organism Human
+description hg38
+scientificName hg38
+defaultPos chr1:1-200000
+scientificName Homo sapiens ref
+groups groups.txt
+htmlPath description.html
+priority 0.03
+

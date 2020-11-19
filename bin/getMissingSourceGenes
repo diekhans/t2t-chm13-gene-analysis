@@ -10,33 +10,36 @@ debug = False
 
 def parseArgs():
     usage = """
-    Get CAT missing genes; mrna and lncRNA only, with missing meaning all
+    Get CAT or GENCODE BLAT missing genes; mrna and lncRNA only, with missing meaning all
     mrna and lncrnas in gene are missing, others are not included
     """
     parser = argparse.ArgumentParser(description=usage)
     loggingOps.addCmdOptions(parser)
     parser.add_argument('gencodeDb',
                         help="")
-    parser.add_argument('catGpInfoVar',
-                        help="")
+    parser.add_argument('annotatedTsv',
+                        help="cat GP info or TSV with aligned transcript of gene ids")
     parser.add_argument('missingGenesTsv',
                         help="")
     args = parser.parse_args()
     loggingOps.setupFromCmd(args)
     return args
 
+def getAnnotIds(rec):
+    # based on columns
+    if hasattr(rec, "source_gene"):
+        return (rec.source_gene, rec.source_transcript)
+    else:
+        return (rec.geneId, rec.transcriptId)
+
 def loadAnnotationTsv(conn, tsv):
     with sqliteOps.SqliteCursor(conn) as cur:
         cur.execute("""CREATE TEMP TABLE targetAnnot
            (SourceGeneId TEXT,
-            GeneBiotype TEXT,
-            SourceTranscriptId TEXT,
-            TranscriptBiotype TEST  )""")
+            SourceTranscriptId TEXT)""")
         for r in TsvReader(tsv):
-            cur.execute("INSERT INTO targetAnnot VALUES (?, ?, ?, ?)",
-                        (r.source_gene, r.gene_biotype, r.source_transcript, r.transcript_biotype))
+            cur.execute("INSERT INTO targetAnnot VALUES (?, ?)", getAnnotIds(r))
         cur.execute("CREATE INDEX targetAnnot_SourceGeneId ON targetAnnot (SourceGeneId)")
-        cur.execute("CREATE INDEX targetAnnot_GeneBiotype ON targetAnnot (GeneBiotype)")
 
 
 def getGenesNotFund(conn, tsv):
@@ -56,7 +59,7 @@ def getGenesNotFund(conn, tsv):
 
 def main(args):
     conn = sqliteOps.connect(args.gencodeDb)
-    loadAnnotationTsv(conn, args.catGpInfoVar)
+    loadAnnotationTsv(conn, args.annotatedTsv)
     getGenesNotFund(conn, args.missingGenesTsv)
 
 

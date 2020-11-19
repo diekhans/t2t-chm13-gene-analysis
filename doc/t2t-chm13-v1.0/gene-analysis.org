@@ -104,37 +104,57 @@ order list of adjacent genes and distance
 
 ** get data
 cd t2t-chm13-v1/CAT/missing
+
 # source genes
 /hive/users/markd/gencode/projs/icedb/gencode-icedb-tsl/bin/ucscGencodeDbLoad --hgdb=hg38 --version=V35 data/gencodeV35.db
 geneBoundsForSource --geneType=protein_coding --geneType=lncRNA data/gencodeV35.db data/gencode-src.bed
 buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 data/gencode-src.bigBed  data/gencode-src.bed
 
-getCatMissing data/gencodeV35.db ../CAT/consensus_gene_set/CHM13.gp_info data/cat-missing-genes.tsv
+# CAT
+getMissingSourceGenes data/gencodeV35.db ../CAT/consensus_gene_set/CHM13.gp_info data/cat-missing-genes.tsv
 # 260 missing
 bigBedNamedItems -nameFile data/gencode-src.bigBed data/cat-missing-genes.tsv data/cat-missing-src.bed
 
 geneBoundsForCat --geneType=protein_coding --geneType=lncRNA ../CAT/consensus_gene_set/CHM13.gp ../CAT/consensus_gene_set/CHM13.gp_info data/cat-genes.bed
 buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genome/t2t-chm13-v1.0.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 t2t-chm13-v1.0  data/cat-genes.bigBed data/cat-genes.bed 
 
+# gencodeBlat
+bigBedToBed  ../../../../../build/t2t-chm13-v1.0/gencodeBlat/gencodeBlat.bigBlatPsl stdout |tawk 'BEGIN{print "transcriptId", "geneId"} {print $4, $27}' > data/gencodeBlat-transcripts.tsv
 geneBoundsFromBigBlatPsl --geneType=protein_coding --geneType=lncRNA ../../../../../build/t2t-chm13-v1.0/gencodeBlat/gencodeBlat.bigBlatPsl data/gencodeBlat-genes.bed
 buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genome/t2t-chm13-v1.0.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 t2t-chm13-v1.0  data/gencodeBlat-genes.bigBed data/gencodeBlat-genes.bed 
 
-selectById -not 4 data/gencodeBlat-genes.bed 4 data/gencode-src.bed | tawk 'BEGIN{print "geneId","geneBiotype"} {print $4, $13}' > data/gencodeBlat-missing-genes.tsv
-144 missing
+getMissingSourceGenes data/gencodeV35.db data/gencodeBlat-transcripts.tsv  data/gencodeBlat-missing-genes.tsv
+37 missing
 bigBedNamedItems -nameFile data/gencode-src.bigBed data/gencodeBlat-missing-genes.tsv data/gencodeBlat-missing-src.bed
+
 
 ** analysis
 getMissingGeneSourceContext data/gencode-src.bigBed data/cat-missing-src.bed results/cat-missing-src-contexts.json
 missingGeneSourceContextTracks results/cat-missing-src-contexts.json results/cat-missing-src-contexts.bed
-buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 results/cat-missing-src-contexts.bigBed results/cat-missing-src-contexts.beda
+buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 results/cat-missing-src-contexts.bigBed results/cat-missing-src-contexts.bed
+missingGeneSourceContextTracks --recType=CONTEXT results/cat-missing-src-contexts.json results/cat-missing-src-contexts-regions.bed
+
+bedToHtmlDir -public-browser -loc-label-name -title "CAT missing contexts" -sort-by-loc -pack-track catMissingContexts hg38 results/cat-missing-src-contexts-regions.bed ../../../../hub/hg38/cat-missing-src-contexts-regions
 
 getMissingGeneSourceContext data/gencode-src.bigBed data/gencodeBlat-missing-src.bed results/gencodeBlat-missing-src-contexts.json
 missingGeneSourceContextTracks results/gencodeBlat-missing-src-contexts.json results/gencodeBlat-missing-src-contexts.bed
 buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 results/gencodeBlat-missing-src-contexts.bigBed results/gencodeBlat-missing-src-contexts.bed
+missingGeneSourceContextTracks --recType=CONTEXT results/gencodeBlat-missing-src-contexts.json results/gencodeBlat-missing-src-contexts-regions.bed
+
+bedToHtmlDir -public-browser -loc-label-name -title "BLAT missing contexts" -sort-by-loc -pack-track gencodeBlatMissingContexts hg38 results/gencodeBlat-missing-src-contexts-regions.bed ../../../../hub/hg38/gencodeBlat-missing-src-contexts-regions
 
 
+ln -f results/*.bigBed ../../../../hub/hg38/
+
+# hub: https://hgwdev.gi.ucsc.edu/~markd/t2t/gene-annotation/hub/hub.txt
+# https://hgwdev.gi.ucsc.edu/~markd/t2t/gene-annotation/hub/hg38/cat-missing-src-contexts-regions/
+# https://hgwdev.gi.ucsc.edu/~markd/t2t/gene-annotation/hub/hg38/gencodeBlat-missing-src-contexts-regions/
 
 
+# create HAL with GRCh38 renamed to hg38
+cd hub/cactus
+ ~/compbio/compartiveGenomics/projs/hal/src/hal-opt/bin/halRenameGenomes t2t-chm13-v1.0.aln10.hg38.hal rename.tab 
+CHM13 not found in alignment with
 
 * quick interesting cases
 ** chr1:10,964-12,615 possible alignment problem

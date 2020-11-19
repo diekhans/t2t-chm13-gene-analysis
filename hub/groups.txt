@@ -1,0 +1,5 @@
+name t2tGene
+label T2T Gene Analysis
+priority 0.11
+defaultIsClosed 1
+

@@ -21,6 +21,8 @@ def parseArgs():
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('--recType', action='append', dest="recTypes", type=RecType, choices=RecType,
                         help="only these types of BEDS, default is all, maybe repeated")
+    parser.add_argument('--labelsTsv',
+                        help="")
     parser.add_argument('missingGeneContextJson',
                         help="")
     parser.add_argument('missingGenesBed',
@@ -51,7 +53,7 @@ def makeArrayBeds(geneBeds, color, bedFh):
         b.itemRgb = color
         b.write(bedFh)
 
-def makeContextBed(ctx, recTypes, bedFh):
+def makeContextBed(ctx, recTypes, bedFh, labelsFh):
     if RecType.CONTEXT in recTypes:
         makeRangeBed(ctx.chrom, ctx.chromStart, ctx.chromEnd, ctx.contextId, CONTEXT_COLOR, bedFh)
     if RecType.MISSING_RANGES in recTypes:
@@ -62,11 +64,25 @@ def makeContextBed(ctx, recTypes, bedFh):
     if RecType.MISSING_GENES in recTypes:
         makeArrayBeds(ctx.missingGenes, MISSING_GENES_COLOR, bedFh)
 
+    if labelsFh is not None:
+        geneIds = []
+        for mg in ctx.missingGenes:
+            geneIds.extend(mg.geneIds)
+        fileOps.prRowv(labelsFh, ctx.contextId, ctx.contextId,
+                       "{}:{}-{}".format(ctx.chrom, ctx.chromStart, ctx.chromEnd),
+                       ",".join(geneIds))
+
+
 def main(opts):
     with fileOps.opengz(opts.missingGeneContextJson) as inFh:
         missingContexts = json.load(inFh, object_pairs_hook=ObjDict)
+    if opts.labelsTsv is not None:
+        labelsFh = fileOps.opengz(opts.labelsTsv, "w")
+        fileOps.prRowv(labelsFh, "id", "name", "location", "genes")
+    else:
+        labelsFh = None
     with fileOps.opengz(opts.missingGenesBed, 'w') as bedFh:
         for ctx in missingContexts:
-            makeContextBed(ctx, opts.recTypes, bedFh)
+            makeContextBed(ctx, opts.recTypes, bedFh, labelsFh)
 
 main(parseArgs())

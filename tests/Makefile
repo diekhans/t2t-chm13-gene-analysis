@@ -67,8 +67,9 @@ missingGeneSourceContextTracksTest: mkdirs
 	${hg38BigBedCheck}
 
 missingGeneSourceContextOnlyTrackTest: mkdirs
-	../bin/missingGeneSourceContextTracks --recType=CONTEXT input/missingGeneSourceContext.json output/$@.bed
+	../bin/missingGeneSourceContextTracks --recType=CONTEXT input/missingGeneSourceContext.json --labelsTsv=output/$@.tsv output/$@.bed
 	diff expected/$@.bed output/$@.bed
+	diff expected/$@.tsv output/$@.tsv
 	${hg38BigBedCheck}
 
 ${gencodeSrcBigBed}: input/gencode-src.bed mkdirs
