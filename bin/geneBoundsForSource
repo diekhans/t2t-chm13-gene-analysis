@@ -12,7 +12,7 @@ class BoundsOpts(namedtuple("BoundsOpts",
 
 
 def parseArgs():
-    usage = """Get bounds of genes for CAT gp + gp_info"""
+    usage = """Get gene bounds of GENCODE from database  """
     parser = argparse.ArgumentParser(description=usage)
     geneBoundsAddCmdOpts(parser)
     parser.add_argument('--limit', type=int,
@@ -29,16 +29,13 @@ def buildQuery(gbOpts, limit):
     geneTypeClause = "AND (transcriptType IN {geneTypes})".format(geneTypes=sqliteOps.makeInSeqArg(gbOpts.geneTypes)) if gbOpts.geneTypes is not None else ""
     hgncClause = "AND (symbol IS NOT NULL)" if gbOpts.hgncOnly else ""
     limitClause = "LIMIT {}".format(limit) if limit is not None else ""
-    # ignore chrY PAR
+    # ignore chrY
     sql = """
-    CREATE TEMP TABLE par as SELECT transcriptId FROM gencode_tag WHERE tag = "PAR";
-    CREATE INDEX par_idx ON par (transcriptId);
     SELECT ann.*, attrs.*, sym.geneId as hgncId, sym.symbol as geneSym
     FROM gencode_ann ann, gencode_attrs attrs
     LEFT JOIN gencode_to_gene_symbol sym on sym.transcriptId = attrs.transcriptId
-
     WHERE (attrs.transcriptId = ann.name)
-       AND ((chrom != "chrY") OR (attrs.transcriptId NOT IN (SELECT transcriptId FROM par)))
+       AND (chrom != "chrY")
        {geneTypeClause} {hgncClause} {limitClause}
     """.format(geneTypeClause=geneTypeClause, hgncClause=hgncClause, limitClause=limitClause)
     return sql

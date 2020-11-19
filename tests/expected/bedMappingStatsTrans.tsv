@@ -3,3 +3,11 @@ minMappings	0
 maxMappings	8
 meanMappings	0.648
 medianMappings	0
+minMaxCover	0.894
+maxMaxCover	1
+meanMaxCover	0.998
+medianMaxCover	1
+minMinCover	0.894
+maxMinCover	1
+meanMinCover	0.998
+medianMinCover	1

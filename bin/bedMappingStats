@@ -28,22 +28,28 @@ def getSize(bed, geneSpan):
     else:
         return sum([len(blk) for blk in bed.blocks])
 
-def collectSizes(bedFile, geneSpan):
+def collectSrcSizes(bedFile, geneSpan):
     sizes = {}
     for bed in mkBedReader(bedFile, geneSpan):
         sizes[bed.name] = getSize(bed, geneSpan)
     return sizes
 
 def collectMappingSizes(srcSizes, mappingsBed, geneSpan):
-    # arrays of sizes of each name, so missing will have zero length arrays
-    mappingSizes = {n: [] for n in srcSizes.keys()}
+    mappingSizes = {}
     for bed in mkBedReader(mappingsBed, geneSpan):
-        mappingSizes[bed.name].append([getSize(bed, geneSpan)])
+        if bed.name not in mappingSizes:
+            mappingSizes[bed.name] = []
+        mappingSizes[bed.name].append(getSize(bed, geneSpan))
     return mappingSizes
+
+def check(srcSizes, mappingSizes):
+    missing = [n for n in mappingSizes.keys() if n not in srcSizes]
+    if len(missing) > 0:
+        raise Exception("mapped names not in source: {}".format(missing))
 
 def fmtVal(v):
     "format if float"
-    return ("%0.3g" %  v) if isinstance(v, float) else str(v)
+    return ("%0.3g" % v) if isinstance(v, float) else str(v)
 
 def basicStats(what, vec, fh):
     fileOps.prRowv(fh, "min" + what, fmtVal(min(vec)))
@@ -51,17 +57,31 @@ def basicStats(what, vec, fh):
     fileOps.prRowv(fh, "mean" + what, fmtVal(statistics.mean(vec)))
     fileOps.prRowv(fh, "median" + what, fmtVal(statistics.median(vec)))
 
-def numMappingsReport(mappingSizes, fh):
-    basicStats("Mappings", [len(c) for c in mappingSizes.values()], fh)
+def numMappingsVec(srcSizes, mappingSizes):
+    return [(len(mappingSizes[n]) if n in mappingSizes else 0) for n in srcSizes.keys()]
 
-def report(mappingSizes, fh):
+def maxFracMappedVec(srcSizes, mappingSizes):
+    def nameMax(n):
+        return max([(msize / srcSizes[n]) for msize in mappingSizes[n]])
+    return [nameMax(name) for name in mappingSizes.keys()]
+
+def minFracMappedVec(srcSizes, mappingSizes):
+    def nameMin(n):
+        return min([(msize / srcSizes[n]) for msize in mappingSizes[n]])
+    return [nameMin(name) for name in mappingSizes.keys()]
+
+def report(srcSizes, mappingSizes, fh):
     fileOps.prRowv(fh, "statistic", "value")
-    numMappingsReport(mappingSizes, fh)
+    basicStats("Mappings", numMappingsVec(srcSizes, mappingSizes), fh)
+    basicStats("MaxCover", maxFracMappedVec(srcSizes, mappingSizes), fh)
+    basicStats("MinCover", minFracMappedVec(srcSizes, mappingSizes), fh)
+
 
 def main(opts):
-    srcSizes = collectSizes(opts.srcBed, opts.geneSpan)
+    srcSizes = collectSrcSizes(opts.srcBed, opts.geneSpan)
     mappingSizes = collectMappingSizes(srcSizes, opts.mappingsBed, opts.geneSpan)
+    check(srcSizes, mappingSizes)
     with fileOps.opengz(opts.statsTsv, "w") as fh:
-        report(mappingSizes, fh)
+        report(srcSizes, mappingSizes, fh)
 
 main(parseArgs())

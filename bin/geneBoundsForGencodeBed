@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+
+import argparse
+from collections import defaultdict, namedtuple
+from pycbio.sys import fileOps
+from pycbio.db import sqliteOps
+from pycbio.hgdata.bed import BedReader
+from geneBoundsLib import geneBoundsAddCmdOpts, geneBoundsProcessCmdOpts, NameColumn, GeneBoundsBed, buildGeneBounds
+
+class BoundsOpts(namedtuple("BoundsOpts",
+                            ("nameField", "hgncOnly", "geneTypes",))):
+    pass
+
+
+def parseArgs():
+    usage = """Get geneBounds of any BED made from GENCODE, adding metadata """
+    parser = argparse.ArgumentParser(description=usage)
+    geneBoundsAddCmdOpts(parser)
+    parser.add_argument('--filteredBed',
+                        help="write transcripts that match the criteria and are used to this file")
+    parser.add_argument('gencodeDb',
+                        help="sqlite DB")
+    parser.add_argument('gencodeTransBed',
+                        help="BED for transcripts")
+    parser.add_argument('geneBoundsBed',
+                        help="BED for each gene bounds")
+    opts = parser.parse_args()
+    geneBoundsProcessCmdOpts(opts)
+    return opts
+
+def lookupMeta(conn, gbOpts, transId):
+    ""
+    geneTypeClause = "AND (transcriptType IN {geneTypes})".format(geneTypes=sqliteOps.makeInSeqArg(gbOpts.geneTypes)) if gbOpts.geneTypes is not None else ""
+    hgncClause = "AND (symbol IS NOT NULL)" if gbOpts.hgncOnly else ""
+    sql = """
+    SELECT attrs.*, sym.geneId as hgncId, sym.symbol as geneSym
+    FROM gencode_attrs attrs
+    LEFT JOIN gencode_to_gene_symbol sym on sym.transcriptId = attrs.transcriptId
+    WHERE (attrs.transcriptId = ?) {geneTypeClause} {hgncClause};
+    """.format(geneTypeClause=geneTypeClause, hgncClause=hgncClause)
+    recs = list(sqliteOps.query(conn, sql, (transId,)))
+    if len(recs) < 1:
+        return None
+    return recs[0]
+
+def processTrans(conn, bed, filteredFh, gbOpts, geneTransBeds):
+    meta = lookupMeta(conn, gbOpts, bed.name)
+    if meta is not None:
+        name = meta.geneName if gbOpts.nameField == NameColumn.geneSym else meta.geneId
+        b = GeneBoundsBed.create(bed.chrom, bed.chromStart, bed.chromEnd, name, strand=bed.strand,
+                                 geneSym=meta.geneSym, hgncId=meta.hgncId, geneIds=meta.geneId, geneType=meta.geneType)
+        geneTransBeds[name].append(b)
+        if filteredFh is not None:
+            bed.write(filteredFh)
+
+def loadTrans(conn, transBedFile, filteredFh, gbOpts):
+    "filter bases on parameters"
+    geneTransBeds = defaultdict(list)
+    for bed in BedReader(transBedFile):
+        processTrans(conn, bed, filteredFh, gbOpts, geneTransBeds)
+    return geneTransBeds
+
+def main(opts):
+    gbOpts = BoundsOpts(nameField=opts.nameField,
+                        hgncOnly=opts.hgncOnly,
+                        geneTypes=opts.geneType)
+    conn = sqliteOps.connect(opts.gencodeDb, rowFactory=sqliteOps.objDictRowFactory)
+    filteredFh = fileOps.opengz(opts.filteredBed, "w") if opts.filteredBed is not None else None
+    geneTransBeds = loadTrans(conn, opts.gencodeTransBed, filteredFh, gbOpts)
+    with fileOps.opengz(opts.geneBoundsBed, "w") as bedFh:
+        buildGeneBounds(geneTransBeds, bedFh)
+
+main(parseArgs())

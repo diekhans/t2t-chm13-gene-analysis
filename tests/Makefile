@@ -15,28 +15,15 @@ test: geneBoundsBlatTests geneBoundsGencodeTests \
 	mappingStatsTests
 
 
-geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest
+geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest
 
-geneBoundsTest: mkdirs output/gencode-blat.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --nameField=geneId --hgncOnly output/gencode-blat.bigBlatPsl output/$@.bed
+geneBoundsTest: mkdirs
+	../bin/geneBoundsForGencodeBed --hgncOnly ${gencodeDb} input/gencode-blat.bed output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-geneBoundsSymTest: mkdirs output/gencode-blat.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --nameField=geneSym output/gencode-blat.bigBlatPsl output/$@.bed
+geneBoundsSymTest: mkdirs
+	../bin/geneBoundsForGencodeBed  --nameField=geneSym ${gencodeDb} input/gencode-blat.bed output/$@.bed
 	diff expected/$@.bed output/$@.bed
-
-geneBoundsExpandTest: mkdirs output/gencode-blat.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode-trans-src.bed --maxSourceExpansion=1.5 output/gencode-blat.bigBlatPsl output/$@.bed
-	diff expected/$@.bed output/$@.bed
-
-geneBoundsMinExonsTest: mkdirs output/gencode-blat.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode-trans-src.bed --minExons=3 output/gencode-blat.bigBlatPsl output/$@.bed
-	diff expected/$@.bed output/$@.bed
-
-output/gencode-blat.bigBlatPsl: input/gencode-blat.bigBlatPslIn input/t2tChm13_20200727.sizes
-	@mkdir -p $(dir $@)
-	bedToBigBed -tab -type=bed12+17 input/gencode-blat.bigBlatPslIn input/t2tChm13_20200727.sizes $@
-
 
 genePredFrameShiftsTests: genePredFrameShiftsTest
 genePredFrameShiftsTest: mkdirs
@@ -49,11 +36,16 @@ catBoundsAddBlatOverTest: mkdirs
 	../bin/catBoundsAddBlatOver ${catSourceDb} input/catBoundsAddBlatOver.gp_info input/catBoundsAddBlatOver.blat.overstats input/catBoundsAddBlatOver.bounds.bed output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-geneBoundsGencodeTests: geneBoundsGencodeTest
+geneBoundsGencodeTests: geneBoundsGencodeTest geneBoundsGencodeBedTest
 
 geneBoundsGencodeTest: ${gencodeDb} mkdirs
 	../bin/geneBoundsForSource --limit=250 --geneType=protein_coding --geneType=lncRNA ${gencodeDb} output/$@.bed
 	${hg38BigBedCheck}
+
+geneBoundsGencodeBedTest: ${gencodeDb} mkdirs
+	../bin/geneBoundsForGencodeBed --geneType=protein_coding --geneType=lncRNA ${gencodeDb} input/gencode-blat.bed --filteredBed=output/$@.filt.bed output/$@.bed
+	diff expected/$@.bed output/$@.bed
+	diff expected/$@.filt.bed output/$@.filt.bed
 
 missingGenesTests: missingGeneSourceContextTest missingGeneSourceContextTracksTest \
 	missingGeneSourceContextOnlyTrackTest
@@ -61,7 +53,7 @@ missingGenesTests: missingGeneSourceContextTest missingGeneSourceContextTracksTe
 gencodeGeneSrcBigBed = output/gencode-genes-src.bigBed
 
 missingGeneSourceContextTest: ${gencodeGeneSrcBigBed}
-	cut -f 27 input/gencode-blat.bigBlatPslIn | sort -u > output/$@.blat.genes-ids
+	cut -f 4 expected/geneBoundsGencodeBedTest.bed | sort -u > output/$@.blat.genes-ids
 	fgrep -f output/$@.blat.genes-ids input/gencode-genes-src.bed > output/$@.src.bed
 	../bin/getMissingGeneSourceContext ${gencodeGeneSrcBigBed} output/$@.src.bed  output/$@.json
 	diff expected/$@.json output/$@.json

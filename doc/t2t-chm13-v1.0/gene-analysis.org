@@ -127,6 +127,10 @@ getMissingSourceGenes data/gencodeV35.db data/gencodeBlat-transcripts.tsv  data/
 37 missing
 bigBedNamedItems -nameFile data/gencode-src.bigBed data/gencodeBlat-missing-genes.tsv data/gencodeBlat-missing-src.bed
 
+# liftOff for stats
+
+/cluster/home/markd/compbio/nanopore/projs/t2t-chm13/build/t2tChm13_20200727/liftOff/liftOffGenes.all.bigGenePred
+
 
 ** analysis
 getMissingGeneSourceContext data/gencode-src.bigBed data/cat-missing-src.bed results/cat-missing-src-contexts.json
