@@ -11,30 +11,31 @@ endef
 .SECONDARY:
 
 test: geneBoundsBlatTests geneBoundsGencodeTests \
-	genePredFrameShiftsTests catBoundsAddBlatOverTest missingGenesTests
+	genePredFrameShiftsTests catBoundsAddBlatOverTest missingGenesTests \
+	mappingStatsTests
 
 
 geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest geneBoundsExpandTest geneBoundsMinExonsTest
 
-geneBoundsTest: mkdirs output/gencode.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --nameField=geneId --hgncOnly output/gencode.bigBlatPsl output/$@.bed
+geneBoundsTest: mkdirs output/gencode-blat.bigBlatPsl
+	../bin/geneBoundsFromBigBlatPsl --nameField=geneId --hgncOnly output/gencode-blat.bigBlatPsl output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-geneBoundsSymTest: mkdirs output/gencode.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --nameField=geneSym output/gencode.bigBlatPsl output/$@.bed
+geneBoundsSymTest: mkdirs output/gencode-blat.bigBlatPsl
+	../bin/geneBoundsFromBigBlatPsl --nameField=geneSym output/gencode-blat.bigBlatPsl output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-geneBoundsExpandTest: mkdirs output/gencode.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode.source.bed --maxSourceExpansion=1.5 output/gencode.bigBlatPsl output/$@.bed
+geneBoundsExpandTest: mkdirs output/gencode-blat.bigBlatPsl
+	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode-blat-src.bed --maxSourceExpansion=1.5 output/gencode-blat.bigBlatPsl output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-geneBoundsMinExonsTest: mkdirs output/gencode.bigBlatPsl
-	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode.source.bed --minExons=3 output/gencode.bigBlatPsl output/$@.bed
+geneBoundsMinExonsTest: mkdirs output/gencode-blat.bigBlatPsl
+	../bin/geneBoundsFromBigBlatPsl --sourceAnnot=input/gencode-blat-src.bed --minExons=3 output/gencode-blat.bigBlatPsl output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
-output/gencode.bigBlatPsl: input/gencode.bigBlatPslIn input/t2tChm13_20200727.sizes
+output/gencode-blat.bigBlatPsl: input/gencode-blat.bigBlatPslIn input/t2tChm13_20200727.sizes
 	@mkdir -p $(dir $@)
-	bedToBigBed -tab -type=bed12+17 input/gencode.bigBlatPslIn input/t2tChm13_20200727.sizes $@
+	bedToBigBed -tab -type=bed12+17 input/gencode-blat.bigBlatPslIn input/t2tChm13_20200727.sizes $@
 
 genePredFrameShiftsTests: mkdirs
 	../bin/genePredFrameShifts --catMetaTsv=input/fakeCat.gp_info input/fakeCat.gp output/$@.tsv output/$@.gp
@@ -58,7 +59,7 @@ missingGenesTests: missingGeneSourceContextTest missingGeneSourceContextTracksTe
 gencodeSrcBigBed = output/gencode-src.bigBed
 
 missingGeneSourceContextTest: ${gencodeSrcBigBed}
-	../bin/getMissingGeneSourceContext ${gencodeSrcBigBed} input/gencode-src-missing.bed output/$@.json
+	../bin/getMissingGeneSourceContext ${gencodeSrcBigBed} input/gencode-src-genes-missing.bed output/$@.json
 	diff expected/$@.json output/$@.json
 
 missingGeneSourceContextTracksTest: mkdirs
@@ -72,8 +73,21 @@ missingGeneSourceContextOnlyTrackTest: mkdirs
 	diff expected/$@.tsv output/$@.tsv
 	${hg38BigBedCheck}
 
-${gencodeSrcBigBed}: input/gencode-src.bed mkdirs
-	${buildBigBed} --extraIndex=name --twoBit=${hg38TwoBit} --as=../etc/geneBoundsBed.as bed9+4 hg38 $@ input/gencode-src.bed
+##
+mappingStatsTests: bedMappingStatsTrans bedMappingStatsGene
+
+bedMappingStatsTrans: mkdirs
+	../bin/bedMappingStats input/gencode-blat-src.bed input/gencode-blat.bed output/$@.tsv
+	diff expected/$@.tsv output/$@.tsv
+
+bedMappingStatsGene: mkdirs
+	../bin/bedMappingStats --geneSpan input/gencode-src-genes.bed expected/geneBoundsTest.bed output/$@.tsv
+	diff expected/$@.tsv output/$@.tsv
+
+
+##
+${gencodeSrcBigBed}: input/gencode-src-genes.bed mkdirs
+	${buildBigBed} --extraIndex=name --twoBit=${hg38TwoBit} --as=../etc/geneBoundsBed.as bed9+4 hg38 $@ input/gencode-src-genes.bed
 
 clean:
 	rm -rf output

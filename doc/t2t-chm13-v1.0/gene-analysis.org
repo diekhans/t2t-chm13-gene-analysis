@@ -132,16 +132,16 @@ bigBedNamedItems -nameFile data/gencode-src.bigBed data/gencodeBlat-missing-gene
 getMissingGeneSourceContext data/gencode-src.bigBed data/cat-missing-src.bed results/cat-missing-src-contexts.json
 missingGeneSourceContextTracks results/cat-missing-src-contexts.json results/cat-missing-src-contexts.bed
 buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 results/cat-missing-src-contexts.bigBed results/cat-missing-src-contexts.bed
-missingGeneSourceContextTracks --recType=CONTEXT results/cat-missing-src-contexts.json results/cat-missing-src-contexts-regions.bed
+missingGeneSourceContextTracks --recType=CONTEXT results/cat-missing-src-contexts.json --labelsTsv=results/cat-missing-src-contexts-regions.tsv results/cat-missing-src-contexts-regions.bed
 
-bedToHtmlDir -public-browser -loc-label-name -title "CAT missing contexts" -sort-by-loc -pack-track catMissingContexts hg38 results/cat-missing-src-contexts-regions.bed ../../../../hub/hg38/cat-missing-src-contexts-regions
+bedToHtmlDir -public-browser -title "CAT missing contexts" -sort-by-loc -pack-track catMissingContexts -label-tsv results/cat-missing-src-contexts-regions.tsv hg38 results/cat-missing-src-contexts-regions.bed ../../../../hub/hg38/cat-missing-src-contexts-regions
 
 getMissingGeneSourceContext data/gencode-src.bigBed data/gencodeBlat-missing-src.bed results/gencodeBlat-missing-src-contexts.json
 missingGeneSourceContextTracks results/gencodeBlat-missing-src-contexts.json results/gencodeBlat-missing-src-contexts.bed
 buildBigBed --extraIndex=name --twoBit=/hive/data/genomes/hg38/hg38.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 hg38 results/gencodeBlat-missing-src-contexts.bigBed results/gencodeBlat-missing-src-contexts.bed
-missingGeneSourceContextTracks --recType=CONTEXT results/gencodeBlat-missing-src-contexts.json results/gencodeBlat-missing-src-contexts-regions.bed
+missingGeneSourceContextTracks --recType=CONTEXT results/gencodeBlat-missing-src-contexts.json --labelsTsv=results/gencodeBlat-missing-src-contexts-regions.tsv results/gencodeBlat-missing-src-contexts-regions.bed
 
-bedToHtmlDir -public-browser -loc-label-name -title "BLAT missing contexts" -sort-by-loc -pack-track gencodeBlatMissingContexts hg38 results/gencodeBlat-missing-src-contexts-regions.bed ../../../../hub/hg38/gencodeBlat-missing-src-contexts-regions
+bedToHtmlDir -public-browser -title "BLAT missing contexts" -sort-by-loc -pack-track gencodeBlatMissingContexts -label-tsv results/gencodeBlat-missing-src-contexts-regions.tsv hg38 results/gencodeBlat-missing-src-contexts-regions.bed ../../../../hub/hg38/gencodeBlat-missing-src-contexts-regions
 
 
 ln -f results/*.bigBed ../../../../hub/hg38/
@@ -155,6 +155,9 @@ ln -f results/*.bigBed ../../../../hub/hg38/
 cd hub/cactus
  ~/compbio/compartiveGenomics/projs/hal/src/hal-opt/bin/halRenameGenomes t2t-chm13-v1.0.aln10.hg38.hal rename.tab 
 CHM13 not found in alignment with
+
+* Mapping/multi-mapping stats
+
 
 * quick interesting cases
 ** chr1:10,964-12,615 possible alignment problem
