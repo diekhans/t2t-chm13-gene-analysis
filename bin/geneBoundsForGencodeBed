@@ -11,13 +11,14 @@ class BoundsOpts(namedtuple("BoundsOpts",
                             ("nameField", "hgncOnly", "geneTypes",))):
     pass
 
-
 def parseArgs():
     usage = """Get geneBounds of any BED made from GENCODE, adding metadata """
     parser = argparse.ArgumentParser(description=usage)
     geneBoundsAddCmdOpts(parser)
     parser.add_argument('--filteredBed',
                         help="write transcripts that match the criteria and are used to this file")
+    parser.add_argument('--idTsv',
+                        help="write transcripts and genes ids to the file")
     parser.add_argument('gencodeDb',
                         help="sqlite DB")
     parser.add_argument('gencodeTransBed',
@@ -43,7 +44,7 @@ def lookupMeta(conn, gbOpts, transId):
         return None
     return recs[0]
 
-def processTrans(conn, bed, filteredFh, gbOpts, geneTransBeds):
+def processTrans(conn, bed, filteredFh, idTsvFh, gbOpts, geneTransBeds):
     meta = lookupMeta(conn, gbOpts, bed.name)
     if meta is not None:
         name = meta.geneName if gbOpts.nameField == NameColumn.geneSym else meta.geneId
@@ -52,12 +53,14 @@ def processTrans(conn, bed, filteredFh, gbOpts, geneTransBeds):
         geneTransBeds[name].append(b)
         if filteredFh is not None:
             bed.write(filteredFh)
+        if idTsvFh is not None:
+            fileOps.prRowv(idTsvFh, bed.name, meta.geneId)
 
-def loadTrans(conn, transBedFile, filteredFh, gbOpts):
+def loadTrans(conn, transBedFile, filteredFh, idTsvFh, gbOpts):
     "filter bases on parameters"
     geneTransBeds = defaultdict(list)
     for bed in BedReader(transBedFile):
-        processTrans(conn, bed, filteredFh, gbOpts, geneTransBeds)
+        processTrans(conn, bed, filteredFh, idTsvFh, gbOpts, geneTransBeds)
     return geneTransBeds
 
 def main(opts):
@@ -66,7 +69,11 @@ def main(opts):
                         geneTypes=opts.geneType)
     conn = sqliteOps.connect(opts.gencodeDb, rowFactory=sqliteOps.objDictRowFactory)
     filteredFh = fileOps.opengz(opts.filteredBed, "w") if opts.filteredBed is not None else None
-    geneTransBeds = loadTrans(conn, opts.gencodeTransBed, filteredFh, gbOpts)
+    idTsvFh = None
+    if opts.idTsv is not None:
+        idTsvFh = fileOps.opengz(opts.idTsv, "w")
+        fileOps.prRowv(idTsvFh, "transcriptId", "geneId")
+    geneTransBeds = loadTrans(conn, opts.gencodeTransBed, filteredFh, idTsvFh, gbOpts)
     with fileOps.opengz(opts.geneBoundsBed, "w") as bedFh:
         buildGeneBounds(geneTransBeds, bedFh)
 

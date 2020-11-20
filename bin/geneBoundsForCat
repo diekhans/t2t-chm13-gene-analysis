@@ -8,11 +8,11 @@ from pycbio.tsv import TsvTable
 from geneBoundsLib import geneBoundsAddCmdOpts, geneBoundsProcessCmdOpts, NameColumn, GeneBoundsBed, buildGeneBounds
 
 class BoundsOpts(namedtuple("BoundsOpts",
-                            ("nameField", "hgncOnly", "geneTypes",))):
+                            ("nameField", "hgncOnly", "geneTypes"))):
     pass
 
 def parseArgs():
-    usage = """Get bounds of genes for CAT gp + gp_info"""
+    usage = """Get bounds of genes for CAT gp + gp_info, note --nameField=gencodeGeneId"""
     parser = argparse.ArgumentParser(description=usage)
     geneBoundsAddCmdOpts(parser)
     parser.add_argument('catGenePred',
@@ -22,7 +22,7 @@ def parseArgs():
     parser.add_argument('geneBoundsBed',
                         help="BED for each gene bounds, score field has number to distinguish between multiple mappings of the same gene.")
     opts = parser.parse_args()
-    geneBoundsProcessCmdOpts(opts)
+    geneBoundsProcessCmdOpts(opts, gencodeIdSeparate=True)
     return opts
 
 def isHgnc(v):
@@ -30,7 +30,6 @@ def isHgnc(v):
 
 def noneIfNullLike(v):
     return None if v in ("", "NULL", "N/A") else v
-
 
 def useAnnot(gp, catMeta, gbOpts):
     if not (((not gbOpts.hgncOnly) or isHgnc(catMeta.hgncId))
@@ -41,8 +40,8 @@ def useAnnot(gp, catMeta, gbOpts):
 def loadGenesMeta(catGpInfo):
     return TsvTable(catGpInfo, uniqKeyCols=("transcript_id",))
 
-def createBed(gp, catMeta, name):
-    geneId = noneIfNullLike(catMeta.gene_id)
+def createBed(gp, catMeta, gbOpts, name):
+    geneId = noneIfNullLike(catMeta.source_gene if gbOpts.nameField == NameColumn.gencodeGeneId else catMeta.gene_id)
     geneIds = [geneId] if geneId is not None else []
     b = GeneBoundsBed.create(gp.chrom, gp.txStart, gp.txEnd, name, strand=gp.strand,
                              thickStart=gp.cdsStart, thickEnd=gp.cdsEnd, geneSym=catMeta.source_gene_common_name,
@@ -55,7 +54,9 @@ def loadTrans(catGp, catMetaTbl, gbOpts):
     "filter bases on parameters"
     geneTransBeds = defaultdict(list)
 
-    if gbOpts.nameField == NameColumn.geneId:
+    if gbOpts.nameField == NameColumn.gencodeGeneId:
+        nameFld = "source_gene"
+    elif gbOpts.nameField == NameColumn.geneId:
         nameFld = "gene_id"
     elif gbOpts.nameField == NameColumn.geneSym:
         nameFld = "source_gene_common_name"
@@ -63,8 +64,9 @@ def loadTrans(catGp, catMetaTbl, gbOpts):
     for gp in GenePredReader(catGp):
         catMeta = catMetaTbl.idx.transcript_id[gp.name]
         if useAnnot(gp, catMeta, gbOpts):
-            name = getattr(catMeta, nameFld)
-            geneTransBeds[name].append(createBed(gp, catMeta, name))
+            name = noneIfNullLike(getattr(catMeta, nameFld))
+            if name is not None:
+                geneTransBeds[name].append(createBed(gp, catMeta, gbOpts, name))
     return geneTransBeds
 
 def main(opts):

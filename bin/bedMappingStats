@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import sys
 import argparse
 import statistics
 from pycbio.sys import fileOps
@@ -44,8 +44,12 @@ def collectMappingSizes(srcSizes, mappingsBed, geneSpan):
 
 def check(srcSizes, mappingSizes):
     missing = [n for n in mappingSizes.keys() if n not in srcSizes]
+    if len(missing) == len(mappingSizes):
+        raise Exception("none of {} gene(s) found in source, like {}".format(len(missing), missing[0:10]))
     if len(missing) > 0:
-        raise Exception("mapped names not in source: {}".format(missing))
+        print("WARNING: {} not gene(s) not found in source, like {}".format(len(missing), missing[0:10]), file=sys.stderr)
+        return False
+    return True
 
 def fmtVal(v):
     "format if float"
@@ -80,7 +84,9 @@ def report(srcSizes, mappingSizes, fh):
 def main(opts):
     srcSizes = collectSrcSizes(opts.srcBed, opts.geneSpan)
     mappingSizes = collectMappingSizes(srcSizes, opts.mappingsBed, opts.geneSpan)
-    check(srcSizes, mappingSizes)
+    if not check(srcSizes, mappingSizes):
+        # discard unknows
+        mappingSizes = dict(filter(lambda b: b[0] in srcSizes, mappingSizes.items()))
     with fileOps.opengz(opts.statsTsv, "w") as fh:
         report(srcSizes, mappingSizes, fh)
 

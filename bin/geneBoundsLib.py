@@ -161,15 +161,18 @@ def buildGeneBounds(geneTransBeds, bedFh):
 class NameColumn(SymEnum):
     geneId = 1
     geneSym = 2
+    gencodeGeneId = 3  # normally same as geneId
 
 def geneBoundsAddCmdOpts(parser):
-    parser.add_argument('--nameField', choices=(NameColumn.geneId, NameColumn.geneSym),
+    parser.add_argument('--nameField', choices=(NameColumn),
                         default=NameColumn.geneId, type=NameColumn,
                         help="which column to use for in name and for grouping into genes")
     parser.add_argument('--hgncOnly', action="store_true")
     parser.add_argument('--geneType', action='append',
                         help='type of gene, maybe repeated')
 
-def geneBoundsProcessCmdOpts(opts):
+def geneBoundsProcessCmdOpts(opts, *, gencodeIdSeparate=False):
     if opts.geneType is not None:
         opts.geneType = frozenset(opts.geneType)
+    if (not gencodeIdSeparate) and (opts.nameField == NameColumn.gencodeGeneId):
+        opts.nameField = NameColumn.geneId

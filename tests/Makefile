@@ -15,15 +15,26 @@ test: geneBoundsBlatTests geneBoundsGencodeTests \
 	mappingStatsTests
 
 
-geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest
+geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest geneBoundsCatGeneTest geneBoundsCatGencodeGeneTest
 
 geneBoundsTest: mkdirs
-	../bin/geneBoundsForGencodeBed --hgncOnly ${gencodeDb} input/gencode-blat.bed output/$@.bed
+	../bin/geneBoundsForGencodeBed --hgncOnly ${gencodeDb} input/gencode-blat.bed --idTsv=output/$@.ids.tsv output/$@.bed
 	diff expected/$@.bed output/$@.bed
+	diff expected/$@.ids.tsv output/$@.ids.tsv
 
 geneBoundsSymTest: mkdirs
-	../bin/geneBoundsForGencodeBed  --nameField=geneSym ${gencodeDb} input/gencode-blat.bed output/$@.bed
+	../bin/geneBoundsForGencodeBed --nameField=geneSym ${gencodeDb} input/gencode-blat.bed output/$@.bed
 	diff expected/$@.bed output/$@.bed
+
+geneBoundsCatGeneTest: mkdirs
+	../bin/geneBoundsForCat  --nameField=geneId input/catBoundsAddBlatOver.gp input/catBoundsAddBlatOver.gp_info output/$@.bed
+	diff expected/$@.bed output/$@.bed
+
+geneBoundsCatGencodeGeneTest: mkdirs
+	../bin/geneBoundsForCat  --nameField=gencodeGeneId input/catBoundsAddBlatOver.gp input/catBoundsAddBlatOver.gp_info output/$@.bed
+	diff expected/$@.bed output/$@.bed
+
+
 
 genePredFrameShiftsTests: genePredFrameShiftsTest
 genePredFrameShiftsTest: mkdirs
