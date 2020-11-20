@@ -2,6 +2,7 @@
 import sys
 import argparse
 import statistics
+from collections import defaultdict
 from pycbio.sys import fileOps
 from pycbio.hgdata.bed import BedReader
 from geneBoundsLib import GeneBoundsBedReader
@@ -16,6 +17,8 @@ def parseArgs():
     parser.add_argument('mappingsBed',
                         help="bed12 or bed4+")
     parser.add_argument('statsTsv',
+                        help="")
+    parser.add_argument('mappingsHistoTsv',
                         help="")
     return parser.parse_args()
 
@@ -42,18 +45,35 @@ def collectMappingSizes(srcSizes, mappingsBed, geneSpan):
         mappingSizes[bed.name].append(getSize(bed, geneSpan))
     return mappingSizes
 
-def check(srcSizes, mappingSizes):
+def checkFix(srcSizes, mappingSizes):
     missing = [n for n in mappingSizes.keys() if n not in srcSizes]
     if len(missing) == len(mappingSizes):
         raise Exception("none of {} gene(s) found in source, like {}".format(len(missing), missing[0:10]))
     if len(missing) > 0:
         print("WARNING: {} not gene(s) not found in source, like {}".format(len(missing), missing[0:10]), file=sys.stderr)
+        for m in missing:
+            del mappingSizes[m]
         return False
     return True
 
 def fmtVal(v):
     "format if float"
     return ("%0.3g" % v) if isinstance(v, float) else str(v)
+
+def countNumMappings(mappingSizes, func):
+    n = 0
+    for m in mappingSizes.values():
+        if func(m):
+            n += 1
+    return n
+
+def basicCounts(srcSizes, mappingSizes, fh):
+    fileOps.prRowv(fh, "srcGenes", len(srcSizes))
+    fileOps.prRowv(fh, "mappedGenes", len(mappingSizes))
+    fileOps.prRowv(fh, "mappedGenes1",
+                   countNumMappings(mappingSizes, lambda m: len(m) == 1))
+    fileOps.prRowv(fh, "mappedGenesN",
+                   countNumMappings(mappingSizes, lambda m: len(m) > 1))
 
 def basicStats(what, vec, fh):
     fileOps.prRowv(fh, "min" + what, fmtVal(min(vec)))
@@ -72,22 +92,40 @@ def maxFracMappedVec(srcSizes, mappingSizes):
 def minFracMappedVec(srcSizes, mappingSizes):
     def nameMin(n):
         return min([(msize / srcSizes[n]) for msize in mappingSizes[n]])
+    for name in mappingSizes.keys():
+        m = nameMin(name)
     return [nameMin(name) for name in mappingSizes.keys()]
 
 def report(srcSizes, mappingSizes, fh):
     fileOps.prRowv(fh, "statistic", "value")
+    basicCounts(srcSizes, mappingSizes, fh)
     basicStats("Mappings", numMappingsVec(srcSizes, mappingSizes), fh)
     basicStats("MaxCover", maxFracMappedVec(srcSizes, mappingSizes), fh)
     basicStats("MinCover", minFracMappedVec(srcSizes, mappingSizes), fh)
 
 
+def writeHisto(srcSizes, mappingSizes, fh):
+    histo = defaultdict(int)
+    histo[0] = len(srcSizes) - len(mappingSizes)
+    maxCnts = 0
+    for m in mappingSizes.values():
+        c = len(m)
+        maxCnts = max(c, maxCnts)
+        histo[c] += 1
+    fileOps.prRowv(fh, "mappings", "cnt")
+    for c in range(0, maxCnts + 1):
+        fileOps.prRowv(fh, c, histo[c])
+
+
 def main(opts):
     srcSizes = collectSrcSizes(opts.srcBed, opts.geneSpan)
     mappingSizes = collectMappingSizes(srcSizes, opts.mappingsBed, opts.geneSpan)
-    if not check(srcSizes, mappingSizes):
+    if not checkFix(srcSizes, mappingSizes):
         # discard unknows
         mappingSizes = dict(filter(lambda b: b[0] in srcSizes, mappingSizes.items()))
     with fileOps.opengz(opts.statsTsv, "w") as fh:
         report(srcSizes, mappingSizes, fh)
+    with fileOps.opengz(opts.mappingsHistoTsv, "w") as fh:
+        writeHisto(srcSizes, mappingSizes, fh)
 
 main(parseArgs())

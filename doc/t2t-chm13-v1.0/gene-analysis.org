@@ -115,7 +115,7 @@ getMissingSourceGenes data/gencodeV35.db ../CAT/consensus_gene_set/CHM13.gp_info
 # 260 missing
 bigBedNamedItems -nameFile data/gencode-src.bigBed data/cat-missing-genes.tsv data/cat-missing-src.bed
 
-geneBoundsForCat --geneType=protein_coding --geneType=lncRNA ../CAT/consensus_gene_set/CHM13.gp ../CAT/consensus_gene_set/CHM13.gp_info data/cat-genes.bed
+geneBoundsForCat --nameField=gencodeGeneId --geneType=protein_coding --geneType=lncRNA ../CAT/consensus_gene_set/CHM13.gp ../CAT/consensus_gene_set/CHM13.gp_info data/cat-genes.bed
 buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genome/t2t-chm13-v1.0.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 t2t-chm13-v1.0  data/cat-genes.bigBed data/cat-genes.bed 
 
 # gencodeBlat
@@ -125,11 +125,11 @@ getMissingSourceGenes data/gencodeV35.db data/gencodeBlat-transcripts.tsv  data/
 37 missing
 bigBedNamedItems -nameFile data/gencode-src.bigBed data/gencodeBlat-missing-genes.tsv data/gencodeBlat-missing-src.bed
 
-# liftOff for stats, name2 has the transcriptId, and drop chrMT
-bigGenePredToGenePred /cluster/home/markd/compbio/nanopore/projs/t2t-chm13/build/t2tChm13_20200727/liftOff/liftOffGenes.all.bigGenePred stdout | tawk '$2=="chrMT"{next} {$1=$12; print}' | genePredToBed stdin stdout | geneBoundsForGencodeBed --geneType=protein_coding --geneType=lncRNA data/gencodeV35.db /dev/stdin --idTsv=data/liftoff-transcripts.tsv --filteredBed=data/liftoff-trans.bed data/liftoff-genes.bed
+# liftOff for stats, name2 has the transcriptId, and drop chrMT and chrY
+bigGenePredToGenePred /cluster/home/markd/compbio/nanopore/projs/t2t-chm13/build/t2t-chm13-v1.0/liftOffGenes/chm13.draft_v1.0_plus38Y.all.bb stdout | tawk '($2=="chrMT")||($2=="chrY"){next} {$1=$12; print}' | genePredToBed stdin stdout | geneBoundsForGencodeBed --geneType=protein_coding --geneType=lncRNA data/gencodeV35.db /dev/stdin --idTsv=data/liftoff-transcripts.tsv --filteredBed=data/liftoff-trans.bed data/liftoff-genes.bed
 buildBigBed --extraIndex=name --twoBit=../../../../../build/t2t-chm13-v1.0/genome/t2t-chm13-v1.0.2bit --as=../../../../t2t-chm13-gene-analysis/etc/geneBoundsBed.as  bed9+4 t2t-chm13-v1.0  data/liftoff-genes.bigBed data/liftoff-genes.bed 
 getMissingSourceGenes data/gencodeV35.db data/liftoff-transcripts.tsv  data/liftoff-missing-genes.tsv
-258 missing
+341 missing
 bigBedNamedItems -nameFile data/gencode-src.bigBed data/liftoff-missing-genes.tsv data/liftoff-missing-src.bed
 
 
@@ -161,7 +161,9 @@ cd hub/cactus
  ~/compbio/compartiveGenomics/projs/hal/src/hal-opt/bin/halRenameGenomes t2t-chm13-v1.0.aln10.hg38.hal rename.tab 
 
 * Mapping/multi-mapping stats
-
+bedMappingStats --geneSpan data/gencode-src.bed data/cat-genes.bed stats/cat-genes-stats.tsv stats/cat-genes-histo.tsv
+bedMappingStats --geneSpan data/gencode-src.bed data/gencodeBlat-genes.bed stats/gencodeBlat-genes-stats.tsv stats/gencodeBlat-genes-histo.tsv
+bedMappingStats --geneSpan data/gencode-src.bed data/liftoff-genes.bed stats/liftoff-genes-stats.tsv stats/liftoff-genes-histo.tsv
 
 * quick interesting cases
 ** chr1:10,964-12,615 possible alignment problem

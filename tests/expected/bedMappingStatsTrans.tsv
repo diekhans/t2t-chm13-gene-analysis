@@ -1,4 +1,8 @@
 statistic	value
+srcGenes	247
+mappedGenes	104
+mappedGenes1	79
+mappedGenesN	25
 minMappings	0
 maxMappings	8
 meanMappings	0.648

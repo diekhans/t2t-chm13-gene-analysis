@@ -84,12 +84,14 @@ missingGeneSourceContextOnlyTrackTest: mkdirs
 mappingStatsTests: bedMappingStatsTrans bedMappingStatsGene
 
 bedMappingStatsTrans: mkdirs
-	../bin/bedMappingStats input/gencode-trans-src.bed input/gencode-blat.bed output/$@.tsv
+	../bin/bedMappingStats input/gencode-trans-src.bed input/gencode-blat.bed output/$@.tsv output/$@.histo.tsv
 	diff expected/$@.tsv output/$@.tsv
+	diff expected/$@.histo.tsv output/$@.histo.tsv
 
 bedMappingStatsGene: mkdirs
-	../bin/bedMappingStats --geneSpan input/gencode-genes-src.bed expected/geneBoundsTest.bed output/$@.tsv
+	../bin/bedMappingStats --geneSpan input/gencode-genes-src.bed expected/geneBoundsTest.bed output/$@.tsv output/$@.histo.tsv
 	diff expected/$@.tsv output/$@.tsv
+	diff expected/$@.histo.tsv output/$@.histo.tsv
 
 
 ##
