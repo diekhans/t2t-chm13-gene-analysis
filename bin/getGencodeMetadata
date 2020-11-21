@@ -5,6 +5,5 @@ set -beEu -o pipefail
 hgsql hg38 -e '
  SELECT geneId, geneType, geneName, gatt.transcriptId, transcriptType, transcriptName, chrom
    FROM gencodeAnnotV35 gann, gencodeAttrsV35 gatt
-   WHERE chrom NOT LIKE "%\_%" AND gatt.transcriptId = name
-         AND name NOT IN (SELECT transcriptId FROM gencodeTagV35 WHERE tag = "PAR" AND transcriptId = name);
+   WHERE (chrom NOT LIKE "%\_%") AND (chrom NOT IN ("chrM", "chrY")) AND (gatt.transcriptId = name);
 ' >data/gencodeAnnotV35.pri.tsv

@@ -60,21 +60,20 @@ def reportByTrans(srcTranses, catMeta, reptFh, missingFh, typeSuffix, desc, srcF
     for transId in srcIds - mappedIds:
         prMissing(missingFh, "trans" + typeSuffix, desc, srcTranses, catMeta, transId)
 
-def mkReportSet(srcTranses, catMeta, reptFh, missingFh, reptFunc, inclY):
-    def inclYFilt(s):
+def mkReportSet(srcTranses, catMeta, reptFh, missingFh, reptFunc):
+    def chrYFilt(s):
         return (s.chrom != "chrY") or inclY
     typeSuffix = "Y" if inclY else ""
-    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "all", lambda s: inclYFilt(s))
-    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "protein_coding", lambda s: inclYFilt(s) and (s.geneType == "protein_coding"))
-    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "lncRNA", lambda s: inclYFilt(s) and (s.geneType == "lncRNA"))
+    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "all", lambda s: chrYFilt(s))
+    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "protein_coding", lambda s: chrYFilt(s) and (s.geneType == "protein_coding"))
+    reptFunc(srcTranses, catMeta, reptFh, missingFh, typeSuffix, "lncRNA", lambda s: chrYFilt(s) and (s.geneType == "lncRNA"))
 
 def mkReport(srcTranses, catMeta, reptFh, missingFh):
     fileOps.prRowv(reptFh, "cat", "type", "srcCnt", "mapCnt", "missing", "rate")
     fileOps.prRowv(missingFh, "cat", "type", "geneId", "transcriptId", "geneName")
-    for inclY in (False, True):
-        mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByGene, inclY)
-        mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByGsym, inclY)
-        mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByTrans, inclY)
+    mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByGene)
+    mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByGsym)
+    mkReportSet(srcTranses, catMeta, reptFh, missingFh, reportByTrans)
 
 def fixMissingCatSym(catMeta, srcTranses):
     "FIX CAT is associating exRef with GENCODE gene ids, but  not the gene symbol"

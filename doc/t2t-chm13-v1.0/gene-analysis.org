@@ -5,14 +5,14 @@ export PATH=~/compbio/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-an
 * quick generate some statistics on CAT in a different way than the standard script
 cd CAT/quick
 ** generate data
-# mapping include Y, we forgot we have a female.  So they were included in the mappings.  So we 
+# mapping include Y, we forgot we have a female, so discard them.  So they were included in the mappings.  So we 
 # ignore all of Y, since we have a female (this also gets PAR_Y)
-bin/getGencodeMetadata
-ln ../CAT/consensus_gene_set/CHM13.gp_info  data/
+getGencodeMetadata
+ln -f ../CAT/consensus_gene_set/CHM13.gp*  data/
 
 # this does the work.  Looking at gene symbols vs gencode gene ids greatly decreases the
 # number lost.
-./bin/catMappingStats data results/report.tsv results/missing.tsv
+catMappingStats data results/report.tsv results/missing.tsv
 
 ** verify
 
@@ -160,10 +160,25 @@ ln -f results/*.bigBed ../../../../hub/hg38/
 cd hub/cactus
  ~/compbio/compartiveGenomics/projs/hal/src/hal-opt/bin/halRenameGenomes t2t-chm13-v1.0.aln10.hg38.hal rename.tab 
 
-* Mapping/multi-mapping stats
+** Mapping/multi-mapping stats
 bedMappingStats --geneSpan data/gencode-src.bed data/cat-genes.bed stats/cat-genes-stats.tsv stats/cat-genes-histo.tsv
 bedMappingStats --geneSpan data/gencode-src.bed data/gencodeBlat-genes.bed stats/gencodeBlat-genes-stats.tsv stats/gencodeBlat-genes-histo.tsv
 bedMappingStats --geneSpan data/gencode-src.bed data/liftoff-genes.bed stats/liftoff-genes-stats.tsv stats/liftoff-genes-histo.tsv
+
+
+** double checking
+hg38
+create temporary table prichrom select name from gencodeAnnotV35  where (chrom not like "%\_%") and (chrom not in ("chrY", "chrM"));
+create index prichrom_idx on prichrom (name);
+select count(distinct geneId) from gencodeAttrsV35 where transcriptType in ("protein_coding", "lncRNA") and transcriptId in (select name from prichrom);
+-> 36404
+however srcGenes is 36446
+
+hgsql hg38 -N <check.sql >hg38-db.tsv
+id-diff hg38-db.tsv <(cut -f 4 ../data/gencode-src.bed ) | cut -f 2 >diff.ids
+
+some how, genes on randoms and chrM getting through, so looks like sqlite db is fine, figure out later
+
 
 * quick interesting cases
 ** chr1:10,964-12,615 possible alignment problem
