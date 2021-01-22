@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+import argparse
+from pycbio.sys import fileOps
+from pycbio.hgdata.genePred import GenePredReader
+from pycbio.hgdata.bed import Bed
+
+def parseArgs():
+    usage = """ Collect frameshift a genePred made from a blat alignment
+
+    should use:     mrnaToGene -quiet -genePredExt -cdsFile=mrna.cds.gz -insertMergeSize=0
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('genePred')
+    parser.add_argument('resultsBed')
+    return parser.parse_args()
+
+def scanForFrameShifts(gp, iStart, iEnd, iDir, bedFunc):
+    shifts = []
+    i = iStart
+    while gp.exons[i] is None:
+        i += iDir
+    nextFrame = gp.exons[i].frame + gp.exons[i].size()
+    i += iDir
+    while (i < iEnd) and (gp.exons[i].frame is not None):
+        if gp.exons[i].frame != nextFrame:
+            shifts.append(bedFunc(gp, i))
+        nextFrame = gp.exons[i].frame + gp.exons[i].size()
+        i += iDir
+    return shifts
+
+def findFrameShifts(gp):
+    if not gp.hasCds():
+        return []
+    elif gp.strand == '+':
+        return scanForFrameShifts(gp, 0, len(gp.exons), 1,
+                                  lambda gp, i: Bed(gp.chrom, gp.exons[i - 1].end, gp.exons[i].start, gp.name, score=0, strand=gp.strand))
+    else:
+        return scanForFrameShifts(gp, len(gp.exons) - 1, -1, -1,
+                                  lambda gp, i: Bed(gp.chrom, gp.exons[i + 1].start, gp.exons[i].end, gp.name, score=0, strand=gp.strand))
+
+def processGp(gp, outFh):
+    for bed in findFrameShifts(gp):
+        bed.write(outFh)
+
+def main(args):
+    with fileOps.opengz(args.resultsBed, 'w') as outFh:
+        for gp in GenePredReader(args.genePred):
+            processGp(gp, outFh)
+
+main(parseArgs())

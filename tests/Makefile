@@ -12,7 +12,7 @@ endef
 
 test: geneBoundsBlatTests geneBoundsGencodeTests \
 	genePredFrameShiftsTests catBoundsAddBlatOverTest missingGenesTests \
-	mappingStatsTests quickMappingStatsTests
+	mappingStatsTests quickMappingStatsTests frameShiftTests
 
 
 geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest geneBoundsCatGeneTest geneBoundsCatGencodeGeneTest
@@ -105,6 +105,12 @@ quickMappingStatsTest: mkdirs
 ##
 ${gencodeGeneSrcBigBed}: input/gencode-genes-src.bed mkdirs
 	${buildBigBed} --extraIndex=name --twoBit=${hg38TwoBit} --as=../etc/geneBoundsBed.as bed9+4 hg38 $@ input/gencode-genes-src.bed
+
+frameShiftTests: frameShiftTest
+
+frameShiftTest: mkdirs
+	../bin/blatFrameShiftInfo input/noGapMerge.gp output/$@.bed
+	diff expected/$@.bed output/$@.bed
 
 clean:
 	rm -rf output
