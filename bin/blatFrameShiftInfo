@@ -4,6 +4,7 @@ import argparse
 from pycbio.sys import fileOps
 from pycbio.hgdata.genePred import GenePredReader
 from pycbio.hgdata.bed import Bed
+from pycbio.hgdata.frame import Frame
 
 def parseArgs():
     usage = """ Collect frameshift a genePred made from a blat alignment
@@ -15,17 +16,21 @@ def parseArgs():
     parser.add_argument('resultsBed')
     return parser.parse_args()
 
+def getNextFrame(gp, i):
+    return Frame(gp.exons[i].frame) + gp.exons[i].getCds().size()
+
 def scanForFrameShifts(gp, iStart, iEnd, iDir, bedFunc):
     shifts = []
     i = iStart
-    while gp.exons[i] is None:
+    while gp.exons[i].frame == -1:
         i += iDir
-    nextFrame = gp.exons[i].frame + gp.exons[i].size()
+    nextFrame = getNextFrame(gp, i)
     i += iDir
-    while (i < iEnd) and (gp.exons[i].frame is not None):
-        if gp.exons[i].frame != nextFrame:
+    while (i < iEnd) and (gp.exons[i].frame != -1):
+        frame = Frame(gp.exons[i].frame)
+        if frame != nextFrame:
             shifts.append(bedFunc(gp, i))
-        nextFrame = gp.exons[i].frame + gp.exons[i].size()
+        nextFrame = getNextFrame(gp, i)
         i += iDir
     return shifts
 

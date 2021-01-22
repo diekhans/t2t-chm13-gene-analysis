@@ -21,7 +21,8 @@ mrnaToGene -quiet -genePredExt -cdsFile=data/refSeq-curated.cds.gz -insertMergeS
 mrnaToGene -quiet -genePredExt -cdsFile=data/refSeq-curated.cds.gz -insertMergeSize=0 aligns/refSeq-v0.7.filt.psl.gz stdout | pigz -c >aligns/refSeq-v0.7.filt.gp.gz&
 
 * collect data
-blatFrameShiftInfo aligns/refSeq-v0.7.filt.gp.gz stats/refSeq-v0.7.filt.framshifts.bed
+blatFrameShiftInfo aligns/refSeq-v0.7.filt.gp.gz stats/refSeq-v0.7.filt.framshifts.bed &
+blatFrameShiftInfo aligns/refSeq-v1.0.filt.gp.gz stats/refSeq-v1.0.filt.framshifts.bed &
 
 * for Ann chrom images
 iso-seq https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/CAT/annotation.bb

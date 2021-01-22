@@ -109,7 +109,7 @@ ${gencodeGeneSrcBigBed}: input/gencode-genes-src.bed mkdirs
 frameShiftTests: frameShiftTest
 
 frameShiftTest: mkdirs
-	../bin/blatFrameShiftInfo input/noGapMerge.gp output/$@.bed
+	../bin/blatFrameShiftInfo input/frameShiftCases.gp output/$@.bed
 	diff expected/$@.bed output/$@.bed
 
 clean:
