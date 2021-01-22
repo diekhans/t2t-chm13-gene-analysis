@@ -12,7 +12,7 @@ ln -f ../CAT/consensus_gene_set/CHM13.gp*  data/
 
 # this does the work.  Looking at gene symbols vs gencode gene ids greatly decreases the
 # number lost.
-catMappingStats data results/report.tsv results/missing.tsv
+catMappingStats data results
 
 ** verify
 
@@ -180,6 +180,41 @@ id-diff hg38-db.tsv <(cut -f 4 ../data/gencode-src.bed ) | cut -f 2 >diff.ids
 some how, genes on randoms and chrM getting through, so looks like sqlite db is fine, figure out later
 
 
+** analysis
+** looking for genes not by blat, but not CAT
+- 23 genes not found
+-  8 on primary assembly
+- 15 on unplaced, HOWEVER these were not fasta that was blatted
+- on primary:
+  3 are problems in gencode
+  5 look real
+  
+  
+
+** cases seen in hg38 coords:
+*** cntx0 chr1:54,612,265-54,638,412  ENSG00000230728.1 [bad gencode]
+EMBL: CD674821.1, supported by one EST ct/ca 'splice' junctions
+*** cntx1 chr1:196,659,996-197,006,453 CFHR1  [biology/GRC db confirms]
+complex rearrangement
+really two genes lost, CAT mismaps CFHR3
+*** cntx2 chr1:213,442,704-213,624,822 ENST00000417161.2 [bad gencode]
+exon in gap, however 
+EMBL: BX098234.1 EST, annotation does not match EST alignment
+*** cntx3 chr17:41,254,346-41,278,616 KRTAP9-6 [biology/GRC confirms]
+rearrangement,  KRTAP9-9, KRTAP9-7 are present in CHM13
+gene copy deletion
+*** cntx4 chr3:191,116,811-192,773,392 ENSG00000223812.8
+lncRNA partially deleted in chm13  [biology]
+*** cntx5 chr9:5890888-10612723 [no slide]   [biology/GRC near by]
+lncRNA deleted in chm13
+*** cntx6 chrX:1,395,175-1,607,776 P2RY8  [biology/GRC]
+retrogene, PAR. partially deleted internally, including CDS
+*** cntx7 chrX:37,297,861-38,735,372 AF241726.2 ENST00000465127.1  [bad gencode/GRC] {slide}
+readthrough_transcript spanning several other genes
+EMBLAK303697.1, blat does not support this alignment
+
+
+
 * quick interesting cases
 ** chr1:10,964-12,615 possible alignment problem
 ** chr4:9,158,920-9,201,957
@@ -196,6 +231,14 @@ paralog disagrement
 cactus and lastz don't match CHM13
 ** chr16:29,052,702-29,053,340 639
 insertion in exon
+* other cases
+** chr6:32,344,096-32,422,646 HLA-DRB5
+why does liftoff do better
+chr6:32,769,994-32,772,977 HLA-DMA is much better
+
+* alignment issues
+** chr16:34,965,505-35,026,615 - Cactus misses DUP22 paralog, lastz gets it
+
 * todo
 ** Marina: oh also, I have another annotation set without the consensus filtering here http://courtyard.gi.ucsc.edu/~mhauknes/t2t_v2/out-chm13-t2t-orig/
 ** lot for not aligned by BLAT!

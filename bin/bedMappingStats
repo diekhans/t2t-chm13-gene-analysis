@@ -92,8 +92,6 @@ def maxFracMappedVec(srcSizes, mappingSizes):
 def minFracMappedVec(srcSizes, mappingSizes):
     def nameMin(n):
         return min([(msize / srcSizes[n]) for msize in mappingSizes[n]])
-    for name in mappingSizes.keys():
-        m = nameMin(name)
     return [nameMin(name) for name in mappingSizes.keys()]
 
 def report(srcSizes, mappingSizes, fh):
@@ -102,7 +100,6 @@ def report(srcSizes, mappingSizes, fh):
     basicStats("Mappings", numMappingsVec(srcSizes, mappingSizes), fh)
     basicStats("MaxCover", maxFracMappedVec(srcSizes, mappingSizes), fh)
     basicStats("MinCover", minFracMappedVec(srcSizes, mappingSizes), fh)
-
 
 def writeHisto(srcSizes, mappingSizes, fh):
     histo = defaultdict(int)

@@ -12,7 +12,7 @@ endef
 
 test: geneBoundsBlatTests geneBoundsGencodeTests \
 	genePredFrameShiftsTests catBoundsAddBlatOverTest missingGenesTests \
-	mappingStatsTests
+	mappingStatsTests quickMappingStatsTests
 
 
 geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest geneBoundsCatGeneTest geneBoundsCatGencodeGeneTest
@@ -92,6 +92,14 @@ bedMappingStatsGene: mkdirs
 	../bin/bedMappingStats --geneSpan input/gencode-genes-src.bed expected/geneBoundsTest.bed output/$@.tsv output/$@.histo.tsv
 	diff expected/$@.tsv output/$@.tsv
 	diff expected/$@.histo.tsv output/$@.histo.tsv
+
+
+##
+quickMappingStatsTests: quickMappingStatsTest
+
+quickMappingStatsTest: mkdirs
+	mkdir -p output/$@
+	../bin/catMappingStats input/quickStats output/$@
 
 
 ##
