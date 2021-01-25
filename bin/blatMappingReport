@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+
+import argparse
+from collections import defaultdict
+from pycbio.sys import fileOps
+from pycbio.tsv import TsvReader
+from pycbio.hgdata.pslStats import PslStats
+from pycbio.hgdata.bed import BedReader
+from pycbio.hgdata.coords import Coords
+from pycbio.hgdata.overlapSelectStats import OverlapSelectStatsReader
+
+def parseArgs():
+    usage = """generate report of BLAT alignments
+
+    overlap should be computed with
+      overlapSelect -statsOutput -strand -excludeSelf rs-blat.psl rs-blat.psl rs-blat.psl.overstats
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('metaDataTsv')
+    parser.add_argument('pslStatsTsv')
+    parser.add_argument('pslOverlapTsv')
+    parser.add_argument('frameShiftBed')
+    parser.add_argument('reportTsv')
+    return parser.parse_args()
+
+class Gene:
+    def __init__(self, metaRec):
+        self.geneSym = metaRec.geneSym
+        self.geneId = metaRec.geneId
+        self.hgncId = metaRec.hgncId
+        self.geneType = metaRec.geneType
+        self.maneSelects = []
+        self.transAlignsById = {}  # list of alignments
+        self.frameShiftsById = {}  # list of BEDs
+
+    def addMeta(self, metaRec):
+        if metaRec.maneSelect:
+            self.maneSelects.append(metaRec.id)
+
+    def addAlignStats(self, statsRec):
+        recs = self.transAlignsById.get(statsRec.qName)
+        if recs is None:
+            recs = self.transAlignsById[statsRec.qName] = []
+        recs.append(statsRec)
+
+    def addFrameShift(self, fsBed):
+        recs = self.frameShiftsById.get(fsBed.name)
+        if recs is None:
+            recs = self.frameShiftsById[fsBed.name] = []
+        recs.append(fsBed)
+
+    def _longestRna(self, transIds):
+        maxAln = None
+        for transId in transIds:
+            for aln in self.transAlignsById[transId]:
+                if (maxAln is None) or (aln.qSize > maxAln.qSize):
+                    maxAln = aln
+        return maxAln.qName
+
+    def getCanonicalTrans(self):
+        "id of canonical transcript; MANE select, or longest RNA"
+        if len(self.maneSelects) > 0:
+            return self._longestRna(self.maneSelects)
+        else:
+            return self._longestRna(self.transAlignsById.keys())
+
+class Genes:
+    def __init__(self, metaDataTsv, pslStatsTsv, pslOverlapTsv, frameShiftBed):
+        self.genesById = {}
+        self.genesByTransId = {}
+        self.transIdOverlaps = defaultdict(lambda: {})  # inId[selectId] -> overlapRec
+        self._loadMetadata(metaDataTsv)
+        self._loadPslStats(pslStatsTsv)
+        self._loadOverlap(pslOverlapTsv)
+        self._loadFrameShifts(frameShiftBed)
+
+    def _loadMetadataRec(self, metaRec):
+        gene = self.genesById.get(metaRec.geneId)
+        if gene is None:
+            gene = self.genesById[metaRec.geneId] = Gene(metaRec)
+        self.genesByTransId[metaRec.id] = gene
+        gene.addMeta(metaRec)
+
+    def _loadMetadata(self, metaDataTsv):
+        # id	geneSym	geneId	hgncId	geneType	cds	chroms
+        for metaRec in TsvReader(metaDataTsv, typeMap={"geneId": int, "maneSelect": bool}):
+            self._loadMetadataRec(metaRec)
+
+    def _loadPslStatsRec(self, statsRec):
+        setattr(statsRec, "coords", Coords(statsRec.tName, statsRec.tStart, statsRec.tEnd))
+        self.genesByTransId[statsRec.qName].addAlignStats(statsRec)
+
+    def _loadPslStats(self, pslStatsTsv):
+        # qName	qSize	tName	tStart	tEnd	ident	qCover	repMatch	tCover
+        # adds coords field
+        for statsRec in PslStats(pslStatsTsv):
+            self._loadPslStatsRec(statsRec)
+
+    def _loadOverlapRec(self, overlapRec):
+        minOver = 0.50
+        if (overlapRec.inOverlap >= minOver) or (overlapRec.selectOverlap >= minOver):
+            self.transIdOverlaps[overlapRec.inId][overlapRec.selectId] = overlapRec
+
+    def _loadOverlap(self, pslOverlapTsv):
+        # inId	selectId	inOverlap	selectOverlap	overBases	similarity
+        for overlapRec in OverlapSelectStatsReader(pslOverlapTsv):
+            self._loadOverlapRec(overlapRec)
+        self.transIdOverlaps.default_factory = None
+
+    def _loadFrameShiftRec(self, fsBed):
+        self.genesByTransId[fsBed.name].addFrameShift(fsBed)
+
+    def _loadFrameShifts(self, frameShiftBed):
+        for fsBed in BedReader(frameShiftBed):
+            self._loadFrameShiftRec(fsBed)
+
+class Counts:
+    def __init__(self):
+        self.total = 0
+        self.aligned = 0
+        self.cover98 = 0
+        self.cover95 = 0
+        self.cover75 = 0
+        self.cover50 = 0
+        self.coverLess = 0
+        self.multiAligned = 0
+        self.paralogAligned = 0
+        self.frameShifted = 0
+        self.paralogFrameShifted = 0
+
+def fmtRate(cnt, tot):
+    r = (cnt / tot) if tot != 0 else 0.0
+    return "%0.3f" % r
+
+def prCounts(what, counts, outFh):
+    def prCount(fld):
+        v = getattr(counts, fld)
+        fileOps.prRowv(outFh, what, fld, v, fmtRate(v, counts.total))
+    prCount("total")
+    prCount("aligned")
+    prCount("cover98")
+    prCount("cover95")
+    prCount("cover75")
+    prCount("cover50")
+    prCount("coverLess")
+    prCount("multiAligned")
+    prCount("paralogAligned")
+    prCount("frameShifted")
+    prCount("paralogFrameShifted")
+
+def checkParalogAlign(genes, gene, transId):
+    # check if there are overlaps in other genes
+    overlaps = genes.transIdOverlaps.get(transId)
+    if overlaps is not None:
+        for overlapId in overlaps.keys():
+            overGene = genes.genesByTransId[overlapId]
+            if overGene is not gene:
+                return True
+    return False
+
+def countTrans(genes, gene, transId, counts):
+    transes = gene.transAlignsById[transId]
+    counts.total += 1
+    if len(transes) > 0:
+        counts.aligned += 1
+    if len(transes) > 1:
+        counts.multiAligned += 1
+    if len(transes) > 0:
+        maxCover = max([aln.qCover for aln in transes])
+        if maxCover >= 0.98:
+            counts.cover98 += 1
+        elif maxCover >= 0.95:
+            counts.cover95 += 1
+        elif maxCover >= 0.75:
+            counts.cover75 += 1
+        elif maxCover >= 0.50:
+            counts.cover50 += 1
+        else:
+            counts.coverLess += 1
+    hasParalogs = checkParalogAlign(genes, gene, transId)
+    hasFrameShift = transId in gene.frameShiftsById
+    if hasParalogs:
+        counts.paralogAligned += 1
+    if hasFrameShift:
+        counts.frameShifted += 1
+    if hasParalogs and hasFrameShift:
+        counts.paralogFrameShifted += 1
+
+def collectTranscriptStats(genes):
+    counts = Counts()
+    for gene in genes.genesById.values():
+        for transId in gene.transAlignsById.keys():
+            countTrans(genes, gene, transId, counts)
+    return counts
+
+def collectGeneStats(genes):
+    counts = Counts()
+    for gene in genes.genesById.values():
+        countTrans(genes, gene, gene.getCanonicalTrans(), counts)
+    return counts
+
+def writeReport(genes, outFh):
+    fileOps.prRowv(outFh, "type", "category", "count", "rate")
+    transCounts = collectTranscriptStats(genes)
+    geneCounts = collectGeneStats(genes)
+    prCounts("trans", transCounts, outFh)
+    prCounts("genes", transCounts, outFh)
+
+def main(args):
+    genes = Genes(args.metaDataTsv, args.pslStatsTsv, args.pslOverlapTsv, args.frameShiftBed)
+
+    with fileOps.opengz(args.reportTsv, 'w') as outFh:
+        writeReport(genes, outFh)
+
+main(parseArgs())

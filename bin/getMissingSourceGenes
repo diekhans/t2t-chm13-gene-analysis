@@ -47,7 +47,7 @@ def getGenesNotFund(conn, tsv):
     FROM gencode_ann, gencode_attrs
     WHERE (name == transcriptId)
         AND (chrom NOT IN ("chrY", "chrM"))
-        AND (chrom NOT LIKE "%\_%" ESCAPE "\\")
+        AND (chrom NOT LIKE "%\\_%" ESCAPE "\\")
         AND (geneType in ("protein_coding", "lncRNA"))
         AND (transcriptType in ("protein_coding", "lncRNA"))
         AND (geneId NOT IN (SELECT sourceGeneId FROM targetAnnot))

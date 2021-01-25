@@ -1,33 +1,43 @@
 * comparing refseq gene blat alignments to V0.7 and V1.0
 PATH=/hive/users/markd/nanopore/projs/t2t-chm13/gene-annotation/t2t-chm13-gene-analysis/bin:${PATH}
 
-* tighter filtering of alignments
-cd build/paper-analysis/2021-01/refSeqBlat
-ln -s ../../../../../../build/t2t-chm13-v0.7/refSeqBlat/data
-
-
-pslCDnaFilter -repsAsMatch -ignoreNs -bestOverlap -polyASizes=data/GRCh38_latest_rna.polya.gz  -localNearBest=0.001 -minId=0.95 -minCover=0.80 -statsOut=aligns/refSeq-v1.0.filtstats ../../../build/t2t-chm13-v1.0/refSeqBlat/refSeq-curated.raw.gz stdout | sort -k 14,14 -k 16,16n |pigz -9c >aligns/refSeq-v1.0.filt.psl.gz&
-pslCDnaFilter -repsAsMatch -ignoreNs -bestOverlap -polyASizes=data/GRCh38_latest_rna.polya.gz  -localNearBest=0.001 -minId=0.95 -minCover=0.80 -statsOut=aligns/refSeq-v0.7.filtstats ../../../build/t2t-chm13-v0.7/refSeqBlat/refSeq-curated.raw.gz stdout | sort -k 14,14 -k 16,16n |pigz -9c >aligns/refSeq-v0.7.filt.psl.gz&
-
-pslStats -queryStats -queries=data/refSeq-curated.sizes aligns/refSeq-v1.0.filt.psl.gz stats/refSeq-v1.0.filt.qstats &
-pslStats -queryStats -queries=data/refSeq-curated.sizes aligns/refSeq-v0.7.filt.psl.gz stats/refSeq-v0.7.filt.qstats &
-pslStats -queries=data/refSeq-curated.sizes aligns/refSeq-v1.0.filt.psl.gz stats/refSeq-v1.0.filt.stats &
-pslStats -queries=data/refSeq-curated.sizes aligns/refSeq-v0.7.filt.psl.gz stats/refSeq-v0.7.filt.stats &
-pslStats -overallStats -queries=data/refSeq-curated.sizes aligns/refSeq-v1.0.filt.psl.gz stats/refSeq-v1.0.filt.allstats &
-pslStats -overallStats -queries=data/refSeq-curated.sizes aligns/refSeq-v0.7.filt.psl.gz stats/refSeq-v0.7.filt.allstats &
-
-
-mrnaToGene -quiet -genePredExt -cdsFile=data/refSeq-curated.cds.gz -insertMergeSize=0 aligns/refSeq-v1.0.filt.psl.gz stdout | pigz -c >aligns/refSeq-v1.0.filt.gp.gz &
-mrnaToGene -quiet -genePredExt -cdsFile=data/refSeq-curated.cds.gz -insertMergeSize=0 aligns/refSeq-v0.7.filt.psl.gz stdout | pigz -c >aligns/refSeq-v0.7.filt.gp.gz&
-
-* collect data
-blatFrameShiftInfo aligns/refSeq-v0.7.filt.gp.gz stats/refSeq-v0.7.filt.framshifts.bed &
-blatFrameShiftInfo aligns/refSeq-v1.0.filt.gp.gz stats/refSeq-v1.0.filt.framshifts.bed &
-
 * HGNC data
 wget -nv 'https://www.genenames.org/cgi-bin/genegroup/download-all?format=json'
 json_pp -json_opt  pretty,indent,utf8,allow_bignum <download-all?format=json >gene-groups.json
 
+* tighter filtering of alignments
+cd build/paper-analysis/2021-01/refSeqBlat
+ln -s ../../../../../../build/t2t-chm13-v0.7/refSeqBlat/data
+ln -s ../../../../../../build
+
+
+filt=filt1
+mkdir $filt
+pslCDnaFilter -repsAsMatch -ignoreNs -bestOverlap -polyASizes=data/GRCh38_latest_rna.polya.gz  -globalNearBest=0.001 -minId=0.95 -minCover=0.85 -filterWeirdOverlapped -statsOut=${filt}/refSeq-v1.0.${filt}.fstats build/t2t-chm13-v1.0/refSeqBlat/refSeq-curated.raw.gz stdout | sort -k 14,14 -k 16,16n |pigz -9c >${filt}/refSeq-v1.0.${filt}.psl.gz&
+pslCDnaFilter -repsAsMatch -ignoreNs -bestOverlap -polyASizes=data/GRCh38_latest_rna.polya.gz  -globalNearBest=0.001 -minId=0.95 -minCover=0.85 -filterWeirdOverlapped -statsOut=${filt}/refSeq-v0.7.${filt}.fstats build/t2t-chm13-v0.7/refSeqBlat/refSeq-curated.raw.gz stdout | sort -k 14,14 -k 16,16n |pigz -9c >${filt}/refSeq-v0.7.${filt}.psl.gz&
+pslCDnaFilter -repsAsMatch -ignoreNs -bestOverlap -polyASizes=data/GRCh38_latest_rna.polya.gz  -globalNearBest=0.001 -minId=0.95 -minCover=0.85 -filterWeirdOverlapped -statsOut=${filt}/refSeq-GRCh38.${filt}.fstats build/GRCh38/refSeqBlat/refSeq-curated.raw.gz stdout | sort -k 14,14 -k 16,16n |pigz -9c >${filt}/refSeq-GRCh38.${filt}.psl.gz&
+
+
+* get stats on alignments
+
+# these steps parameterized by filt
+filt=filt1
+
+for dset in v1.0 v0.7 GRCh38 ; do
+    pslStats -queryStats -queries=data/refSeq-curated.sizes ${filt}/refSeq-${dset}.${filt}.psl.gz ${filt}/refSeq-${dset}.${filt}.qstats &
+    pslStats -queries=data/refSeq-curated.sizes ${filt}/refSeq-${dset}.${filt}.psl.gz ${filt}/refSeq-${dset}.${filt}.stats &
+    pslStats -overallStats -queries=data/refSeq-curated.sizes ${filt}/refSeq-${dset}.${filt}.psl.gz ${filt}/refSeq-${dset}.${filt}.allstats &
+    mrnaToGene -quiet -genePredExt -cdsFile=data/refSeq-curated.cds.gz -insertMergeSize=0 ${filt}/refSeq-${dset}.${filt}.psl.gz stdout | pigz -c >${filt}/refSeq-${dset}.${filt}.gp.gz &
+    overlapSelect -statsOutput -strand -excludeSelf ${filt}/refSeq-${dset}.${filt}.psl.gz ${filt}/refSeq-${dset}.${filt}.psl.gz stdout | pigz -c > ${filt}/refSeq-${dset}.${filt}.overstats.gz &
+done
+
+* frameshift data
+for dset in v1.0 v0.7 GRCh38 ; do
+    blatFrameShiftInfo ${filt}/refSeq-${dset}.${filt}.gp.gz ${filt}/refSeq-${dset}.${filt}.framshifts.bed &
+done
+
+* test case
+NBPF{10,20,19}
 
 * for Ann chrom images
 iso-seq https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/CAT/annotation.bb

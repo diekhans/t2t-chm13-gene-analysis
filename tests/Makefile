@@ -12,7 +12,7 @@ endef
 
 test: geneBoundsBlatTests geneBoundsGencodeTests \
 	genePredFrameShiftsTests catBoundsAddBlatOverTest missingGenesTests \
-	mappingStatsTests quickMappingStatsTests frameShiftTests
+	mappingStatsTests quickMappingStatsTests frameShiftTests blatReportTests
 
 
 geneBoundsBlatTests: geneBoundsTest geneBoundsSymTest geneBoundsCatGeneTest geneBoundsCatGencodeGeneTest
@@ -111,6 +111,15 @@ frameShiftTests: frameShiftTest
 frameShiftTest: mkdirs
 	../bin/blatFrameShiftInfo input/frameShiftCases.gp output/$@.bed
 	diff expected/$@.bed output/$@.bed
+
+blatReportTests: blatReportTest
+
+blatReportTest: mkdirs output/rs-blat.overStats
+	../bin/blatMappingReport input/rs-blat.meta.tsv input/rs-blat.stats output/rs-blat.overStats input/rs-blat.framshifts.bed output/$@.tsv
+	diff expected/$@.tsv output/$@.tsv
+
+output/rs-blat.overStats: mkdirs input/rs-blat.psl
+	overlapSelect -statsOutput -strand -excludeSelf input/rs-blat.psl input/rs-blat.psl $@
 
 clean:
 	rm -rf output
