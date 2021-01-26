@@ -33,11 +33,35 @@ done
 
 * frameshift data
 for dset in v1.0 v0.7 GRCh38 ; do
-    blatFrameShiftInfo ${filt}/refSeq-${dset}.${filt}.gp.gz ${filt}/refSeq-${dset}.${filt}.framshifts.bed &
+    blatFrameShiftInfo ${filt}/refSeq-${dset}.${filt}.gp.gz ${filt}/refSeq-${dset}.${filt}.frameshifts.bed &
 done
 
-* test case
-NBPF{10,20,19}
+* reports
+for dset in v1.0 v0.7 GRCh38 ; do
+    blatMappingReport --dset=${dset} data/refSeq-curated.meta.tsv.gz ${filt}/refSeq-${dset}.${filt}.stats ${filt}/refSeq-${dset}.${filt}.overstats.gz ${filt}/refSeq-${dset}.${filt}.frameshifts.bed ${filt}/refSeq-${dset}.${filt}.report.tsv &
+done
+mlr --tsv join -j type,category -f ${filt}/refSeq-v0.7.${filt}.report.tsv  ${filt}/refSeq-v1.0.${filt}.report.tsv \
+  | mlr --tsv join -j type,category -f /dev/stdin ${filt}/refSeq-GRCh38.${filt}.report.tsv > ${filt}/refSeq-combined.${filt}.report.tsv
+
+
+* report explanation;
+** type
+- trans - all transcripts
+- gene - per-gene, based on canonical transcript (MANE select or longest RNA)
+** category
+- total - total number of RNA
+- aligned - total number with at least one alignment
+- cover98 - numbers with >= 98% coverage (bases aligned) for best alignment
+- cover95 - >=95%, < 98% coverage
+- cover75 - >=75%, < 95% coverage
+- cover50 - >=50%, < 95% coverage
+- coverLess - <50% coverage
+- multiAligned - number with multiple alignments after filtering
+- paralogAligned - number that overlap another gene
+- frameShifted - number with at least one frameshift
+- paralogFrameShifted - number that are both paralog and frameshifted
+
+** count and rates for V0.7, v1.0, and GRCh38
 
 * for Ann chrom images
 iso-seq https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/CAT/annotation.bb
@@ -45,3 +69,11 @@ transmap https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/CAT/filtered_transmap.
 proseq https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/proSeq/CHM13-5A_proseq_cutadapt-2_bt2-vs_filtered_STAR-MDiekhansParam-chm13-20200922_Aligned_sort.out.bam
        https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/proSeq/CHM13-5B_proseq_cutadapt-2_bt2-vs_filtered_STAR-MDiekhansParam-chm13-20200922_Aligned_sort.out.bam
 salmon  https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/chm13.CATv1.salmonQuant.bb
+
+* gene colored bed for graphic
+build/paper-analysis/2021-01/geneColorsBed/
+
+** tmp work to figure things out
+mlr --tsv cut -f gene_biotype,transcript_biotype,valid_start,valid_stop CAT/consensus_gene_set/CHM13.gp_info | sort -u >tmp/gp_info.types
+mlr --tsv filter '$gene_biotype=="StringTie"' CAT/consensus_gene_set/CHM13.gp_info > tmp/StingTie.gp_info
+selectById 2 tmp/StingTie.gp_info 1 CAT/consensus_gene_set/CHM13.gp >tmp/StingTie.gp

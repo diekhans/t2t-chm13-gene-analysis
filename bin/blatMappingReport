@@ -16,6 +16,7 @@ def parseArgs():
       overlapSelect -statsOutput -strand -excludeSelf rs-blat.psl rs-blat.psl rs-blat.psl.overstats
     """
     parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('--dset', default=None)
     parser.add_argument('metaDataTsv')
     parser.add_argument('pslStatsTsv')
     parser.add_argument('pslOverlapTsv')
@@ -117,6 +118,7 @@ class Genes:
 class Counts:
     def __init__(self):
         self.total = 0
+        self.codingTotal = 0
         self.aligned = 0
         self.cover98 = 0
         self.cover95 = 0
@@ -133,10 +135,12 @@ def fmtRate(cnt, tot):
     return "%0.3f" % r
 
 def prCounts(what, counts, outFh):
-    def prCount(fld):
+    def prCount(fld, total=None):
         v = getattr(counts, fld)
-        fileOps.prRowv(outFh, what, fld, v, fmtRate(v, counts.total))
+        t = total if total is not None else counts.total
+        fileOps.prRowv(outFh, what, fld, v, fmtRate(v, t))
     prCount("total")
+    prCount("codingTotal")
     prCount("aligned")
     prCount("cover98")
     prCount("cover95")
@@ -145,8 +149,8 @@ def prCounts(what, counts, outFh):
     prCount("coverLess")
     prCount("multiAligned")
     prCount("paralogAligned")
-    prCount("frameShifted")
-    prCount("paralogFrameShifted")
+    prCount("frameShifted", counts.codingTotal)
+    prCount("paralogFrameShifted", counts.codingTotal)
 
 def checkParalogAlign(genes, gene, transId):
     # check if there are overlaps in other genes
@@ -161,6 +165,8 @@ def checkParalogAlign(genes, gene, transId):
 def countTrans(genes, gene, transId, counts):
     transes = gene.transAlignsById[transId]
     counts.total += 1
+    if gene.geneType == "coding":
+        counts.codingTotal += 1
     if len(transes) > 0:
         counts.aligned += 1
     if len(transes) > 1:
@@ -199,17 +205,19 @@ def collectGeneStats(genes):
         countTrans(genes, gene, gene.getCanonicalTrans(), counts)
     return counts
 
-def writeReport(genes, outFh):
-    fileOps.prRowv(outFh, "type", "category", "count", "rate")
+def writeReport(genes, destPrefix, outFh):
+    fileOps.prRowv(outFh, "type", "category", destPrefix + "count", destPrefix + "rate")
     transCounts = collectTranscriptStats(genes)
     geneCounts = collectGeneStats(genes)
     prCounts("trans", transCounts, outFh)
-    prCounts("genes", transCounts, outFh)
+    prCounts("genes", geneCounts, outFh)
 
 def main(args):
     genes = Genes(args.metaDataTsv, args.pslStatsTsv, args.pslOverlapTsv, args.frameShiftBed)
 
+    dsetPrefix = "" if args.dset is None else (args.dset + "_")
+
     with fileOps.opengz(args.reportTsv, 'w') as outFh:
-        writeReport(genes, outFh)
+        writeReport(genes, dsetPrefix, outFh)
 
 main(parseArgs())

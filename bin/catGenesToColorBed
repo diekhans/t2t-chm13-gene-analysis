@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+
+import argparse
+import pipettor
+from pycbio.sys import fileOps
+from pycbio.sys.symEnum import SymEnum
+from pycbio.sys.svgcolors import SvgColors
+from pycbio.tsv import TsvReader
+from pycbio.hgdata.bed import BedReader
+
+def parseArgs():
+    usage = """create a BED for generate images for papers,
+    Pick representative transcript per gene
+    Pick colors base on biotype
+    Drop problematic biotypes
+    """
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('catGP')
+    parser.add_argument('catGPInfo')
+    parser.add_argument('outGeneBed')
+    args = parser.parse_args()
+    return args
+
+class Trans:
+    def __init__(self, gene, transId, transType):
+        self.gene = gene
+        self.transId = transId
+        self.transType = transType
+        self.annot = None
+
+class Gene:
+    def __init__(self, geneId, geneType):
+        self.geneId = geneId
+        self.geneType = geneType
+        self.transes = []
+
+class Genes(list):
+    def __init__(self):
+        self.genesById = {}
+        self.transesById = {}
+
+    def addMeta(self, meta):
+        gene = self.genesById.get(meta.gene_id)
+        if gene is None:
+            gene = self.genesById[meta.gene_id] = Gene(meta.gene_id, meta.gene_biotype)
+            self.append(gene)
+        trans = Trans(gene, meta.transcript_id, meta.transcript_biotype)
+        self.transesById[trans.transId] = trans
+        gene.transes.append(trans)
+
+    def addAnnot(self, annot):
+        self.transesById[annot.name].annot = annot
+
+
+def naAsNone(v):
+    return None if v in ('N/A', '') else v
+
+def loadMetadata(genes, catGPInfo):
+    # gene_id	transcript_id	source_transcript	source_transcript_name	source_gene
+    # score	transcript_modes	gene_biotype	transcript_biotype	alignment_id
+    # frameshift	exon_annotation_support	intron_annotation_support	transcript_class
+    # valid_start	valid_stop	adj_start	adj_stop	proper_orf	level
+    # transcript_support_level	tag	havana_gene	havana_transcript	exon_rna_support
+    # intron_rna_support paralogy	unfiltered_paralogy	gene_alternate_contigs
+    # source_gene_common_name	novel_5p_cap	novel_poly_a	protein_id	hgnc_id
+    # ccdsid	collapsed_gene_ids	collapsed_gene_names	alternative_source_transcripts
+    # ont	possible_split_gene_locations
+    for meta in TsvReader(catGPInfo, defaultColType=naAsNone):
+        genes.addMeta(meta)
+
+def loadAnnots(genes, catGP):
+    with pipettor.Popen(["genePredToBed", "-tab", catGP, "stdout"]) as fh:
+        for annot in BedReader(fh):
+            genes.addAnnot(annot)
+
+class GeneCat(SymEnum):
+    coding = 0
+    lncRNA = 1
+    pseudo = 2
+    smallRNA = 3
+    unsure = 4
+
+ignoreGeneTypes = frozenset([
+    "misc_RNA",
+    "TEC",
+    "vault_RNA"])
+
+ignoreTransTypes = frozenset([
+    "nonsense_mediated_decay",
+    "non_stop_decay",
+    "processed_transcript",
+    "TEC"])
+
+def isPseudo(btype):
+    return ((btype != "polymorphic_pseudogene") and
+            (btype.find("pseudogene") >= 0))
+
+def isCoding(btype):
+    return ((btype == "protein_coding") or
+            btype.startswith("IG_") or
+            btype.startswith("TR_") or
+            (btype == "polymorphic_pseudogene"))
+
+def isLncRna(btype):
+    return btype == "lncRNA"
+
+def isSmallRNA(btype):
+    return btype.endswith("RNA")
+
+def isUnsure(btype):
+    return btype == "StringTie"
+
+def isIgnored(btype):
+    return btype in ignoreGeneTypes
+
+def geneTypeToCat(gtype):
+    # hack: MUST check pseudogenes first, smallRNAs last
+    if isPseudo(gtype):
+        return GeneCat.pseudo
+    elif isCoding(gtype):
+        return GeneCat.coding
+    elif isLncRna(gtype):
+        return GeneCat.lncRNA
+    elif isUnsure(gtype):
+        return GeneCat.unsure
+    elif isSmallRNA(gtype):
+        return GeneCat.smallRNA
+    else:
+        raise Exception(f"don't know how to handle gene type '{gtype}'")
+
+def totalBlockSize(annot):
+    return sum([len(b) for b in annot.blocks])
+
+def pickCanonicalTransPass(gene, matchGeneBiotype):
+    maxTrans = None
+    maxSize = 0
+    for trans in gene.transes:
+        size = totalBlockSize(trans.annot)
+        if ((trans.transType not in ignoreTransTypes) and
+            ((matchGeneBiotype and (trans.transType == gene.geneType)) or
+             (not matchGeneBiotype)) and
+            (size > maxSize)):
+            maxTrans = trans
+            maxSize = size
+    return maxTrans
+
+def pickCanonicalTrans(gene):
+    if (gene.geneType in ignoreGeneTypes) or (len(gene.transes) == 0):
+        return None
+    canonTrans = pickCanonicalTransPass(gene, True)
+    if canonTrans is None:
+        canonTrans = pickCanonicalTransPass(gene, False)
+    return canonTrans
+
+def pickCanonicalTranses(genes):
+    canonTranses = []
+    for gene in genes:
+        canonTrans = pickCanonicalTrans(gene)
+        if canonTrans is not None:
+            canonTranses.append(canonTrans)
+    return canonTranses
+
+geneCatColors = {
+    GeneCat.coding: SvgColors.black,
+    GeneCat.lncRNA: SvgColors.black,
+    GeneCat.pseudo: SvgColors.black,
+    GeneCat.smallRNA: SvgColors.black,
+    GeneCat.unsure: SvgColors.black,
+}
+
+def assignTransColor(trans):
+    geneCat = geneTypeToCat(trans.gene.geneType)
+    trans.annot.itemRgb = geneCatColors[geneCat].toRgb8Str()
+
+def assignTransColors(canonTranses):
+    for trans in canonTranses:
+        assignTransColor(trans)
+
+def main(args):
+    genes = Genes()
+    loadMetadata(genes, args.catGPInfo)
+    loadAnnots(genes, args.catGP)
+    canonTranses = pickCanonicalTranses(genes)
+    assignTransColors(canonTranses)
+    canonTranses.sort(key=lambda t: (t.annot.chrom, t.annot.chromStart, t.annot.chromEnd))
+    with fileOps.opengz(args.outGeneBed, "w") as fh:
+        for trans in canonTranses:
+            trans.annot.write(fh)
+
+main(parseArgs())
