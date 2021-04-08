@@ -72,6 +72,10 @@ salmon  https://t2t.gi.ucsc.edu/chm13/hub/t2t-chm13-v1.0/chm13.CATv1.salmonQuant
 
 * gene colored bed for graphic
 build/paper-analysis/2021-01/geneColorsBed/
+catGenesToColorBed CAT/consensus_gene_set/CHM13.gp CAT/consensus_gene_set/CHM13.gp_info CHM13.category-colors.bed >category-colors-key.txt
+
+* cases:
+CHM13_T0000013 - 7 exons exref snoRANA
 
 ** tmp work to figure things out
 mlr --tsv cut -f gene_biotype,transcript_biotype,valid_start,valid_stop CAT/consensus_gene_set/CHM13.gp_info | sort -u >tmp/gp_info.types

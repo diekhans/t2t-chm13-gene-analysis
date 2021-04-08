@@ -1,0 +1,6 @@
+
+* frameshifts
+cd build/t2t-chm13-v1/frameshifts
+
+../../../bin/genePredFrameShifts /cluster/home/markd/compbio/nanopore/projs/t2t-chm13/build/t2t-chm13-v1.0/CAT_V3/consensus_gene_set/CHM13.combined.v3.gp.gz CAT_V3.frameshift-stats.tsv CAT_V3.frameshifts.gp CAT_V3.frameshifts.bed
+bedToHtmlDir -title "V3 frameshifts" -hub http://t2t.gi.ucsc.edu/chm13/hub/hub.txt -custom-track https://hgwdev.gi.ucsc.edu/~markd/t2t/for-marina/frameshifts-V3/CAT_V3.frameshifts.track   t2t-chm13-v1.0 CAT_V3.frameshifts.bed  ~/public_html/t2t/for-marina/frameshifts-V3/browser

@@ -105,7 +105,8 @@ def isLncRna(btype):
     return btype == "lncRNA"
 
 def isSmallRNA(btype):
-    return btype.endswith("RNA")
+    return (btype.endswith("RNA") or
+            btype == "ribozyme")
 
 def isUnsure(btype):
     return btype == "StringTie"
@@ -161,11 +162,11 @@ def pickCanonicalTranses(genes):
     return canonTranses
 
 geneCatColors = {
-    GeneCat.coding: SvgColors.black,
-    GeneCat.lncRNA: SvgColors.black,
-    GeneCat.pseudo: SvgColors.black,
-    GeneCat.smallRNA: SvgColors.black,
-    GeneCat.unsure: SvgColors.black,
+    GeneCat.coding: SvgColors.navy,
+    GeneCat.lncRNA: SvgColors.darkgreen,
+    GeneCat.pseudo: SvgColors.fuchsia,
+    GeneCat.smallRNA: SvgColors.goldenrod,
+    GeneCat.unsure: SvgColors.blueviolet,
 }
 
 def assignTransColor(trans):
@@ -175,6 +176,11 @@ def assignTransColor(trans):
 def assignTransColors(canonTranses):
     for trans in canonTranses:
         assignTransColor(trans)
+
+def printKey():
+    for cat in GeneCat:
+        cl = geneCatColors[cat]
+        print(cat, cl.toRgb8Str(), SvgColors.getClosestName(cl))
 
 def main(args):
     genes = Genes()
@@ -186,5 +192,6 @@ def main(args):
     with fileOps.opengz(args.outGeneBed, "w") as fh:
         for trans in canonTranses:
             trans.annot.write(fh)
+    printKey()
 
 main(parseArgs())

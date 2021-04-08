@@ -39,9 +39,10 @@ geneBoundsCatGencodeGeneTest: mkdirs
 
 genePredFrameShiftsTests: genePredFrameShiftsTest
 genePredFrameShiftsTest: mkdirs
-	../bin/genePredFrameShifts --catMetaTsv=input/fakeCat.gp_info input/fakeCat.gp output/$@.tsv output/$@.gp
+	../bin/genePredFrameShifts --catMetaTsv=input/fakeCat.gp_info input/fakeCat.gp output/$@.tsv output/$@.gp output/$@.bed 
 	diff expected/$@.tsv output/$@.tsv
 	diff expected/$@.gp output/$@.gp
+	diff expected/$@.bed output/$@.bed
 
 catSourceDb =  ../../../build/t2tChm13_20200727/CAT/databases/GRCh38.db 
 catBoundsAddBlatOverTest: mkdirs
@@ -125,8 +126,9 @@ output/rs-blat.overStats: mkdirs input/rs-blat.psl
 catColorBedTests: catColorBedTest
 
 catColorBedTest: mkdirs
-	../bin/catGenesToColorBed input/t2t-200.gp input/t2t-200.gp_info output/$@.bed
+	../bin/catGenesToColorBed input/t2t-200.gp input/t2t-200.gp_info output/$@.bed >output/$@.out
 	diff expected/$@.bed output/$@.bed
+	diff expected/$@.out output/$@.out
 
 clean:
 	rm -rf output
